@@ -1,0 +1,4 @@
+.stencil
+node_modules
+dist
+www
