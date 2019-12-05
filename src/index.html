@@ -14,12 +14,7 @@
   <script src="http://localhost:8080/socket.io/socket.io.js"></script>
 
 </head>
-<body>
-
-  <result-page></result-page>
-
-</body>
-
+<body></body>
 <script type="text/javascript" charset="utf-8">
   console.log("Je suis dans Index.html");
   var socket = io.connect('http://127.0.0.1:8080');
@@ -29,24 +24,22 @@
     console.log('connected');
     socket.emit('clientConnection', {data: 'I\'m connected!'});
   });
-  socket.emit('fileTable');
-
-  socket.on('loadFileTable', (results) => {
-    console.log("Fichier table chargé et reçu");
-    document.getElementsByTagName('result-page')[0].setAttribute('complete_data', results);
-  })
-
   socket.emit('needFile');
 
   socket.on('loadFile', (results) => {
     console.log("Fichier chargé et reçu");
-    // console.log(results)
-    document.getElementsByTagName('result-page')[0].setAttribute('all_data', results);
-    // document.getElementsByTagName('result-page')[0].setAttribute('org_names', "Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1&Aliivibrio wodanis GCF_000953695.1");
-    document.getElementsByTagName('result-page')[0].setAttribute('org_names', "Enterobacter sp. 638 GCF_000016325.1&Candidatus Blochmannia vafer str. BVAF GCF_000185985.2");
-    document.getElementsByTagName('result-page')[0].setAttribute('gene', '{"Enterobacter sp. 638 GCF_000016325.1": {"NC_009436.1": [{"start": "255180", "end": "255599"}, {"start": "842680", "end": "843099"}, {"start": "3343077", "end": "3343496"}, {"start": "4024310", "end": "4024729"}, {"start": "4269724", "end": "4270143"}, {"start": "4360796", "end": "4361215"}, {"start": "4466539", "end": "4466958"}]}, "Candidatus Blochmannia vafer str. BVAF GCF_000185985.2": {"NC_014909.2": [{"start": "626246", "end": "626664"}]}}');
-
-  })
-
+    results_json = JSON.parse(results)
+    let node = document.createElement("result-page")
+    node.setAttribute('all_data', JSON.stringify(results_json["all_data"]));
+    node.setAttribute('org_names', results_json["organisms"])
+    //node.setAttribute("diagonal_svg", results_json["diagonal_svg"])
+    node.setAttribute("size", JSON.stringify(results_json["size"]))
+    node.setAttribute("complete_data", JSON.stringify(results_json["complete_data"]))
+    node.setAttribute("gene", JSON.stringify(results_json["gene"]))
+    document.body.appendChild(node)
+    //document.getElementsByTagName('genomic-card')[0].setAttribute('size', '{"Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1":{"NC_015662.1":800}}')
+  });
+  
 </script>
+</body>
 </html>
