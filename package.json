@@ -1,6 +1,6 @@
 {
   "name": "@mmsb/result_page",
-  "version": "0.0.11",
+  "version": "1.0.0",
   "description": "Stencil Component Starter",
   "module": "dist/esm/index.js",
   "main": "dist/index.js",
@@ -17,9 +17,9 @@
     "test.watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@mmsb/genomic-card": "^2.0.4",
-    "@mmsb/linear-card": "0.0.13",
-    "@mmsb/table-crispr": "^1.0.7",
+    "@mmsb/linear-card": "^1.0.0",
+    "@mmsb/genomic-card": "^3.0.0",
+    "@mmsb/table-crispr": "^2.0.0",
     "bootstrap": "^4.3.1",
     "frappe-datatable": "^1.13.5",
     "fs": "0.0.1-security"
@@ -29,5 +29,17 @@
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MMSB-MOBI/result_page_crispr.git"
+  },
+  "author": "S.Lematre, C.Hilpert",
+  "bugs": {
+    "url": "https://github.com/MMSB-MOBI/result_page_crispr/issues"
+  },
+  "homepage": "https://github.com/MMSB-MOBI/result_page_crispr#readme"
 }
