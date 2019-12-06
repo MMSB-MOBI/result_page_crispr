@@ -36,6 +36,7 @@ graph TD;
   result-page --> linear-card
   result-page --> table-crispr
   result-page --> genomic-card
+  table-crispr --> radial-crispr
   genomic-card --> mmsb-select
   style result-page fill:#f9f,stroke:#333,stroke-width:4px
 ```

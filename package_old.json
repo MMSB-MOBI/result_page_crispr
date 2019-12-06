@@ -17,15 +17,15 @@
     "test.watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@mmsb/genomic-card": "^3.0.0",
-    "@mmsb/linear-card": "^1.0.1",
-    "@mmsb/table-crispr": "^2.0.1",
-    "bootstrap": "^4.4.1",
-    "frappe-datatable": "^1.15.0",
+    "@mmsb/linear-card": "0.0.13",
+    "@mmsb/genomic-card": "2.0.4",
+    "@mmsb/table-crispr": "1.0.7",
+    "bootstrap": "^4.3.1",
+    "frappe-datatable": "^1.13.5",
     "fs": "0.0.1-security"
   },
   "devDependencies": {
-    "@stencil/core": "^1.8.1",
+    "@stencil/core": "^1.1.4",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0"
   },
