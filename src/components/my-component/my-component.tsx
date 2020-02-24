@@ -15,16 +15,16 @@ export class MyComponent {
   @Prop() complete_data: string; 
   @Prop() all_data: string; 
   @Prop() org_names: string; 
-  @Prop() gene: string; 
-  @Prop() size: string; 
+  @Prop() gene: string;
+  @Prop() size: string;
 
-  @Prop() all_data_json: {}; 
-  @Prop() gene_json: {}; 
+  all_data_json: {}; 
+  gene_json: {}; 
 
-  @Prop() orgSelected: string; 
-  @Prop() refSelected: string; 
-  @Prop() currentSgrna: string;
-  @Prop() currentGenes: string; 
+  orgSelected: string; 
+  refSelected: string; 
+  currentSgrna: string;
+  currentGenes: string; 
 // *************************** LISTEN & EMIT ***************************
 
 @Listen('changeOrgCard')
@@ -32,22 +32,26 @@ handleChangeOrg(event: CustomEvent) {
   this.orgSelected = event.detail
   this.refSelected = Object.keys(this.all_data_json[this.orgSelected])[0]
   this.currentSgrna = JSON.stringify(this.all_data_json[this.orgSelected][this.refSelected])
-  this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
+  if (this.gene_json){
+    this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
+  }
 }
+  
 
 @Listen('changeRefCard')
   handleChangeRef(event: CustomEvent) {
     this.refSelected = event.detail;
     this.currentSgrna = JSON.stringify(this.all_data_json[this.orgSelected][this.refSelected])
-    this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
+    if (this.gene_json){
+      this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
+    }
+    
   }
 
 @Listen('sgDataSection')
 handlesgDataSection(event: CustomEvent) {
-  console.log("SECTION")
   this.currentSgrna = event.detail["allSgrna"]
   this.currentGenes = event.detail["gene"]
-  console.log(this.currentGenes)
 }
 
 // *************************** CLICK ***************************
@@ -68,16 +72,12 @@ componentWillLoad(){
 }
 
 componentDidRender(){
-  console.log("didRender")
-  console.log(this.gene)
   if (this.gene !== undefined){
     let node = this.element.shadowRoot.querySelector("linear-card");
     if(node){
       node.remove();
     }
     if (this.currentGenes != "[]"){
-      console.log("GENES")
-      console.log(this.currentGenes)
       node = document.createElement("linear-card");
       let resDiv = this.element.shadowRoot.querySelector("#Result");
       resDiv.appendChild(node);

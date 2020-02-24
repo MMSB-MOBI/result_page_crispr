@@ -12,15 +12,9 @@ import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
 export namespace Components {
   interface ResultPage {
     'all_data': string;
-    'all_data_json': {};
     'complete_data': string;
-    'currentGenes': string;
-    'currentSgrna': string;
     'gene': string;
-    'gene_json': {};
-    'orgSelected': string;
     'org_names': string;
-    'refSelected': string;
     'size': string;
   }
 }
@@ -41,15 +35,9 @@ declare global {
 declare namespace LocalJSX {
   interface ResultPage {
     'all_data'?: string;
-    'all_data_json'?: {};
     'complete_data'?: string;
-    'currentGenes'?: string;
-    'currentSgrna'?: string;
     'gene'?: string;
-    'gene_json'?: {};
-    'orgSelected'?: string;
     'org_names'?: string;
-    'refSelected'?: string;
     'size'?: string;
   }
 
