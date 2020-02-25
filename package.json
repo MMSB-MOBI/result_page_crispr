@@ -17,7 +17,7 @@
     "test.watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@mmsb/linear-card": "1.0.1",
+    "@mmsb/linear-card": "^1.1.1",
     "@mmsb/genomic-card": "^3.1.1",
     "@mmsb/table-crispr": "^2.0.3",
     "bootstrap": "^4.3.1",
