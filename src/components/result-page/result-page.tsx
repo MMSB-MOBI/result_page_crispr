@@ -1,4 +1,5 @@
-import { Component, Prop, h, Listen, State } from '@stencil/core';
+import { Component, Prop, h, Listen, State, Element} from '@stencil/core';
+import { csvParse } from 'd3';
 
 @Component({
   tag: 'result-page',
@@ -8,7 +9,7 @@ import { Component, Prop, h, Listen, State } from '@stencil/core';
 
 export class ResultPage {
 // *************************** PROPERTY & CONSTRUCTOR ***************************
-  //@Element() private element: HTMLElement;
+  @Element() private element: HTMLElement;
   @Prop() complete_data: string; 
   @Prop() all_data: string; 
   @Prop() org_names: string; 
@@ -18,11 +19,12 @@ export class ResultPage {
   @State()
   display_linear_card: boolean = true;
 
+  @State() orgSelected: string; 
+  @State() refSelected: string; 
+  
   all_data_json: {}; 
   gene_json: {}; 
-
-  orgSelected: string; 
-  refSelected: string; 
+  
   currentSgrna: string;
   currentGenes: string; 
 // *************************** LISTEN & EMIT ***************************
@@ -76,7 +78,7 @@ componentWillLoad(){
     // console.log(this.all_data);
     // @ts-ignore
     window.result_page = this;
-    
+    console.log("RENDER")
     return (
       <div class="root">
         <div class="table">
@@ -93,6 +95,7 @@ componentWillLoad(){
                 onClick={() => this.display_linear_card = true}
               > Display gene card </button>} 
             </div>
+            {this.gene && this.currentGenes !== "[]" && this.display_linear_card && console.log(this.currentGenes)}
             {this.gene && this.currentGenes !== "[]" && this.display_linear_card && <linear-card 
               width_bar="90%" 
               all_sgrna={this.currentSgrna}

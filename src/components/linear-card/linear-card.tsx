@@ -1,4 +1,4 @@
-import { Component, Prop, State, Element, h } from '@stencil/core';
+import { Component, Prop, State, Element, h, Watch } from '@stencil/core';
 import * as d3 from "d3";
 
 @Component({
@@ -202,10 +202,24 @@ export class LinearCard {
     this.width_div = current_parent.getBoundingClientRect().width.toString()
   }
 
+  componentDidLoad() {
+    setTimeout(() => {
+      this.onGeneChange();
+    }, 250);
+  }
+
   componentDidRender() {
     this.displayHist();
     this.colorPagination(this.allCoordGene.length);
   }
+
+  @Watch('gene')
+  @Watch('all_sgrna')
+  onGeneChange() {
+    this.element.shadowRoot.querySelector('svg').innerHTML = "";
+    this.componentWillLoad();
+  }
+
 
   render() {
     let widthBarNb = Number(this.width_bar.match("[0-9]*")[0]);
@@ -255,7 +269,7 @@ export class LinearCard {
       </div>,
 
       <div id="divHist">
-        {this.displayHist()}
+        
       </div>,
 
       <div>

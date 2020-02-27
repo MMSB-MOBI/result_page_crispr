@@ -39,6 +39,7 @@ export class GenomicCard {
     }
 
     @Event() changeOrgCard: EventEmitter;
+
     emitOrgChange(event: Event) {
         let val = (event.currentTarget as HTMLElement).innerText;
         this.changeOrgCard.emit(val);
@@ -80,7 +81,16 @@ export class GenomicCard {
 
     @Listen('mmsb-select.select')
     handleChangeSgrna(event: CustomEvent) {
-        this.sgrnaSelected = event.detail;
+        const ot = (event as any).originalTarget as HTMLMmsbSelectElement;
+
+        if (ot.dataset.organisms) {
+            this.changeOrgCard.emit(event.detail);
+        }
+        else {
+            this.sgrnaSelected = event.detail;
+        }
+
+        
     }
 
     @Listen('sectionSelected', { target: 'window' })
@@ -200,35 +210,9 @@ export class GenomicCard {
             </head>,
 
             <div class="main-genome-card">
-                <div
-                    class="nav nav-tabs flex-nav"
-                    id="myTab"
-                    role="tablist"
-                    onWheel={function (this: HTMLDivElement, ev) {
-                        const delta = ev.deltaY > 0 ? Math.max(100, ev.deltaY * 2) : Math.min(-100, ev.deltaY * 2);
-                        const new_x = Math.min(this.scrollLeft + delta, this.scrollWidth);
-                        this.scrollTo(new_x, 0);
-                    }}
-                >
-                    {tabOrgName.map(name => {
-                        let classTag: string = "nav-link", bool: string = "false";
-                        if (name == this.orgSelected) {
-                            classTag = "nav-link active";
-                            bool = "true";
-                        }
-                        return <div class="nav-item flex-nav-item">
-                            <a
-                                class={classTag}
-                                data-toggle="tab"
-                                role="tab"
-                                aria-selected={bool}
-                                href="#"
-                                onClick={this.emitOrgChange}
-                            >
-                                {name}
-                            </a>
-                        </div>
-                    })}
+                <div class="select-menu">
+                    <span> Organisms </span>
+                    <mmsb-select data-organisms="true" data={tabOrgName.map(name => [name, name])} selected={[this.orgSelected]} />
                 </div>
 
                 <div class="tab-content genomeGraph" id="myTabContent" >
