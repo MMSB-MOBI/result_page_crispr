@@ -1,0 +1,96 @@
+.main-table {
+    font-family: "Helvetica Neue", Helvetica, Arial;
+    display: flex;
+    flex-direction: column;
+}
+
+.search-container {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    gap: 5%;
+}
+
+#regexString {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    margin-bottom: 30px;
+}
+
+#minOcc {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 20px;
+    border: 1px solid #ddd;
+    margin-bottom: 30px;
+}
+
+/* For bubble message */
+.tooltipRegex .tooltiptextRegex {
+    visibility: hidden;
+    width: 120px;
+    background-color: #6da7c3b3;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+
+    /* Position the tooltip */
+    position: absolute;
+    z-index: 1;
+}
+
+.tooltipRegex:hover .tooltiptextRegex {
+    visibility: visible;
+}
+
+.tooltipRegex .tooltiptextRegex::after {
+    content: " ";
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    /* To the left of the tooltip */
+    margin-top: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent rgba(103, 203, 222, 0.9) transparent transparent;
+}
+
+.previous {
+    background-color: #f1f1f1;
+    color: black;
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
+}
+
+.next {
+    background-color: rgba(239, 71, 111);
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    padding: 8px 16px;
+}
+
+.round {
+    border-radius: 50%;
+}
+
+/*  The loader Spinner */
+.spinner-grow {
+    width: 40 !important;
+    height: 40 !important;
+}
+
+input {
+    border-radius: 5px;
+}
+
+#resultTab {
+    border-collapse: collapse;
+}
+
+#resultTab tr {
+    border-bottom: 1px solid #9e9e9e3d;
+}
