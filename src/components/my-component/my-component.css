@@ -9,7 +9,26 @@
   width: 50%
 }
 
-#Result {
+.gene_results {
   width: 50%;
-  margin-left: 50%;
+  float: right; 
 }
+
+#button_display_card{
+  width:25%;
+  float:left;
+}
+
+#linear_card_div{
+  width:75%;
+  float:right;
+}
+
+#display_gene_card{
+  color:white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  background-color: rgba(239, 71, 111);
+  border:2px solid rgba(239, 71, 111);
+}
+
