@@ -1,0 +1,27 @@
+.table {
+  position: relative;
+}
+
+.root {
+  display: grid;
+  padding: 1rem 2rem;
+  box-sizing: border-box;
+  grid-template-columns: min-content auto;
+  gap: 7rem;
+}
+
+#display_gene_card{
+  color:white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  background-color: rgba(239, 71, 111);
+  border:2px solid rgba(239, 71, 111);
+}
+
+#button_display_card{
+  text-align: center;
+}
+
+.gene_results {
+  margin-top: 3rem;
+}

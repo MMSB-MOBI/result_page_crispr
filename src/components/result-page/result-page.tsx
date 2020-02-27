@@ -1,14 +1,12 @@
-import { Component, Prop, h, Listen, State} from '@stencil/core';
-import "@mmsb/table-crispr";
-import "@mmsb/genomic-card"
+import { Component, Prop, h, Listen, State } from '@stencil/core';
 
 @Component({
   tag: 'result-page',
-  styleUrl: 'my-component.css',
+  styleUrl: 'result-page.css',
   shadow: true
 })
 
-export class MyComponent {
+export class ResultPage {
 // *************************** PROPERTY & CONSTRUCTOR ***************************
   //@Element() private element: HTMLElement;
   @Prop() complete_data: string; 
@@ -79,30 +77,32 @@ componentWillLoad(){
     // @ts-ignore
     window.result_page = this;
     
-    return ([
-    <div class="table">
-      <table-crispr complete_data={this.complete_data} />
-    </div>,
-    <div class="card">
-    <genomic-card all_data={this.all_data} org_names={this.org_names} diagonal_svg={700} gene={this.gene} size={this.size}></genomic-card>
-    </div>,
-    <div class="gene_results">
-      <div id="button_display_card"> 
-        {this.gene && !this.display_linear_card && <button 
-          id="display_gene_card" 
-          onClick={() => this.display_linear_card = true}
-        > Display gene card </button>} 
+    return (
+      <div class="root">
+        <div class="table">
+          <table-crispr complete_data={this.complete_data} />
+        </div>
+        <div>
+          <div class="card">
+            <genomic-card all_data={this.all_data} org_names={this.org_names} diagonal_svg={700} gene={this.gene} size={this.size}></genomic-card>
+          </div>
+          <div class="gene_results">
+            <div id="button_display_card"> 
+              {this.gene && !this.display_linear_card && <button 
+                id="display_gene_card" 
+                onClick={() => this.display_linear_card = true}
+              > Display gene card </button>} 
+            </div>
+            {this.gene && this.currentGenes !== "[]" && this.display_linear_card && <linear-card 
+              width_bar="90%" 
+              all_sgrna={this.currentSgrna}
+              gene={this.currentGenes}
+              onClose={() => this.display_linear_card = false}
+            />}
+          </div>
+        </div>
       </div>
-      {this.gene && this.currentGenes !== "[]" && this.display_linear_card && <linear-card 
-        width_bar="90%" 
-        all_sgrna={this.currentSgrna}
-        gene={this.currentGenes}
-        onClose={() => this.display_linear_card = false}
-      />}
-    </div>,
-      
-    ]);
-
+    );
   }
 }
 
