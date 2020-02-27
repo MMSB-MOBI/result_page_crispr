@@ -32,3 +32,9 @@
   border:2px solid rgba(239, 71, 111);
 }
 
+.gene_results {
+  width: 50%;
+  float: right;
+  clear: right;
+  margin-top: 3rem;
+}

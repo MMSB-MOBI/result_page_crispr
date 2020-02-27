@@ -1,4 +1,4 @@
-import { Component, Prop, h, Listen, Element, Event, State, EventEmitter } from '@stencil/core';
+import { Component, Prop, h, Listen, State} from '@stencil/core';
 import "@mmsb/table-crispr";
 import "@mmsb/genomic-card"
 
@@ -10,7 +10,7 @@ import "@mmsb/genomic-card"
 
 export class MyComponent {
 // *************************** PROPERTY & CONSTRUCTOR ***************************
-  @Element() private element: HTMLElement;
+  //@Element() private element: HTMLElement;
   @Prop() complete_data: string; 
   @Prop() all_data: string; 
   @Prop() org_names: string; 
