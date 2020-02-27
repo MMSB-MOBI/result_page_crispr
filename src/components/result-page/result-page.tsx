@@ -1,4 +1,4 @@
-import { Component, Prop, h, Listen, State, Element} from '@stencil/core';
+import { Component, Prop, h, Listen, State } from '@stencil/core';
 
 @Component({
   tag: 'result-page',
