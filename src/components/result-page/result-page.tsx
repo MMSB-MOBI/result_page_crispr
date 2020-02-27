@@ -1,5 +1,4 @@
 import { Component, Prop, h, Listen, State, Element} from '@stencil/core';
-import { csvParse } from 'd3';
 
 @Component({
   tag: 'result-page',
@@ -9,7 +8,7 @@ import { csvParse } from 'd3';
 
 export class ResultPage {
 // *************************** PROPERTY & CONSTRUCTOR ***************************
-  @Element() private element: HTMLElement;
+  //@Element() private element: HTMLElement;
   @Prop() complete_data: string; 
   @Prop() all_data: string; 
   @Prop() org_names: string; 
