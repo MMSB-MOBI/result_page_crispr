@@ -22,9 +22,9 @@ displaySgrna = [];
 // Dictionary of min and max occurences for each sgRNA
 // Display occurences with this.displaySgrna as key
 allOcc = new Map();
-page = 1;
+@State() page = 1;
 // Current data displayed, filtered by regex and minOccurences
-currentData = [];
+@State() currentData = [];
 
 @State() state: string="initialize"; 
 error_msg: string=''; 

@@ -1,5 +1,6 @@
 .table {
   position: relative;
+  min-width: 509px;
 }
 
 .root {
