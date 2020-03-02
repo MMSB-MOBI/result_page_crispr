@@ -29,6 +29,9 @@ export namespace Components {
     'width_bar': string;
     'width_div': string;
   }
+  interface OccurencesGraph {
+    'occurences_data': { name: string, coords_count: number }[];
+  }
   interface ResultPage {
     'all_data': string;
     'complete_data': string;
@@ -56,6 +59,12 @@ declare global {
     new (): HTMLLinearCardElement;
   };
 
+  interface HTMLOccurencesGraphElement extends Components.OccurencesGraph, HTMLStencilElement {}
+  var HTMLOccurencesGraphElement: {
+    prototype: HTMLOccurencesGraphElement;
+    new (): HTMLOccurencesGraphElement;
+  };
+
   interface HTMLResultPageElement extends Components.ResultPage, HTMLStencilElement {}
   var HTMLResultPageElement: {
     prototype: HTMLResultPageElement;
@@ -70,6 +79,7 @@ declare global {
   interface HTMLElementTagNameMap {
     'genomic-card': HTMLGenomicCardElement;
     'linear-card': HTMLLinearCardElement;
+    'occurences-graph': HTMLOccurencesGraphElement;
     'result-page': HTMLResultPageElement;
     'table-crispr': HTMLTableCrisprElement;
   }
@@ -98,6 +108,9 @@ declare namespace LocalJSX {
     'width_bar'?: string;
     'width_div'?: string;
   }
+  interface OccurencesGraph {
+    'occurences_data'?: { name: string, coords_count: number }[];
+  }
   interface ResultPage {
     'all_data'?: string;
     'complete_data'?: string;
@@ -112,6 +125,7 @@ declare namespace LocalJSX {
   interface IntrinsicElements {
     'genomic-card': GenomicCard;
     'linear-card': LinearCard;
+    'occurences-graph': OccurencesGraph;
     'result-page': ResultPage;
     'table-crispr': TableCrispr;
   }
@@ -125,6 +139,7 @@ declare module "@stencil/core" {
     interface IntrinsicElements {
       'genomic-card': LocalJSX.GenomicCard & JSXBase.HTMLAttributes<HTMLGenomicCardElement>;
       'linear-card': LocalJSX.LinearCard & JSXBase.HTMLAttributes<HTMLLinearCardElement>;
+      'occurences-graph': LocalJSX.OccurencesGraph & JSXBase.HTMLAttributes<HTMLOccurencesGraphElement>;
       'result-page': LocalJSX.ResultPage & JSXBase.HTMLAttributes<HTMLResultPageElement>;
       'table-crispr': LocalJSX.TableCrispr & JSXBase.HTMLAttributes<HTMLTableCrisprElement>;
     }

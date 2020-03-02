@@ -1,4 +1,5 @@
 import { Component, Prop, h, Listen, State } from '@stencil/core';
+import { SequenceSGRNAHit } from './interfaces';
 
 @Component({
   tag: 'result-page',
@@ -23,6 +24,7 @@ export class ResultPage {
   
   all_data_json: {}; 
   gene_json: {}; 
+  sequence_data_json : SequenceSGRNAHit[];
   
   currentSgrna: string;
   currentGenes: string; 
@@ -62,14 +64,13 @@ handlesgDataSection(event: CustomEvent) {
 componentWillLoad(){
   this.orgSelected = this.org_names.split("&")[0]
   this.all_data_json = JSON.parse(this.all_data)
+  this.sequence_data_json = JSON.parse(this.complete_data)
   this.refSelected = Object.keys(this.all_data_json[this.orgSelected])[0]
   this.currentSgrna = JSON.stringify(this.all_data_json[this.orgSelected][this.refSelected])
   if (this.gene){
     this.gene_json = JSON.parse(this.gene)
     this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
   }
-  
-  
 }
 
   render() {
@@ -77,7 +78,7 @@ componentWillLoad(){
     // console.log(this.all_data);
     // @ts-ignore
     window.result_page = this;
-    console.log("RENDER")
+  
     return (
       <div class="root">
         <div class="table">

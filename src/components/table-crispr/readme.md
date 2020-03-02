@@ -20,12 +20,12 @@
 
 ### Depends on
 
-- radial-crispr
+- [occurences-graph](../occurences-graph)
 
 ### Graph
 ```mermaid
 graph TD;
-  table-crispr --> radial-crispr
+  table-crispr --> occurences-graph
   result-page --> table-crispr
   style table-crispr fill:#f9f,stroke:#333,stroke-width:4px
 ```

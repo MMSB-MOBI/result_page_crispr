@@ -1,5 +1,6 @@
 import { Component, Prop, State, Element, h } from '@stencil/core';
 import "@mmsb/radial-crispr";
+import { SequenceSGRNAHit } from '../result-page/interfaces';
 
 @Component({
   tag: 'table-crispr',
@@ -14,17 +15,17 @@ export class TableCrispr {
 @Prop() complete_data: string;
 
 // Complete data parsed
-complete_json: [];
+complete_json: SequenceSGRNAHit[];
 // List of all sgRNA
 allSgrna = [];
 // sgRNA displayed on interface
 displaySgrna = [];
 // Dictionary of min and max occurences for each sgRNA
 // Display occurences with this.displaySgrna as key
-allOcc = new Map();
+//allOcc = new Map();
 @State() page = 1;
 // Current data displayed, filtered by regex and minOccurences
-@State() currentData = [];
+@State() currentSgrnas: string[] = [];
 
 @State() state: string="initialize"; 
 error_msg: string=''; 
@@ -32,52 +33,27 @@ error_msg: string='';
 // *************************** LISTEN & EMIT ***************************
 
 constructor() {
-  this.regexSearch = this.regexSearch.bind(this);
-  this.calculTotalOcc = this.calculTotalOcc.bind(this);
-  this.minOccSearch = this.minOccSearch.bind(this);
-  this.regexOccSearch = this.regexOccSearch.bind(this);
+  this.sgRNAFilter = this.sgRNAFilter.bind(this); 
 }
 
-// *************************** CLICK ***************************
-/**
-  * Filter data by regex and occurence
-*/
-regexOccSearch():void {
-  this.regexSearch();
-  this.minOccSearch();
+/* Filter sgRNA on search*/
+sgRNAFilter():void{
+  //Filter on min occurences
+  const minOcc = (this.element.shadowRoot.querySelector("#minOcc") as HTMLInputElement).value;
+  let filtered_sgrna = this.minOccurences().filter(d => d.min_occurences >= minOcc).map((sgrna_obj) => sgrna_obj.seq);
+
+  //Filter on regex
+  const search = (this.element.shadowRoot.querySelector("#regexString")  as HTMLInputElement).value;
+  this.currentSgrnas = filtered_sgrna.filter(a => RegExp(search).test(a)); 
+  this.page = 1; 
 }
 
-
-/**
-  * Filter data by regex and reinitialize page to 1
-*/
-regexSearch():void {
-  let search = (this.element.shadowRoot.querySelector("#regexString")  as HTMLInputElement).value;
-  this.page = 1;
-  this.currentData = this.allSgrna.filter(a => RegExp(search).test(a));
-}
-
-
-/**
-  * Filter data by occurences.Check if maxOcc is superior to occurence given by user
-  and check if sgRNA is in current data which were filtered by regex
-*/
-minOccSearch():void {
-  let minOcc = (this.element.shadowRoot.querySelector("#minOcc")  as HTMLInputElement).value;
-  let tmp = [];
-  for (var [key, value] of this.allOcc) {
-    // Check if maxOcc is > to occurences given by user and check if sgRNA is in current data
-    // which were filtered by regex
-    if (value[1] >= minOcc && this.currentData.includes(key)) tmp.push(key);
-  }
-  this.currentData = tmp;
-}
 
 // *************************** DISPLAY ***************************
-/**
+/*
   * Find min and max occurences for each sgRNA summing occurences for each organism
 */
-calculTotalOcc():void {
+/*calculTotalOcc():void {
   this.complete_json.forEach(sgrna => {
     let maxOcc = 0, minOcc = 10000;
     (sgrna['occurences'] as Array<string>).forEach(org => {
@@ -92,9 +68,9 @@ calculTotalOcc():void {
     })
     this.allOcc.set(sgrna['sequence'], [minOcc, maxOcc]);
   })
-}
+}*/
 
-/**
+/*
   * Find min and max occurences for each sgRNA summing occurences for each organism
   * @param {Number} maxPages Number of maximum pages
 */
@@ -137,33 +113,53 @@ getDicSeq(seq: string):string {
       this.complete_json = JSON.parse(this.complete_data)
       if (this.allSgrna.length == 0) {
         this.complete_json.forEach(el => this.allSgrna.push(el['sequence']));
-        this.calculTotalOcc();
-        this.currentData = this.allSgrna;
+        //this.calculTotalOcc();
+        this.currentSgrnas = this.allSgrna;
       }
     }
   }
 
   componentDidRender() {
-    let maxPages = (Number.isInteger(this.currentData.length/5)) ? (this.currentData.length/5) :  (Math.trunc(this.currentData.length/5) + 1);
+    let maxPages = (Number.isInteger(this.currentSgrnas.length/5)) ? (this.currentSgrnas.length/5) :  (Math.trunc(this.currentSgrnas.length/5) + 1);
     this.colorPagination(maxPages)
   }
 
   componentWillRender() {
-    this.displaySgrna = this.currentData.slice((5 * (this.page - 1)), 5*this.page);
+    this.displaySgrna = this.currentSgrnas.slice((5 * (this.page - 1)), 5*this.page);
 
     
   }
 
-  render() {
+  sequencesOccurences(seq: string) {
+    //console.log(this.sequence_data_json)
+    const hit = this.complete_json.find(s => s.sequence === seq);
+  
+    
+    return hit.occurences.map(o => {
+      const coords_count =  o.all_ref.reduce((acc, val) => acc + val.coords.length, 0);
+  
+      return { name: o.org, coords_count };
+    })
+  }
 
+  minOccurences() {
+    return this.complete_json.map(sgrna => {
+      let nb_occurences = []
+      sgrna.occurences.map(occ => {
+        nb_occurences.push(occ.all_ref.reduce((acc, val) => acc + val.coords.length, 0))
+      })
+      return { seq : sgrna.sequence, min_occurences : nb_occurences.sort((a,b) =>  a - b )[0]};
+    })
+  }
+
+  render() {
     if (this.state=="stop"){
       return this.error_msg
     }
 
     // Parse data and initialize allSgrna and calcul occurences
 
-    let maxPages = (Number.isInteger(this.currentData.length/5)) ? (this.currentData.length/5) :  (Math.trunc(this.currentData.length/5) + 1);
-
+    let maxPages = (Number.isInteger(this.currentSgrnas.length/5)) ? (this.currentSgrnas.length/5) :  (Math.trunc(this.currentSgrnas.length/5) + 1);
 
     return ([
       // ***********************************************
@@ -180,19 +176,24 @@ getDicSeq(seq: string):string {
         {/******************** Search Bar ********************/}
         <div class="search-container">
           <span class="tooltipRegex">
-            <input type="text" id="regexString" onKeyUp={this.regexOccSearch} placeholder="Search for sgRNA.."/>
+            <input type="text" id="regexString" onKeyUp={this.sgRNAFilter} placeholder="Search for sgRNA.."/>
             <span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>
           </span>
-          <input type="text" id="minOcc" onKeyUp={this.regexOccSearch} placeholder="Min occ..."/>
+          <input type="text" id="minOcc" onKeyUp={this.sgRNAFilter} placeholder="Min occ..."/>
         </div>
         {/******************** Table ********************/}
         <table id="resultTab">
-          {this.displaySgrna.map(seq => <tr>
-            <td> <b>{seq.slice(0, -3)}<span style={{color:"rgba(239, 71, 111)"}}>{seq.slice(-3,)} </span></b>
-              <br/> Max : {this.allOcc.get(seq)[1]}
-              <br/> Min : {this.allOcc.get(seq)[0]}</td>
-            <td> <radial-crispr dic_sgrna={this.getDicSeq(seq)} max_occ={this.allOcc.get(seq)[1]} diagonal={200}> </radial-crispr> </td>
-            </tr>)}
+          {this.displaySgrna.map(seq => {
+            const currentOccurences = this.sequencesOccurences(seq).sort((a,b) => b.coords_count - a.coords_count)
+            return (
+              <tr>
+                <td> <b>{seq.slice(0, -3)}<span style={{color:"rgba(239, 71, 111)"}}>{seq.slice(-3,)} </span></b>
+                  <br/> Max : {currentOccurences[0].coords_count}
+                  <br/> Min : {currentOccurences[currentOccurences.length - 1].coords_count}</td>
+                <td> <occurences-graph occurences_data={currentOccurences}> </occurences-graph></td>
+              </tr>
+            );
+          })}
         </table>
 
         {/******************** Pagination ********************/}
