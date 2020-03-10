@@ -19,30 +19,24 @@ export class GenomicCard {
     @Prop() gene: string;
     @Prop() sizeSelected: number;
 
+    @Prop() onOrganismChange: (organism: string, sgrna: string) => void;
+
     all_data_json: {};
     size_json: {};
-    orgSelected: string;
     refSelected: string;
     genomeRef: string[];
     @Prop() subSgrna: string[];
     allSgrna: string[] = [];
-    @Prop() sgrnaSelected: string;
     show_data: {};
     @Prop() selectedSection = -1;
-
+    
+    @Prop() sgrnaSelected: string;
+    @Prop() orgSelected: string;
     @State() state: string = "initialize";
     error_msg: string = '';
 
     constructor() {
-        this.emitOrgChange = this.emitOrgChange.bind(this);
         this.emitRefChange = this.emitRefChange.bind(this);
-    }
-
-    @Event() changeOrgCard: EventEmitter;
-
-    emitOrgChange(event: Event) {
-        let val = (event.currentTarget as HTMLElement).innerText;
-        this.changeOrgCard.emit(val);
     }
 
     @Event() changeRefCard: EventEmitter;
@@ -68,10 +62,8 @@ export class GenomicCard {
         this.sgDataSection.emit(msg);
     }
 
-    @Listen('changeOrgCard')
-    handleChangeOrg(event: CustomEvent) {
-        this.orgSelected = event.detail;
-        this.updateDataOrg();
+    handleChangeOrg(organism: string) {
+        this.updateDataOrg(undefined, organism);
     }
 
     @Listen('changeRefCard')
@@ -79,25 +71,12 @@ export class GenomicCard {
         this.updateDataOrg(event.detail);
     }
 
-    @Listen('mmsb-select.select')
-    handleChangeSgrna(event: CustomEvent) {
-        const ot = (event as any).originalTarget as HTMLMmsbSelectElement;
-
-        if (ot.dataset.organisms) {
-            this.changeOrgCard.emit(event.detail);
-        }
-        else {
-            this.sgrnaSelected = event.detail;
-        }
-
-        
-    }
-
     @Listen('sectionSelected', { target: 'window' })
     handleSectionSelected(event: CustomEvent) {
         this.subSgrna = event.detail["sgRNA"];
         this.selectedSection = event.detail["section"];
-        this.sgrnaSelected = this.subSgrna[0];
+
+        this.onOrganismChange(this.orgSelected, this.subSgrna[0]);
     }
 
     @Listen('sectionSelectedSG', { target: 'window' })
@@ -109,19 +88,19 @@ export class GenomicCard {
     componentWillLoad() {
         let stop = 0
         this.error_msg = 'ERROR : '
-        if (this.org_names == undefined) {
+        if (this.org_names === undefined) {
             stop = 1
             this.error_msg += "org_names undefined ";
         }
-        if (this.all_data == undefined) {
+        if (this.all_data === undefined) {
             stop = 1
             this.error_msg += "all_data undefined "
         }
-        if (this.size == undefined) {
+        if (this.size === undefined) {
             stop = 1
             this.error_msg += "size undefined "
         }
-        if (this.diagonal_svg == undefined) {
+        if (this.diagonal_svg === undefined) {
             this.diagonal_svg = 700;
         }
 
@@ -129,21 +108,24 @@ export class GenomicCard {
             this.state = "stop";
         }
         else {
-            this.orgSelected = this.org_names.split("&")[0]
             this.all_data_json = JSON.parse(this.all_data)
             this.size_json = JSON.parse(this.size)
-            this.updateDataOrg()
+            this.updateDataOrg(undefined, this.org_names.split("&")[0]);
         }
 
     }
 
     componentDidRender() {
+        console.log("didRender")
+        console.log(this.show_data)
+        console.log(this.show_data[this.sgrnaSelected])
+        console.log(this.selectedSection)
         dspl.generateGenomicCard(DisplayGenome, this.diagonal_svg, this.sizeSelected, this.element.shadowRoot, this.show_data[this.sgrnaSelected], this.sgrnaSelected);
         dspl.generateSunburst(this.sizeSelected, this.show_data, this.diagonal_svg, this.element.shadowRoot.querySelector('#displayGenomicCard'), this.selectedSection, this.gene != undefined ? true : false);
         this.element.shadowRoot.querySelector('.genomeCircle').addEventListener("click", () => {
             this.subSgrna = undefined;
             this.selectedSection = -1;
-            this.sgrnaSelected = this.allSgrna[0];
+            this.onOrganismChange(this.orgSelected, this.allSgrna[0]);
             if (this.gene) {
                 this.emitsgData(this.all_data_json[this.orgSelected][this.refSelected], 0, this.sizeSelected)
             }
@@ -162,19 +144,23 @@ export class GenomicCard {
         }
     }
 
-    updateDataOrg(ref = undefined) {
-        this.genomeRef = Object.keys(this.all_data_json[this.orgSelected]);
+    updateDataOrg(ref = undefined, organism: string = undefined) {
+        const org = organism || this.orgSelected;
+        console.log("updateDataOrg")
+        console.log(this.orgSelected)
+        console.log(org)
+        this.genomeRef = Object.keys(this.all_data_json[org]);
         this.refSelected = (ref === undefined) ? this.genomeRef[0] : ref;
-        this.sizeSelected = this.size_json[this.orgSelected][this.refSelected]
-        this.show_data = this.all_data_json[this.orgSelected][this.refSelected]
+        this.sizeSelected = this.size_json[org][this.refSelected]
+        this.show_data = this.all_data_json[org][this.refSelected]
         this.allSgrna = Object.keys(this.show_data).sort((a, b) => (this.show_data[a].length < this.show_data[b].length) ? 1 : -1)
-        this.sgrnaSelected = this.allSgrna[0];
         this.selectedSection = -1;
 
+        this.onOrganismChange(org, this.sgrnaSelected || this.allSgrna[0]);
     }
 
     showCoordHeader(): string {
-        if (this.sgrnaSelected == undefined) {
+        if (this.sgrnaSelected === undefined) {
             return ""
         }
         else {
@@ -184,7 +170,7 @@ export class GenomicCard {
     }
 
     showCoordText(): string {
-        if (this.sgrnaSelected == undefined) {
+        if (this.sgrnaSelected === undefined) {
             return ""
         }
         else {
@@ -198,10 +184,12 @@ export class GenomicCard {
     }
 
     render() {
-        if (this.state == "stop") {
+        console.log(this.sgrnaSelected)
+        if (this.state === "stop") {
             return this.error_msg
         }
         let tabOrgName = this.org_names.split("&");
+
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -211,8 +199,12 @@ export class GenomicCard {
 
             <div class="main-genome-card">
                 <div class="select-menu">
-                    <span> Organisms </span>
-                    <mmsb-select data-organisms="true" data={tabOrgName.map(name => [name, name])} selected={[this.orgSelected]} />
+                    <span class="selection-header"> Organisms </span>
+                    <mmsb-select 
+                        data={tabOrgName.map(name => [name, name])} 
+                        selected={[this.orgSelected]} 
+                        onSelect={e => this.handleChangeOrg(e)}
+                    />
                 </div>
 
                 <div class="tab-content genomeGraph" id="myTabContent" >
@@ -229,7 +221,15 @@ export class GenomicCard {
                                 <span>sgRNA</span>
                                 {(this.subSgrna === undefined) ?
                                     "" : <div id="notif"><i class="material-icons">  notifications_active </i><div id="notif-text">Only sgRNA on the selected <br />sector are shown</div></div>}
-                                <mmsb-select label="Select sgRNA" data={this.subSgrna === undefined ? this.allSgrna.map(sgRna => [sgRna, sgRna]) : this.subSgrna.map(sgRna => [sgRna, sgRna])} selected={[this.sgrnaSelected]}> </mmsb-select>
+                                <mmsb-select 
+                                    label="Select sgRNA" 
+                                    data={this.subSgrna === undefined ? this.allSgrna.map(sgRna => [sgRna, sgRna]) : this.subSgrna.map(sgRna => [sgRna, sgRna])} 
+                                    selected={[this.sgrnaSelected]}
+                                    onSelect={(e) => {
+                                        this.onOrganismChange(this.orgSelected, e);
+                                    }}
+                                    
+                                /> 
                             </div>
                         </div>
 

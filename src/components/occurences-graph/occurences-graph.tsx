@@ -21,7 +21,6 @@ export class OccurencesGraph {
             densityPlot(el, this.occurences_data)
         }
         
-        
     }
 
     /*  */

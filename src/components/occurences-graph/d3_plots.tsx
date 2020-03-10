@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 export function lollipopPlot(element: HTMLElement, occurences_data: { name: string, coords_count: number }[]) {
-    const max_occurences = occurences_data[0].coords_count
+    const max_occurences = [...occurences_data].sort((a,b) => b.coords_count - a.coords_count)[0].coords_count
 
     const margin = { top: 10, right: 10, bottom: 40, left: 150 },
         width = 350 - margin.left - margin.right,
@@ -84,7 +84,7 @@ function wrapText(text, width) {
 }
 
 export function densityPlot(element: HTMLElement, occurences_data: { name: string, coords_count: number }[]) {
-    const max_occurences = occurences_data[0].coords_count
+    const max_occurences = [...occurences_data].sort((a,b) => b.coords_count - a.coords_count)[0].coords_count
     const organisms = new Set(occurences_data.map((d) => d.name))
     // set the dimensions and margins of the graph
     var margin = { top: 10, right: 10, bottom: 40, left: 40},
@@ -102,7 +102,7 @@ export function densityPlot(element: HTMLElement, occurences_data: { name: strin
 
     // X axis: scale and draw:
     var x = d3.scaleLinear()
-        .domain([0, max_occurences + 1])     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
+        .domain([0, max_occurences + 1]).nice()     // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
         .range([0, width]);
     svg.append("g")
         .attr("transform", "translate(0," + height + ")")
@@ -119,7 +119,7 @@ export function densityPlot(element: HTMLElement, occurences_data: { name: strin
 
     // Y axis: scale and draw:
     var y = d3.scaleLinear()
-        .range([height, 0]);
+        .range([height, 0]).nice();
     y.domain([0, d3.max(bins, function (d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
     svg.append("g")
         .call(d3.axisLeft(y).ticks(organisms.size >= 15 ? 15 : organisms.size));
@@ -136,7 +136,6 @@ export function densityPlot(element: HTMLElement, occurences_data: { name: strin
         .on('mouseover', (d) => {
             const values_of_bar = new Set(d);
             const names = occurences_data.filter(m => values_of_bar.has(m.coords_count)).map(e => e.name);
-            console.log(names)
         })
 
 }

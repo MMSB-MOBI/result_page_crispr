@@ -9,6 +9,7 @@
   box-sizing: border-box;
   grid-template-columns: min-content auto;
   gap: 7rem;
+  row-gap : 1rem; 
 }
 
 #display_gene_card{
@@ -25,4 +26,16 @@
 
 .gene_results {
   margin-top: 3rem;
+}
+
+.select_multiple_organisms{
+  grid-column: 1 / span 2;
+}
+
+.noUi-origin-lower {
+  transform:translate(500%) !important; 
+}
+
+.noUi-origin-upper {
+  transform:translate(10000%) !important; 
 }

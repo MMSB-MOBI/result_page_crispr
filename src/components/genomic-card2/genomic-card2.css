@@ -1,0 +1,214 @@
+.genomic-card-root {
+  font-family: "Helvetica Neue", Helvetica, Arial;
+}
+
+/*  Selector to choose reference and sgRNA */
+.select-menu {
+  margin-top: 15px;
+  margin-bottom: 15px;
+  margin-left: 5px;
+  margin-right: 15px;
+}
+
+.select-menu span {
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.custom-select {
+  background-color: #f9f9f9 !important;
+  border: 1px #e4e4e4 solid !important;
+}
+
+/*  Tooltip for coordinates*/
+.tooltip-coord {
+  position: absolute;
+  text-align: left;
+  width: 220px;
+  height: 65px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+#notif {
+  display: initial;
+  width: 1.2em;
+  margin-left: 8px;
+}
+
+#notif .material-icons {
+  font-size: 1.2em;
+  cursor: help;
+}
+
+#notif:hover #notif-text {
+  display: block;
+  position: absolute;
+  background: #6da7c3b3;
+  border-radius: 8px;
+  padding: 8px;
+  z-index: 1;
+}
+
+#notif-text {
+  display: none
+}
+
+/*  The loader Spinner */
+.spinner-grow {
+  width: 40 !important;
+  height: 40 !important;
+}
+
+
+.axisCircles {
+  fill: none;
+  stroke: #E8E8E8;
+  stroke-width: 1px;
+}
+
+.sunburst>path:hover,
+.genomeCircle>path:hover {
+  cursor: pointer;
+}
+
+.coordBoxContainer {
+  flex-grow: 2;
+}
+
+.coord-box {
+  margin-bottom: 17px;
+  height: 110px;
+  overflow: auto;
+  white-space: pre-line;
+  line-height: 1.3em;
+  border-style: solid;
+  border-width: thin;
+  border-radius: 8px;
+  border-color: #e4e4e4;
+}
+
+#coordBoxHeader {
+  color: rgba(239, 71, 111);
+  font-weight: bold;
+  padding: 11px;
+  background-color: white;
+  width: 100%;
+  border-bottom: 1px solid #9e9e9e99;
+  margin-bottom: .7rem;
+}
+
+#displayGenomicCard {
+  width: 100%;
+  min-height: 250px;
+  max-height: 70vh;
+}
+
+.selection {
+  flex-grow: 1;
+  display:grid;
+  grid-template-columns: 40% 1fr;
+  column-gap: 25px;
+}
+
+.tooltip-coord>.material-icons {
+  font-size: 12px;
+}
+
+.help:hover .help-text {
+  display: block;
+  position: absolute;
+  background: #6da7c3b3;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.help {
+  width: 24px;
+}
+
+.help-text {
+  display: none;
+}
+
+.nav-tabs .nav-link.active {
+  color: rgba(239, 71, 111) !important;
+}
+
+.nav-link {
+  color: rgba(79, 93, 117) !important;
+}
+
+.nav.flex-nav {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-flow: row;
+  flex-grow: 1;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.flex-nav-item {
+  min-width: max-content;
+  margin-bottom: 0 !important;
+}
+
+.nav-link:hover {
+  background: rgba(187, 136, 137, 0.3) !important;
+  color: rgba(239, 71, 111) !important;
+}
+
+.nav-tabs .nav-link.active:hover {
+  background: none !important;
+}
+
+.svg {
+  position: relative;
+}
+
+.list-selection{
+  margin-bottom:1rem; 
+}
+
+.selection-header{
+  display:inline-block;
+  margin-bottom: 0.5rem; 
+  font-weight: bold;
+
+}
+
+.coord-box > ul{
+  padding-left:1rem; 
+  padding-top:0.5rem; 
+}
+
+.coord-box > ul > li{
+  list-style-type: none;
+}
+
+.highlight-sgrna-button{
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  border: 1px #e4e4e4 solid; 
+  width: 100%;
+  text-align: center;
+  padding: 10px; 
+  transition: background-color .3s;
+}
+
+.highlight-sgrna-button:hover{
+  background-color: #e6e6e6; 
+}
+
+.highlight-sgrna-button > span {
+  display: inline-block; 
+  margin: 5px 0;
+  font-weight: bold;
+}
+

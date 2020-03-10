@@ -7,19 +7,37 @@
 
 
 import { HTMLStencilElement, JSXBase } from '@stencil/core/internal';
-
+import {
+  CurrentSelection,
+  SequenceSGRNAHit,
+  SGRNAForOneEntry,
+} from './components/result-page/interfaces';
 
 export namespace Components {
   interface GenomicCard {
     'all_data': string;
     'diagonal_svg': number;
     'gene': string;
+    'onOrganismChange': (organism: string, sgrna: string) => void;
+    'orgSelected': string;
     'org_names': string;
     'selectedSection': number;
     'sgrnaSelected': string;
     'size': string;
     'sizeSelected': number;
     'subSgrna': string[];
+  }
+  interface GenomicCard2 {
+    'changeOrganism': (org: string) => void;
+    'changeRef': (ref: string) => void;
+    'changeSgrna': (sgrna: string) => void;
+    'changeSgrnaSubset': (sgrna_subset: string[]) => void;
+    'current_references': string[];
+    'current_sgrnas': SGRNAForOneEntry[];
+    'diagonal_svg': number;
+    'onClickHighlight': () => void;
+    'organisms': string[];
+    'selected': CurrentSelection;
   }
   interface LinearCard {
     'all_sgrna': string;
@@ -40,8 +58,12 @@ export namespace Components {
     'size': string;
   }
   interface TableCrispr {
-    'complete_data': string;
+    'complete_data': SequenceSGRNAHit[];
+    'onOrganismClick'?: (organism: string, sgrna: string) => void;
+    'selected': CurrentSelection;
+    'shouldHighlight': boolean;
   }
+  interface TestSlider {}
 }
 
 declare global {
@@ -51,6 +73,12 @@ declare global {
   var HTMLGenomicCardElement: {
     prototype: HTMLGenomicCardElement;
     new (): HTMLGenomicCardElement;
+  };
+
+  interface HTMLGenomicCard2Element extends Components.GenomicCard2, HTMLStencilElement {}
+  var HTMLGenomicCard2Element: {
+    prototype: HTMLGenomicCard2Element;
+    new (): HTMLGenomicCard2Element;
   };
 
   interface HTMLLinearCardElement extends Components.LinearCard, HTMLStencilElement {}
@@ -76,12 +104,20 @@ declare global {
     prototype: HTMLTableCrisprElement;
     new (): HTMLTableCrisprElement;
   };
+
+  interface HTMLTestSliderElement extends Components.TestSlider, HTMLStencilElement {}
+  var HTMLTestSliderElement: {
+    prototype: HTMLTestSliderElement;
+    new (): HTMLTestSliderElement;
+  };
   interface HTMLElementTagNameMap {
     'genomic-card': HTMLGenomicCardElement;
+    'genomic-card2': HTMLGenomicCard2Element;
     'linear-card': HTMLLinearCardElement;
     'occurences-graph': HTMLOccurencesGraphElement;
     'result-page': HTMLResultPageElement;
     'table-crispr': HTMLTableCrisprElement;
+    'test-slider': HTMLTestSliderElement;
   }
 }
 
@@ -90,15 +126,29 @@ declare namespace LocalJSX {
     'all_data'?: string;
     'diagonal_svg'?: number;
     'gene'?: string;
-    'onChangeOrgCard'?: (event: CustomEvent<any>) => void;
     'onChangeRefCard'?: (event: CustomEvent<any>) => void;
+    'onOrganismChange'?: (organism: string, sgrna: string) => void;
     'onSgDataSection'?: (event: CustomEvent<any>) => void;
+    'orgSelected'?: string;
     'org_names'?: string;
     'selectedSection'?: number;
     'sgrnaSelected'?: string;
     'size'?: string;
     'sizeSelected'?: number;
     'subSgrna'?: string[];
+  }
+  interface GenomicCard2 {
+    'changeOrganism'?: (org: string) => void;
+    'changeRef'?: (ref: string) => void;
+    'changeSgrna'?: (sgrna: string) => void;
+    'changeSgrnaSubset'?: (sgrna_subset: string[]) => void;
+    'current_references'?: string[];
+    'current_sgrnas'?: SGRNAForOneEntry[];
+    'diagonal_svg'?: number;
+    'onClickHighlight'?: () => void;
+    'onGenomic-card.button-click'?: (event: CustomEvent<any>) => void;
+    'organisms'?: string[];
+    'selected'?: CurrentSelection;
   }
   interface LinearCard {
     'all_sgrna'?: string;
@@ -119,15 +169,21 @@ declare namespace LocalJSX {
     'size'?: string;
   }
   interface TableCrispr {
-    'complete_data'?: string;
+    'complete_data'?: SequenceSGRNAHit[];
+    'onOrganismClick'?: (organism: string, sgrna: string) => void;
+    'selected'?: CurrentSelection;
+    'shouldHighlight'?: boolean;
   }
+  interface TestSlider {}
 
   interface IntrinsicElements {
     'genomic-card': GenomicCard;
+    'genomic-card2': GenomicCard2;
     'linear-card': LinearCard;
     'occurences-graph': OccurencesGraph;
     'result-page': ResultPage;
     'table-crispr': TableCrispr;
+    'test-slider': TestSlider;
   }
 }
 
@@ -138,10 +194,12 @@ declare module "@stencil/core" {
   export namespace JSX {
     interface IntrinsicElements {
       'genomic-card': LocalJSX.GenomicCard & JSXBase.HTMLAttributes<HTMLGenomicCardElement>;
+      'genomic-card2': LocalJSX.GenomicCard2 & JSXBase.HTMLAttributes<HTMLGenomicCard2Element>;
       'linear-card': LocalJSX.LinearCard & JSXBase.HTMLAttributes<HTMLLinearCardElement>;
       'occurences-graph': LocalJSX.OccurencesGraph & JSXBase.HTMLAttributes<HTMLOccurencesGraphElement>;
       'result-page': LocalJSX.ResultPage & JSXBase.HTMLAttributes<HTMLResultPageElement>;
       'table-crispr': LocalJSX.TableCrispr & JSXBase.HTMLAttributes<HTMLTableCrisprElement>;
+      'test-slider': LocalJSX.TestSlider & JSXBase.HTMLAttributes<HTMLTestSliderElement>;
     }
   }
 }
