@@ -266,8 +266,8 @@ export class ResultPage {
             ></genomic-card2>
           </div>
         </div>
-        <div></div>
-        <div class="test"></div>
+        {/*<div></div>
+        <div class="test"></div>*/}
       </div>
     ]);
   }

@@ -29,7 +29,7 @@ export class TableCrispr {
   @State() state: string = "initialize";
   error_msg: string = '';
 
-  @State() sort_type: SortingType = "Min occurences"
+  @State() sort_type: SortingType = "Alphabetical"
   @State() sort_order: SortingOrder = "descending"
 
   @Prop() selected: CurrentSelection;
@@ -39,6 +39,7 @@ export class TableCrispr {
   total_pages:number;
   entries_by_pages:number = 10; 
   current_pagination_display:number[]
+  max_pagination:number = 7;  
 
   // *************************** LISTEN & EMIT ***************************
 
@@ -110,7 +111,7 @@ export class TableCrispr {
 
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     
-    this.current_pagination_display = this.total_pages < 10 ? this.getCurrentPagination(1, this.total_pages) : this.getCurrentPagination(1,10); 
+    this.current_pagination_display = this.total_pages < this.max_pagination ? this.getCurrentPagination(1, this.total_pages) : this.getCurrentPagination(1,this.max_pagination); 
 
   }
 
@@ -154,7 +155,6 @@ export class TableCrispr {
     })
   }
 
-
   sortData() {
     if (this.sort_type === "Min occurences" && this.sort_order === "descending") {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.min_occurences - a.min_occurences)
@@ -185,7 +185,7 @@ export class TableCrispr {
   handleChangeSortMethod = (e: MouseEvent) => {
     const clicked_e = e.currentTarget as HTMLTableHeaderCellElement;
     const icon_element = clicked_e.querySelector('i');
-
+    this.page = 1; 
     const selected_mode = clicked_e.dataset.type as SortingType;
     if (selected_mode === this.sort_type) {
       this.sort_order = this.sort_order === "ascending" ? "descending" : "ascending";
@@ -196,6 +196,24 @@ export class TableCrispr {
       this.sort_type = selected_mode;
     }
   };
+
+  actualizePaginationDisplay(){
+    let start:number; 
+    let end:number; 
+    if (this.page - 3 <= 0){
+      start = 1;
+      end = this.max_pagination;
+    }
+    else if (this.page + 3 >= this.total_pages){
+      start = this.total_pages - this.max_pagination; 
+      end = this.total_pages; 
+    }
+    else{
+      start = this.page - 3;
+      end = this.page + 3; 
+    }
+    this.current_pagination_display = this.getCurrentPagination(start, end); 
+  }
 
   /*createSlider(){
     const slider = this.element.shadowRoot.querySelector('.slider') as HTMLElement
@@ -307,32 +325,46 @@ export class TableCrispr {
 
       {/******************** Pagination ********************/}
       
-    
-      {this.current_pagination_display.map(e => {
-        
-      })}
-      <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li class="page-item"><a class="page-link" href="#">1</a></li>
-        <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li>
-        <li class="page-item"><a class="page-link" href="#">4</a></li>
-        <li class="page-item">
-          <a class="page-link" href="#" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
       <div class="pagination">
-        <a href="#" class="previous round" onClick={() => { if (this.page > 1) this.page -= 1 }}>&#8249;</a>
-        <a href="#" class="next round" onClick={() => { if (this.page < this.total_pages) this.page += 1 }}>&#8250;</a>
+        <div
+          class={"page-item" + (this.page === 1 ? " disabled" : "")}
+          onClick={() => {
+            this.page = 1
+            this.actualizePaginationDisplay()
+          }}>
+          <span class="page-link">First</span></div>
+        <div 
+          class={"page-item" + (this.page === 1 ? " disabled" : "")}
+          onClick={() => {
+            this.page = this.page === 1 ? this.page : this.page - 1
+            this.actualizePaginationDisplay()
+          }}>
+          <span class="page-link">Previous</span></div>
+        {this.current_pagination_display.map(e => 
+          <div
+            class={"page-item page-number" + (this.page === e ? " active": "")}
+            onClick={() => {
+              this.page = e
+              this.actualizePaginationDisplay()
+            }}
+          >
+            <span class="page-link">{e}</span></div> )}
+        <div 
+          class={"page-item" + (this.page === this.total_pages ? " disabled" : "")}
+          onClick={() => {
+            this.page = this.page === this.total_pages ? this.page : this.page + 1;
+            this.actualizePaginationDisplay();
+          }}>
+          <span class="page-link">Next</span></div>
+        <div
+          class={"page-item" + (this.page === this.total_pages ? " disabled" : "")}
+          onClick={() => {
+            this.page = this.total_pages; 
+            this.actualizePaginationDisplay();
+          }}>
+          <span class="page-link">Last</span></div>
+
+
       </div>
     </div>
     ]);
