@@ -139,6 +139,7 @@ export class TableCrispr {
   componentDidLoad() {
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
+    this.addSvgText(); 
   }
 
   componentWillUpdate() {
@@ -249,7 +250,7 @@ export class TableCrispr {
       .step(1)
       .width(250)
       //.tickFormat(d3.format('.2%'))
-      //.ticks(5)
+      .ticks(5)
       .default([min, max])
       .fill('#2196f3')
       .on('onchange', val => {
@@ -260,6 +261,7 @@ export class TableCrispr {
           this.maxocc_filter = [val[0], val[1]]
         }
         this.sgRNAFilter();
+        this.addSvgText(); 
         //d3.select(elmtValue).text(val[0]);
       });
 
@@ -270,6 +272,35 @@ export class TableCrispr {
       .append('g')
       .attr('transform', 'translate(10,10)')
       .call(sliderRange);
+  }
+
+  addSvgText(){
+    let i = 0
+    this.element.shadowRoot.querySelectorAll('.slider-min .parameter-value')
+      .forEach(svg_elmt => {
+        d3.select(svg_elmt).select('text').remove()
+        d3.select(svg_elmt)
+          .append('text')
+          .text(this.minocc_filter[i])
+          .attr('font-size', 10)
+          .attr('dy', '.71em')
+          .attr('y', '27')
+        i += 1; 
+      })
+      
+      let j = 0
+      this.element.shadowRoot.querySelectorAll('.slider-max .parameter-value')
+      .forEach(svg_elmt => {
+        d3.select(svg_elmt).select('text').remove()
+        d3.select(svg_elmt)
+          .append('text')
+          .text(this.maxocc_filter[j])
+          .attr('font-size', 10)
+          .attr('dy', '.71em')
+          .attr('y', '27')
+        j += 1; 
+      })
+      
   }
 
   render() {
