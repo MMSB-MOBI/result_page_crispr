@@ -33,6 +33,8 @@ export class GenomicCard {
     //@Prop() changeRefs: (ref_list: string[]) => void
     //@Prop() changeSgrnas: (sgrnas: any) => void
 
+    @State() highlight_selection:boolean = false; 
+
     @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
 
     selected_section_on_card:number = -1; 
@@ -42,6 +44,11 @@ export class GenomicCard {
     handleSectionSelected(event: CustomEvent) {
         this.changeSgrnaSubset(event.detail.sgRNA);
         this.selected_section_on_card = event.detail.section; 
+    }
+
+    @Listen('table-crispr.org-click', { target: 'window'})
+    handleTableOrganismClick(){
+        this.highlight_selection = true; 
     }
 
     componentWillLoad(){
@@ -121,6 +128,7 @@ export class GenomicCard {
         console.log(this.selected)
         console.log(this.current_references)
         console.log(this.current_sgrnas)*/
+        console.log(this.highlight_selection)
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -140,7 +148,7 @@ export class GenomicCard {
                         </div>
                         <div class="list-selection ref-selection">
                             <span class="selection-header">References</span>
-                            <select class="custom-select" onChange={e => this.changeRef((e.target as HTMLSelectElement).value)}>
+                            <select class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} onChange={e => this.changeRef((e.target as HTMLSelectElement).value)}>
                                 {this.current_references.map(ref => <option>{ref}</option>)}
                             </select>
                         </div>
@@ -183,6 +191,7 @@ export class GenomicCard {
                         <text transform={`translate(${this.diagonal_svg / 2 - 30} , ${this.diagonal_svg / 2})`}> {this.selected.size} pb </text>
                     </svg>
                 </div>
+                <div class={"pouet" + (this.highlight_selection ? " highlight-select":"")}>YOYOYOYOYO</div>
             </div>
 
             

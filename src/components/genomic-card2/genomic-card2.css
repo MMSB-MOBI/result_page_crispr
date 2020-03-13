@@ -212,3 +212,16 @@
   font-weight: bold;
 }
 
+@keyframes bluefade {
+  from{
+    background-color:rgba(83, 157, 220, 0.33) !important;
+  }
+  to{
+    background-color: transparent;
+  }
+}
+
+
+.highlight-select{
+  animation: bluefade 1s; 
+}

@@ -107,7 +107,7 @@ export class ResultPage {
   }
 
   componentDidRender(){
-    this.createSlider(); 
+    //this.createSlider(); 
   }
 
   formatOrganismData():OrganismHit[]{
@@ -149,7 +149,7 @@ export class ResultPage {
     return this.size_data[org][ref]
   }
 
-  createSlider(){
+  /*createSlider(){
     const slider = this.element.shadowRoot.querySelector('.test') as HTMLElement
     noUiSlider.create(slider, {
       start: [50, 100],
@@ -159,7 +159,7 @@ export class ResultPage {
           'max': 100
       }
     });
-  }
+  }*/
 
   render() {
     //console.log("PARENT RENDER")
