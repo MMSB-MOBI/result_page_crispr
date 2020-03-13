@@ -171,6 +171,7 @@ declare namespace LocalJSX {
   interface TableCrispr {
     'complete_data'?: SequenceSGRNAHit[];
     'onOrganismClick'?: (organism: string, sgrna: string) => void;
+    'onTable-crispr.org-click'?: (event: CustomEvent<any>) => void;
     'selected'?: CurrentSelection;
     'shouldHighlight'?: boolean;
   }

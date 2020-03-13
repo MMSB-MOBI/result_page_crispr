@@ -10,27 +10,20 @@
 
 .search-container {
     display: grid;
-    grid-template-columns: 60% 40%;
-    grid-column-gap: 5%;
     grid-row-gap: 10%;
     padding-bottom: 1em;
-    grid-template-areas: "searchSgrna minOcc" "sort sort";
 }
+
+.slider-containers{
+    display:flex;
+}
+
 
 #regexString {
     width: 100%;
     font-size: 16px;
     padding: 12px 20px;
     border: 1px solid #ddd;
-    grid-area:searchSgrna; 
-}
-
-#minOcc {
-    width: 100%;
-    font-size: 16px;
-    padding: 12px 20px;
-    border: 1px solid #ddd;
-    grid-area: minOcc;
 }
 
 /* For bubble message */
@@ -172,19 +165,29 @@ ul {
 }
 
  /* Pagination links */
- .pagination a {
+ .pagination div {
     color: black;
     float: left;
-    padding: 8px 16px;
+    padding: 8px 10px;
     text-decoration: none;
     transition: background-color .3s;
+    text-align:center; 
+    cursor:pointer;
   }
   
   /* Style the active/current link */
-  .pagination a.active {
+  .pagination div.active {
     background-color: dodgerblue;
     color: white;
   }
   
   /* Add a grey background color on mouse-over */
-  .pagination a:hover:not(.active) {background-color: #ddd;} 
+  .pagination div:hover:not(.active) {background-color: #ddd;} 
+
+  .pagination div.disabled{
+      color:grey;
+  }
+
+  .pagination div {
+      width:50px;
+  }
