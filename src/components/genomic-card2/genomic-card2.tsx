@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Event, EventEmitter, Listen, Element } from '@stencil/core';
+import { Component, Prop, h, State, Event, EventEmitter, Listen, Element, Watch } from '@stencil/core';
 import "@mmsb/mmsb-select";
 import { CurrentSelection, SGRNAForOneEntry } from '../result-page/interfaces';
 import * as dspl from './displayPlot';
@@ -34,6 +34,11 @@ export class GenomicCard {
     //@Prop() changeSgrnas: (sgrnas: any) => void
 
     @State() highlight_selection:boolean = false; 
+    @Watch('highlight_selection')
+    watchHighlight(){
+        console.log("Watch")
+        setTimeout(() => this.highlight_selection = false, 500);
+    }
 
     @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
 

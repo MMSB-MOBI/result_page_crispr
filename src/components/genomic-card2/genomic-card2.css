@@ -221,7 +221,9 @@
   }
 }
 
-
 .highlight-select{
-  animation: bluefade 1s; 
+  background:rgba(103, 203, 222, 0.9) !important;
+  /*animation: bluefade 1s;*/
 }
+
+
