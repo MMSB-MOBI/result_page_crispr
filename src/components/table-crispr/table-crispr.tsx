@@ -39,13 +39,13 @@ export class TableCrispr {
   @Prop() onOrganismClick?: (organism: string, sgrna: string) => void;
 
   total_pages: number;
-  entries_by_pages: number = 10;
+  @State() entries_by_pages: number = 10;
   current_pagination_display: number[]
   max_pagination: number = 7;
 
   @State() highlighted_sgrna: string;
-  @State() minocc_filter:number[];
-  @State() maxocc_filter:number[]; 
+  @State() minocc_filter: number[];
+  @State() maxocc_filter: number[];
 
   // *************************** LISTEN & EMIT ***************************
 
@@ -129,7 +129,7 @@ export class TableCrispr {
     const minocc_min = this.currentSgrnas.reduce((val, e) => val < e.min_occurences ? val : e.min_occurences, 0)
     const maxocc_max = this.currentSgrnas.reduce((val, e) => val > e.max_occurences ? val : e.max_occurences, 0)
     const maxocc_min = this.currentSgrnas.reduce((val, e) => val < e.max_occurences ? val : e.max_occurences, 0)
-    this.minocc_filter = [minocc_min, minocc_max]; 
+    this.minocc_filter = [minocc_min, minocc_max];
     this.maxocc_filter = [maxocc_min, maxocc_max]
   }
 
@@ -139,7 +139,7 @@ export class TableCrispr {
   componentDidLoad() {
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
-    this.addSvgText(); 
+    this.addSvgText();
   }
 
   componentWillUpdate() {
@@ -242,7 +242,7 @@ export class TableCrispr {
     });
   }*/
 
-  displaySlider(elmt: HTMLElement, min: number, max: number, cat:string) {
+  displaySlider(elmt: HTMLElement, min: number, max: number, cat: string) {
     const sliderRange = d3_slider
       .sliderHorizontal()
       .min(min)
@@ -254,14 +254,14 @@ export class TableCrispr {
       .default([min, max])
       .fill('#2196f3')
       .on('onchange', val => {
-        if (cat === "minocc"){
+        if (cat === "minocc") {
           this.minocc_filter = [val[0], val[1]]
         }
         else if (cat === "maxocc") {
           this.maxocc_filter = [val[0], val[1]]
         }
         this.sgRNAFilter();
-        this.addSvgText(); 
+        this.addSvgText();
         //d3.select(elmtValue).text(val[0]);
       });
 
@@ -274,7 +274,7 @@ export class TableCrispr {
       .call(sliderRange);
   }
 
-  addSvgText(){
+  addSvgText() {
     let i = 0
     this.element.shadowRoot.querySelectorAll('.slider-min .parameter-value')
       .forEach(svg_elmt => {
@@ -285,11 +285,11 @@ export class TableCrispr {
           .attr('font-size', 10)
           .attr('dy', '.71em')
           .attr('y', '27')
-        i += 1; 
+        i += 1;
       })
-      
-      let j = 0
-      this.element.shadowRoot.querySelectorAll('.slider-max .parameter-value')
+
+    let j = 0
+    this.element.shadowRoot.querySelectorAll('.slider-max .parameter-value')
       .forEach(svg_elmt => {
         d3.select(svg_elmt).select('text').remove()
         d3.select(svg_elmt)
@@ -298,9 +298,9 @@ export class TableCrispr {
           .attr('font-size', 10)
           .attr('dy', '.71em')
           .attr('y', '27')
-        j += 1; 
+        j += 1;
       })
-      
+
   }
 
   render() {
@@ -310,7 +310,7 @@ export class TableCrispr {
 
     console.log("RENDER")
 
-    this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
+    this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
 
@@ -341,8 +341,12 @@ export class TableCrispr {
           {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>*/}
         </div>
         <div class="slider-containers">
-          <div class="slider-min"></div>
-          <div class="slider-max"></div>
+          <div class="slider-min">
+            <span class="selection-header">Minimum occurences</span>
+          </div>
+          <div class="slider-max">
+            <span class="selection-header">Maximum occurences</span>
+          </div>
         </div>
 
       </div>
@@ -414,79 +418,54 @@ export class TableCrispr {
       {/******************** Pagination ********************/}
 
       <div class="pagination">
-        <div
-          class={"page-field" + (this.page === 1 ? " disabled" : "")}
-          onClick={() => this.page = 1}
-        >
-          First
-          </div>
-        <div
-          class={"page-field" + (this.page === 1 ? " disabled" : "")}
-          onClick={() => this.page = this.page === 1 ? this.page : this.page - 1}
-        >
-          &laquo;
-          </div>
-        {this.current_pagination_display.map(e =>
+        <div class="pagination-select-entries">
+          <span>Items by page : </span>
+          <select onChange={(e) => {
+            this.entries_by_pages = (e.target as HTMLSelectElement).value as unknown as number;
+            this.page = 1; 
+              }}>
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <div class="page-numbering">
           <div
-            class={"page-field page-number" + (this.page === e ? " active" : "")}
-            onClick={() => this.page = e}>
-            {e}
-          </div>)}
-        <div
-          class={"page-field" + (this.page === this.total_pages ? " disabled" : "")}
-          onClick={() => this.page = this.page === this.total_pages ? this.page : this.page + 1}>
-          &raquo;
-            </div>
-        <div
-          class={"page-field" + (this.page === this.total_pages ? " disabled" : "")}
-          onClick={() => this.page = this.total_pages}>
-          Last
-          </div>
-      </div>
-
-
-
-      {/*<div class="pagination2">
-        <div
-          class={"page-item" + (this.page === 1 ? " disabled" : "")}
-          onClick={() => {
-            this.page = 1
-            this.actualizePaginationDisplay()
-          }}>
-          <span class="page-link">First</span></div>
-        <div 
-          class={"page-item" + (this.page === 1 ? " disabled" : "")}
-          onClick={() => {
-            this.page = this.page === 1 ? this.page : this.page - 1
-            this.actualizePaginationDisplay()
-          }}>
-          <span class="page-link">Previous</span></div>
-        {this.current_pagination_display.map(e => 
-          <div
-            class={"page-item page-number" + (this.page === e ? " active": "")}
-            onClick={() => {
-              this.page = e
-              this.actualizePaginationDisplay()
-            }}
+            class={"page-field" + (this.page === 1 ? " disabled" : "")}
+            onClick={() => this.page = 1}
           >
-            <span class="page-link">{e}</span></div> )}
-        <div 
-          class={"page-item" + (this.page === this.total_pages ? " disabled" : "")}
-          onClick={() => {
-            this.page = this.page === this.total_pages ? this.page : this.page + 1;
-            this.actualizePaginationDisplay();
-          }}>
-          <span class="page-link">Next</span></div>
-        <div
-          class={"page-item" + (this.page === this.total_pages ? " disabled" : "")}
-          onClick={() => {
-            this.page = this.total_pages; 
-            this.actualizePaginationDisplay();
-          }}>
-          <span class="page-link">Last</span></div>
+            First
+          </div>
+          <div
+            class={"page-field" + (this.page === 1 ? " disabled" : "")}
+            onClick={() => this.page = this.page === 1 ? this.page : this.page - 1}
+          >
+            &laquo;
+          </div>
+          {this.current_pagination_display.map(e =>
+            <div
+              class={"page-field page-number" + (this.page === e ? " active" : "")}
+              onClick={() => this.page = e}>
+              <span>{e}</span>
+            </div>)}
+          <div
+            class={"page-field" + (this.page === this.total_pages ? " disabled" : "")}
+            onClick={() => this.page = this.page === this.total_pages ? this.page : this.page + 1}>
+            &raquo;
+            </div>
+          <div
+            class={"page-field" + (this.page === this.total_pages ? " disabled" : "")}
+            onClick={() => this.page = this.total_pages}>
+            Last
+        </div>
+        </div>
+        {/*<div class="pagination-select-page">
+          <span>Go to page : </span>
+          <input type="text" style={{width:'30px'}} onKeyUp={(e) => console.log(e)}></input>
+          </div>*/}
 
-
-        </div>*/}
+      </div>
     </div>
     ]);
   }

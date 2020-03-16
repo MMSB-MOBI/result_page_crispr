@@ -63,7 +63,6 @@ export namespace Components {
     'selected': CurrentSelection;
     'shouldHighlight': boolean;
   }
-  interface TestSlider {}
 }
 
 declare global {
@@ -104,12 +103,6 @@ declare global {
     prototype: HTMLTableCrisprElement;
     new (): HTMLTableCrisprElement;
   };
-
-  interface HTMLTestSliderElement extends Components.TestSlider, HTMLStencilElement {}
-  var HTMLTestSliderElement: {
-    prototype: HTMLTestSliderElement;
-    new (): HTMLTestSliderElement;
-  };
   interface HTMLElementTagNameMap {
     'genomic-card': HTMLGenomicCardElement;
     'genomic-card2': HTMLGenomicCard2Element;
@@ -117,7 +110,6 @@ declare global {
     'occurences-graph': HTMLOccurencesGraphElement;
     'result-page': HTMLResultPageElement;
     'table-crispr': HTMLTableCrisprElement;
-    'test-slider': HTMLTestSliderElement;
   }
 }
 
@@ -175,7 +167,6 @@ declare namespace LocalJSX {
     'selected'?: CurrentSelection;
     'shouldHighlight'?: boolean;
   }
-  interface TestSlider {}
 
   interface IntrinsicElements {
     'genomic-card': GenomicCard;
@@ -184,7 +175,6 @@ declare namespace LocalJSX {
     'occurences-graph': OccurencesGraph;
     'result-page': ResultPage;
     'table-crispr': TableCrispr;
-    'test-slider': TestSlider;
   }
 }
 
@@ -200,7 +190,6 @@ declare module "@stencil/core" {
       'occurences-graph': LocalJSX.OccurencesGraph & JSXBase.HTMLAttributes<HTMLOccurencesGraphElement>;
       'result-page': LocalJSX.ResultPage & JSXBase.HTMLAttributes<HTMLResultPageElement>;
       'table-crispr': LocalJSX.TableCrispr & JSXBase.HTMLAttributes<HTMLTableCrisprElement>;
-      'test-slider': LocalJSX.TestSlider & JSXBase.HTMLAttributes<HTMLTestSliderElement>;
     }
   }
 }
