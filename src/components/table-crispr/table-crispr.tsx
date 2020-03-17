@@ -157,6 +157,7 @@ export class TableCrispr {
 
       return { name: o.org, coords_count };
     })
+      .sort((a,b) => b.coords_count - a.coords_count)
   }
 
   minMaxOccurences() {
