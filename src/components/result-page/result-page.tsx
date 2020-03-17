@@ -1,7 +1,6 @@
-import { Component, Prop, h, Listen, State, Watch, Element } from '@stencil/core';
+import { Component, Prop, h, State, Element } from '@stencil/core';
 import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection} from './interfaces';
 import "@mmsb/mmsb-select";
-import noUiSlider from "nouislider"; 
 
 @Component({
   tag: 'result-page',
@@ -18,10 +17,8 @@ export class ResultPage {
   @Prop() gene: string;
   @Prop() size: string;
 
-  @State()
-  display_linear_card: boolean = true;
+  @State() display_linear_card: boolean = true;
   @State() tableCrisprOrganisms: string[] = [];
-
   @State() selected: CurrentSelection; //org, sgrna, ref, size
   @State() shouldHighlight = false;
   @State() current_references: string[];
@@ -33,46 +30,6 @@ export class ResultPage {
   sequence_data_json: SequenceSGRNAHit[];
   initial_sgrnas: SGRNAForOneEntry[];
 
-  // *************************** LISTEN & EMIT ***************************
-
-  /*@Listen('changeOrgCard')
-  handleChangeOrg(event: CustomEvent) {
-    this.orgSelected = event.detail
-    this.refSelected = Object.keys(this.all_data_json[this.orgSelected])[0]
-    this.currentSgrna = JSON.stringify(this.all_data_json[this.orgSelected][this.refSelected])
-    if (this.gene_json){
-      this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
-    }
-  }
-    
-  
-  @Listen('changeRefCard')
-    handleChangeRef(event: CustomEvent) {
-      this.refSelected = event.detail;
-      this.currentSgrna = JSON.stringify(this.all_data_json[this.orgSelected][this.refSelected])
-      if (this.gene_json){
-        this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
-      }
-      
-    }
-  
-  @Listen('sgDataSection')
-  handlesgDataSection(event: CustomEvent) {
-    this.currentSgrna = event.detail["allSgrna"]
-    this.currentGenes = event.detail["gene"]
-  }*/
-
-  dataFiltered(orgs: string[]): SequenceSGRNAHit[] {
-    return this.sequence_data_json.map(sgrna => {
-      return { sequence: sgrna.sequence, occurences: sgrna.occurences.filter((occ) => orgs.includes(occ.org)) }
-    })
-  }
-
-  // *************************** CLICK ***************************
-
-
-  // *************************** DISPLAY ***************************
-  
   componentWillLoad() {
     //Initialize data
     this.tableCrisprOrganisms = this.org_names.split("&");
@@ -94,25 +51,15 @@ export class ResultPage {
     };
 
     this.initial_sgrnas = this.current_sgrnas; 
-
-    //console.log("willLoad")
-    /*this.orgSelected = this.org_names.split("&")[0]
-    
-    
-    
-    this.refSelected = Object.keys(this.all_data_json[this.orgSelected])[0]
-    this.currentSgrna = JSON.stringify(this.all_data_json[this.orgSelected][this.refSelected])
-    if (this.gene){
-      this.gene_json = JSON.parse(this.gene)
-      this.currentGenes = JSON.stringify(this.gene_json[this.orgSelected][this.refSelected])
-    }*/
-    //this.selected = [this.orgSelected]
   }
 
   componentDidRender(){
     //this.createSlider(); 
   }
 
+  /**
+   * Format raw json organisms data to OrganismHit[] for easier manipulation
+   */
   formatOrganismData():OrganismHit[]{
     const data_parsed = JSON.parse(this.all_data)
     return Object.entries(data_parsed)
@@ -129,12 +76,22 @@ export class ResultPage {
       }); 
   }
 
+  /**
+   * Get list of references (fasta subsequences) for one organism
+   * @param org : organism
+   */
   getReferences(org: string): string[] {
     return this.organism_data
       .find(organism_entry => organism_entry.organism === org)
       .fasta_entry.map(e => e.ref)
   }
 
+  /**
+   * Return sgrna hits for one organism and one reference. Just keep filtered_sgrna if filtered_sgrna is provided. 
+   * @param org : organism
+   * @param ref : reference (fasta subsequence)
+   * @param filtered_sgrna : sgrna to keep if selection has been done
+   */
   getSgrnas(org: string, ref: string, filtered_sgrna?: string[]): SGRNAForOneEntry[]{
     console.log("getSgrnas", org, ref, filtered_sgrna)
     let sgrnas = this.organism_data
@@ -148,21 +105,14 @@ export class ResultPage {
     return sgrnas;
   }
 
+  /**
+   * Get sequence size from one organism/reference couple
+   * @param org : organism
+   * @param ref : reference
+   */
   getSize(org:string, ref:string): number{
     return this.size_data[org][ref]
   }
-
-  /*createSlider(){
-    const slider = this.element.shadowRoot.querySelector('.test') as HTMLElement
-    noUiSlider.create(slider, {
-      start: [50, 100],
-      connect: true,
-      range: {
-          'min': 0,
-          'max': 100
-      }
-    });
-  }*/
 
   render() {
     //console.log("PARENT RENDER")
@@ -274,8 +224,6 @@ export class ResultPage {
             ></genomic-card2>
           </div>
         </div>
-        {/*<div></div>
-        <div class="test"></div>*/}
       </div>
     ]);
   }

@@ -18,31 +18,27 @@ export class GenomicCard {
     @Prop() selected: CurrentSelection; //org, sgrna, ref, size
     @Prop() current_references: string[];
     @Prop() current_sgrnas: SGRNAForOneEntry[];
-    //@Prop() organism_data: OrganismHit[];
     @Prop() diagonal_svg:number; 
-    //@Prop() orgSelected: string;
-    //@Prop() sgrnaSelected: string;
-    //@Prop() json_all_info: any;
-    //@Prop() refSelected: string;
+    @Prop()initial_sgrnas?:SGRNAForOneEntry[]; 
+
     @Prop() changeOrganism: (org: string) => void;
     @Prop() changeSgrna: (sgrna: string) => void;
     @Prop() changeRef: (ref: string) => void; 
     @Prop() changeSgrnaSubset: (sgrna_subset: string[]) => void; 
-
     @Prop() onClickHighlight:() => void; 
-    //@Prop() changeRefs: (ref_list: string[]) => void
-    //@Prop() changeSgrnas: (sgrnas: any) => void
 
     @State() highlight_selection:boolean = false; 
+
+    selected_section_on_card:number = -1; 
+    
+
+    //Hack to animate background color when change, because @keyframes don't work.
     @Watch('highlight_selection')
     watchHighlight(){
         setTimeout(() => this.highlight_selection = false, 500);
     }
 
     @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
-
-    selected_section_on_card:number = -1; 
-    @Prop()initial_sgrnas?:SGRNAForOneEntry[]; 
 
     @Listen('sectionSelected', { target: 'window' })
     handleSectionSelected(event: CustomEvent) {
@@ -62,40 +58,15 @@ export class GenomicCard {
             .find(e => e.seq === this.selected.sgrna)
     }
 
+    /**
+     * Get number of occurences for one sgrna sequence
+     * @param sgrna : sgrna sequence
+     */
     getNumberOccurences(sgrna:string){
         return this.current_sgrnas
             .find(e => e.seq === sgrna)
             .coords.length
     }
-
-    //current_sgrnas: string[];
-    //current_data:any;
-
-    //componentWillLoad() {
-    //    this.initializeData()
-    //}
-
-    /*initializeData(org: string = undefined, sgrna: string = undefined, ref: string = undefined) {
-        console.log("update", org, sgrna, ref)
-        this.orgSelected = org ? org : this.organisms[0]
-        //console.log(this.orgSelected)
-        this.current_references = Object.keys(this.json_all_info[this.orgSelected]);
-        this.refSelected = ref ? ref : this.current_references[0]
-        const current_data = this.json_all_info[this.orgSelected][this.refSelected];
-        this.current_sgrnas = Object.keys(current_data).sort((a, b) => (current_data[a].length < current_data[b].length) ? 1 : -1)
-        this.sgrnaSelected = sgrna ? sgrna : this.current_sgrnas[0]
-    }
-
-    setReferences(org: string) {
-        this.current_references = Object.keys(this.json_all_info[org]);
-        this.refSelected = this.current_references[0];
-    }*/
-
-    /*componentDidRender(){
-        console.log("DidRender")
-        console.log(this.orgSelected)
-        this.initializeData(this.orgSelected, this.sgrnaSelected)
-    }*/
 
     componentDidRender() {
         const coords = this.current_sgrnas.find(e => e.seq === this.selected.sgrna).coords
@@ -136,7 +107,7 @@ export class GenomicCard {
                                 data={this.organisms.map(name => [name, name])}
                                 selected={[this.selected.org]}
                                 onSelect={e => this.changeOrganism(e)}
-                                color={this.highlight_selection ? "rgba(103, 203, 222, 0.9)" : undefined}
+                                color={this.highlight_selection ? "#539ddc54" : undefined}
                             />
                         </div>
                         <div class="list-selection ref-selection">
@@ -166,7 +137,7 @@ export class GenomicCard {
                                 onSelect={(e) => {
                                     this.changeSgrna(e)
                                 }}
-                                color={this.highlight_selection ? "rgba(103, 203, 222, 0.9)" : undefined}/>
+                                color={this.highlight_selection ? "#539ddc54" : undefined}/>
                         </div>
                         <div class="coordinates">
                             <span class="selection-header">Coordinates</span>
