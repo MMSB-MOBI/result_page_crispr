@@ -7,9 +7,19 @@
 
 ## Properties
 
-| Property        | Attribute       | Description | Type     | Default     |
-| --------------- | --------------- | ----------- | -------- | ----------- |
-| `complete_data` | `complete_data` |             | `string` | `undefined` |
+| Property          | Attribute          | Description | Type                                        | Default     |
+| ----------------- | ------------------ | ----------- | ------------------------------------------- | ----------- |
+| `complete_data`   | --                 |             | `SequenceSGRNAHit[]`                        | `undefined` |
+| `onOrganismClick` | --                 |             | `(organism: string, sgrna: string) => void` | `undefined` |
+| `selected`        | --                 |             | `CurrentSelection`                          | `undefined` |
+| `shouldHighlight` | `should-highlight` |             | `boolean`                                   | `undefined` |
+
+
+## Events
+
+| Event                    | Description | Type               |
+| ------------------------ | ----------- | ------------------ |
+| `table-crispr.org-click` |             | `CustomEvent<any>` |
 
 
 ## Dependencies
@@ -18,14 +28,9 @@
 
  - [result-page](../result-page)
 
-### Depends on
-
-- [occurences-graph](../occurences-graph)
-
 ### Graph
 ```mermaid
 graph TD;
-  table-crispr --> occurences-graph
   result-page --> table-crispr
   style table-crispr fill:#f9f,stroke:#333,stroke-width:4px
 ```

@@ -31,6 +31,7 @@ export class ResultPage {
   size_data: {[org:string]: { [ref:string]: number}}
   gene_json: {};
   sequence_data_json: SequenceSGRNAHit[];
+  initial_sgrnas: SGRNAForOneEntry[];
 
   // *************************** LISTEN & EMIT ***************************
 
@@ -92,6 +93,8 @@ export class ResultPage {
       size: this.getSize(org,ref)
     };
 
+    this.initial_sgrnas = this.current_sgrnas; 
+
     //console.log("willLoad")
     /*this.orgSelected = this.org_names.split("&")[0]
     
@@ -133,13 +136,13 @@ export class ResultPage {
   }
 
   getSgrnas(org: string, ref: string, filtered_sgrna?: string[]): SGRNAForOneEntry[]{
+    console.log("getSgrnas", org, ref, filtered_sgrna)
     let sgrnas = this.organism_data
       .find(e => e.organism === org)
       .fasta_entry.find(e => e.ref === ref).sgrna
 
     if (filtered_sgrna) {
       const matches = new Set(filtered_sgrna);
-
       sgrnas = sgrnas.filter(v => matches.has(v.seq));
     }
     return sgrnas;
@@ -191,6 +194,7 @@ export class ResultPage {
                 size: this.getSize(organism, ref_selected)
               };
               this.shouldHighlight = true;
+              this.initial_sgrnas = this.current_sgrnas; 
             }}
             shouldHighlight={this.shouldHighlight}
           />
@@ -219,6 +223,7 @@ export class ResultPage {
                 //this.current_sgrnas = this.getSgrnas(this.selected[0], this.selected[1])
 
                 this.shouldHighlight = false; 
+                this.initial_sgrnas = this.current_sgrnas; 
               }}
               changeSgrna={(sgrna) => {
                 if (!sgrna) {
@@ -243,12 +248,14 @@ export class ResultPage {
                 };
                 if (this.selected.sgrna !== old_sgrna){
                   this.shouldHighlight = false; 
-                }
+                }; 
+                this.initial_sgrnas = this.current_sgrnas; 
               }}
 
               changeSgrnaSubset = {(sgrna_subset) => {
+                console.log("sgrna_subset", sgrna_subset)
                 this.current_sgrnas = this.getSgrnas(this.selected.org, this.selected.ref, sgrna_subset)
-
+                console.log("current_sgrnas", this.current_sgrnas)
                 if (!sgrna_subset.includes(this.selected.sgrna)) {
                   this.selected = {
                     ...this.selected,
@@ -263,6 +270,7 @@ export class ResultPage {
               }}
               onClickHighlight={() => this.shouldHighlight = true}
               diagonal_svg={700}
+              initial_sgrnas={this.initial_sgrnas}
             ></genomic-card2>
           </div>
         </div>

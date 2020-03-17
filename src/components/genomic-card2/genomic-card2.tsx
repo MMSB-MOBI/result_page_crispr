@@ -36,28 +36,25 @@ export class GenomicCard {
     @State() highlight_selection:boolean = false; 
     @Watch('highlight_selection')
     watchHighlight(){
-        console.log("Watch")
         setTimeout(() => this.highlight_selection = false, 500);
     }
 
     @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
 
     selected_section_on_card:number = -1; 
-    initial_sgrnas:SGRNAForOneEntry[]; 
+    @Prop()initial_sgrnas?:SGRNAForOneEntry[]; 
 
     @Listen('sectionSelected', { target: 'window' })
     handleSectionSelected(event: CustomEvent) {
-        this.changeSgrnaSubset(event.detail.sgRNA);
-        this.selected_section_on_card = event.detail.section; 
+        if ( event.detail.sgRNA.length > 0 ){
+            this.changeSgrnaSubset(event.detail.sgRNA);
+            this.selected_section_on_card = event.detail.section; 
+        }
     }
 
     @Listen('table-crispr.org-click', { target: 'window'})
     handleTableOrganismClick(){
         this.highlight_selection = true; 
-    }
-
-    componentWillLoad(){
-        this.initial_sgrnas = this.current_sgrnas
     }
 
     get selected_sgrna() {
@@ -106,14 +103,10 @@ export class GenomicCard {
         this.initial_sgrnas.map(e => old_current_sgrnas[e.seq] = e.coords)
         dspl.generateGenomicCard(DisplayGenome, this.diagonal_svg, this.selected.size, this.element.shadowRoot, coords, this.selected.sgrna);
         dspl.generateSunburst(this.selected.size, old_current_sgrnas, this.diagonal_svg, this.element.shadowRoot.querySelector('#displayGenomicCard'), this.selected_section_on_card, false);
-        /*this.element.shadowRoot.querySelector('.genomeCircle').addEventListener("click", () => {
-            this.selectedSection = -1;
-            this.onOrganismChange(this.orgSelected, this.allSgrna[0]);
-            if (this.gene) {
-                this.emitsgData(this.all_data_json[this.orgSelected][this.refSelected], 0, this.sizeSelected)
-            }
-
-        })*/
+        this.element.shadowRoot.querySelector('.genomeCircle').addEventListener("click", () => {
+            this.selected_section_on_card = -1;
+            this.current_sgrnas = this.initial_sgrnas; 
+        })
         //this.styleHelp(".genomeCircle>path", ".help-gen");
         //this.styleHelp(".sunburst>path", ".help-section");
         //this.styleHelp("#notif>.material-icons", "#notif-text");*/
@@ -128,12 +121,6 @@ export class GenomicCard {
     }
 
     render() {
-        /*console.log("RENDER GENOMIC CARD")
-        console.log(this.organisms)
-        console.log(this.selected)
-        console.log(this.current_references)
-        console.log(this.current_sgrnas)*/
-        console.log(this.highlight_selection)
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -149,11 +136,14 @@ export class GenomicCard {
                                 data={this.organisms.map(name => [name, name])}
                                 selected={[this.selected.org]}
                                 onSelect={e => this.changeOrganism(e)}
+                                color={this.highlight_selection ? "rgba(103, 203, 222, 0.9)" : undefined}
                             />
                         </div>
                         <div class="list-selection ref-selection">
                             <span class="selection-header">References</span>
-                            <select class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} onChange={e => this.changeRef((e.target as HTMLSelectElement).value)}>
+                            <select 
+                                class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
+                                onChange={e => this.changeRef((e.target as HTMLSelectElement).value)}>
                                 {this.current_references.map(ref => <option>{ref}</option>)}
                             </select>
                         </div>
@@ -175,7 +165,8 @@ export class GenomicCard {
                                 selected={[this.selected.sgrna]}
                                 onSelect={(e) => {
                                     this.changeSgrna(e)
-                                }}/>
+                                }}
+                                color={this.highlight_selection ? "rgba(103, 203, 222, 0.9)" : undefined}/>
                         </div>
                         <div class="coordinates">
                             <span class="selection-header">Coordinates</span>

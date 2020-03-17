@@ -17,19 +17,6 @@
 | `width_div` | `width_div` |             | `string`     | `undefined` |
 
 
-## Dependencies
-
-### Used by
-
- - [result-page](../result-page)
-
-### Graph
-```mermaid
-graph TD;
-  result-page --> linear-card
-  style linear-card fill:#f9f,stroke:#333,stroke-width:4px
-```
-
 ----------------------------------------------
 
 *Built with [StencilJS](https://stenciljs.com/)*
