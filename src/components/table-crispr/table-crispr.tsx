@@ -62,6 +62,7 @@ export class TableCrispr {
     const selected_sgrna_index = this.currentSgrnas.map(e => e.seq).indexOf(this.selected.sgrna)
     const current_page = Math.trunc(selected_sgrna_index / 10) + 1;
     this.page = current_page;
+    this.reinitializeSliders(); 
   }
 
   /* Filter sgRNA on search*/
@@ -301,6 +302,15 @@ export class TableCrispr {
           .attr('y', '27')
         j += 1;
       })
+
+  }
+
+  reinitializeSliders(){
+    this.element.shadowRoot.querySelector(".slider-min svg").remove();
+    this.element.shadowRoot.querySelector(".slider-max svg").remove();
+    this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
+    this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
+    this.addSvgText(); 
 
   }
 
