@@ -348,15 +348,17 @@ export class TableCrispr {
 
       <div class="search-container">
         <div class="sgrna-search-container">
+          <span class='selection-header'>Filter by sequence</span>
           <input type="text" id="regexString" onKeyUp={() => this.sgRNAFilter()} placeholder={"Search for sgRNA.."} value={this.highlighted_sgrna ? this.highlighted_sgrna : ""} />
           {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>*/}
         </div>
         <div class="slider-containers">
+          <span class="selection-header">Filter by number of occurences</span>
           <div class="slider-min">
-            <span class="selection-header">Minimum occurences</span>
+            <span>Minimum</span>
           </div>
           <div class="slider-max">
-            <span class="selection-header">Maximum occurences</span>
+            <span>Maximum</span>
           </div>
         </div>
 

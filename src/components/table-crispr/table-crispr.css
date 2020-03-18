@@ -15,7 +15,12 @@
 }
 
 .slider-containers{
-    display:flex;
+    display:grid;
+    grid-template-areas: 'header header' '. .';
+}
+
+.slider-containers .selection-header{
+    grid-area:header; 
 }
 
 
@@ -205,3 +210,9 @@ ul {
       padding-top:5px; 
   }
 
+  .selection-header{
+    display:inline-block;
+    margin-bottom: 0.5rem; 
+    font-weight: bold;
+  
+  }
