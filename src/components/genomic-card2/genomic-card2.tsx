@@ -62,8 +62,22 @@ export class GenomicCard {
         const all_coords:number[] = []; 
         this.current_sgrnas.map(e => 
             e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
-        return all_coords
+        return all_coords.sort((a, b) => a - b);
     }
+
+    get overlapping_positions(): number[]{
+        const word_length: number = this.current_sgrnas[0].seq.length
+        const all_pos:number[] = [];
+        this.current_sgrnas.map(e => 
+            e.coords.map(coord => {
+                const start = parseInt(/\(([0-9]*),/.exec(coord)[1]); 
+                for (let i = start; i < start + word_length; i++){
+                    all_pos.push(i)
+                }
+            }))
+        return all_pos; 
+    }
+
     /**
      * Get number of occurences for one sgrna sequence
      * @param sgrna : sgrna sequence
@@ -158,13 +172,6 @@ export class GenomicCard {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="graph">
-                    <svg 
-                        id='displayGenomicCard' 
-                        viewBox={"0 0 " + this.diagonal_svg + " " + this.diagonal_svg}>
-                        <text transform={`translate(${this.diagonal_svg / 2 - 30} , ${this.diagonal_svg / 2})`}> {this.selected.size} pb </text>
-                    </svg>
                 </div>
                 <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size}></circular-barplot>
             </div>

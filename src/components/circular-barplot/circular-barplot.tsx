@@ -1,5 +1,6 @@
 import {Component, h, Prop} from '@stencil/core';
 import { CoordinatesBinData } from '../result-page/interfaces';
+declare const d3: any;
 
 @Component({
     tag: 'circular-barplot',
@@ -43,19 +44,17 @@ export class CircularBarplot{
 
         this.bin_data = data_blurred;
 
-        var margin = { top: 10, right: 10, bottom: 10, left: 10 },
-            width = 460 - margin.left - margin.right,
-            height = 460 - margin.top - margin.bottom,
-            innerRadius = 100,
-            outerRadius = Math.min(width, height) - 50;
+        const margin = 10, 
+            width = 200,
+            height = width,
+            innerRadius = width/4,
+            outerRadius = width - margin
 
         //@ts-ignore
         var svg = d3.select(".barplot")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("viewBox", [-width / 2, -height / 2, width, height])
             .append("g")
-            .attr("transform", "translate(" + width / 2 + "," + height / 2  + ")"); // Add 100 on Y translation, cause upper bars are longer
 
         //@ts-ignore
         var x = d3.scaleBand()
@@ -89,18 +88,18 @@ export class CircularBarplot{
 
 
     createLinePlot(){
-        var margin = {top: 10, right: 30, bottom: 30, left: 60},
-            width = 460 - margin.left - margin.right,
-            height = 400 - margin.top - margin.bottom;
+        const margin = 10, 
+            width = 954,
+            height = width,
+            innerRadius = width/5,
+            outerRadius = width/2 - margin
 
         //@ts-ignore
         var svg = d3.select(".lineplot")
             .append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            //@ts-ignore
+            .attr("viewBox", [-width / 2, -height / 2, width, height])
             .append("g")
-            .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
 
         //@ts-ignore
         var x = d3.scaleLinear()
@@ -154,7 +153,6 @@ export class CircularBarplot{
     return (
     <div class="circular-barplot-main">
         <div class="barplot"></div>
-        <div class="lineplot"></div>
     </div>
     )
     }

@@ -30,7 +30,6 @@ graph TD;
   result-page --> genomic-card2
   genomic-card2 --> mmsb-select
   genomic-card2 --> circular-barplot
-  genomic-card2 --> radial-area
   style result-page fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
