@@ -1,5 +1,6 @@
 import {Component, h, Prop} from '@stencil/core';
 import { CoordinatesBinData } from '../result-page/interfaces';
+import { tickStep } from 'd3';
 declare const d3: any;
 
 @Component({
@@ -14,6 +15,12 @@ export class CircularBarplot{
 
     bin_number:number = 50; 
     bin_data: CoordinatesBinData[]; 
+
+    //svg attributes
+    svg; //svg display on page
+    margin:number;
+    width:number; 
+    height:number;
 
     createBinData(): CoordinatesBinData[]{
         const bin_size = Math.round(this.genome_size / this.bin_number)
@@ -38,36 +45,38 @@ export class CircularBarplot{
 
     }
 
-    createCircularBarplotSvg(){
+    initializeSvg(){
+        this.margin = 10; 
+        this.width = 200; 
+        this.height = this.width;
+
+        this.svg = d3.select(".barplot")
+            .append("svg")
+            .attr("viewBox", [-this.width / 2, -this.height / 2, this.width, this.height])
+            .append("g")
+    }
+
+    createCircularBarplot(){
+
+        const innerRadius = this.width/4; 
+        const outerRadius = this.width - this.margin; 
         const bin_data = this.createBinData()
         const data_blurred = this.blur(bin_data)
 
         this.bin_data = data_blurred;
 
-        const margin = 10, 
-            width = 200,
-            height = width,
-            innerRadius = width/4,
-            outerRadius = width - margin
-
         //@ts-ignore
-        var svg = d3.select(".barplot")
-            .append("svg")
-            .attr("viewBox", [-width / 2, -height / 2, width, height])
-            .append("g")
-
-        //@ts-ignore
-        var x = d3.scaleBand()
+        const x = d3.scaleBand()
             .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
             .align(0)                  // This does nothing ?
             .domain(bin_data.map(function (d) { return d.bin_id; }));
 
         //@ts-ignore
-        var y = d3.scaleRadial()
+        const y = d3.scaleRadial()
             .range([innerRadius, outerRadius])   // Domain will be define later.
             .domain([0, 1]); // Domain of Y is from 0 to the max seen in the data
 
-        svg.append("g")
+        this.svg.append("g")
             .selectAll("path")
             .data(bin_data)
             .enter()
@@ -132,6 +141,22 @@ export class CircularBarplot{
             )
     }
 
+    createGenomeCircle(){
+        const genome_circle = d3.arc()
+            .startAngle(0)
+            .endAngle(2 * Math.PI)
+            .innerRadius(this.width/6)
+            .outerRadius(this.width/6 + 2)
+        
+        this.svg
+            .append("g")
+            .attr('class', 'genomeCircle')
+            .append('path')
+            .attr('d', genome_circle)
+            .style('fill', 'rgba(79, 93, 117)');
+
+    }
+
 
     blur(data:CoordinatesBinData[]){
         // From https://bl.ocks.org/curran/853fa00b8f0732fb2bee7fccfd7b4523
@@ -145,8 +170,9 @@ export class CircularBarplot{
     }
 
     componentDidLoad(){
-        this.createCircularBarplotSvg(); 
-        this.createLinePlot();
+        this.initializeSvg();
+        this.createGenomeCircle();
+        this.createCircularBarplot(); 
     }
 
     render(){
