@@ -1,6 +1,6 @@
 import { Component, Prop, h, State, Event, EventEmitter, Listen, Element, Watch } from '@stencil/core';
 import "@mmsb/mmsb-select";
-import { CurrentSelection, SGRNAForOneEntry } from '../result-page/interfaces';
+import { CurrentSelection, SGRNAForOneEntry, CoordinatesBinData } from '../result-page/interfaces';
 import * as dspl from './displayPlot';
 import * as d3 from "d3";
 
@@ -19,7 +19,7 @@ export class GenomicCard {
     @Prop() current_references: string[];
     @Prop() current_sgrnas: SGRNAForOneEntry[];
     @Prop() diagonal_svg:number; 
-    @Prop()initial_sgrnas?:SGRNAForOneEntry[]; 
+    @Prop() initial_sgrnas?:SGRNAForOneEntry[]; 
 
     @Prop() changeOrganism: (org: string) => void;
     @Prop() changeSgrna: (sgrna: string) => void;
@@ -58,6 +58,12 @@ export class GenomicCard {
             .find(e => e.seq === this.selected.sgrna)
     }
 
+    get all_start_coordinates(){
+        const all_coords:number[] = []; 
+        this.current_sgrnas.map(e => 
+            e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
+        return all_coords
+    }
     /**
      * Get number of occurences for one sgrna sequence
      * @param sgrna : sgrna sequence
@@ -92,6 +98,8 @@ export class GenomicCard {
     }
 
     render() {
+        console.log(this.selected.size)
+        console.log(this.all_start_coordinates)
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -158,7 +166,7 @@ export class GenomicCard {
                         <text transform={`translate(${this.diagonal_svg / 2 - 30} , ${this.diagonal_svg / 2})`}> {this.selected.size} pb </text>
                     </svg>
                 </div>
-                <div class={"pouet" + (this.highlight_selection ? " highlight-select":"")}>YOYOYOYOYO</div>
+                <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size}></circular-barplot>
             </div>
 
             

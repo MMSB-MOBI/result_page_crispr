@@ -41,6 +41,15 @@ export interface CurrentSelection {
     size: number; 
 }
 
+export interface CoordinatesBinData {
+    bin_start:number; 
+    bin_end:number;
+    number_coords_inside:number; 
+    number_coords_proportion:number; 
+    blurred:number; 
+    bin_id:string; 
+}
+
 export type SortingOrder = 'ascending' | 'descending';
 
 export type SortingType = "Min occurences" | "Max occurences" | "Alphabetical";
