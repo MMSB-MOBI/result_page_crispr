@@ -51,6 +51,11 @@ export namespace Components {
             coords_count: number;
         }[];
     }
+    interface RadialArea {
+        "genome_size": number;
+        "sgrna_length": number;
+        "sgrnas": SGRNAForOneEntry[];
+    }
     interface ResultPage {
         "all_data": string;
         "complete_data": string;
@@ -96,6 +101,12 @@ declare global {
         prototype: HTMLOccurencesGraphElement;
         new (): HTMLOccurencesGraphElement;
     };
+    interface HTMLRadialAreaElement extends Components.RadialArea, HTMLStencilElement {
+    }
+    var HTMLRadialAreaElement: {
+        prototype: HTMLRadialAreaElement;
+        new (): HTMLRadialAreaElement;
+    };
     interface HTMLResultPageElement extends Components.ResultPage, HTMLStencilElement {
     }
     var HTMLResultPageElement: {
@@ -114,6 +125,7 @@ declare global {
         "genomic-card2": HTMLGenomicCard2Element;
         "linear-card": HTMLLinearCardElement;
         "occurences-graph": HTMLOccurencesGraphElement;
+        "radial-area": HTMLRadialAreaElement;
         "result-page": HTMLResultPageElement;
         "table-crispr": HTMLTableCrisprElement;
     }
@@ -166,6 +178,11 @@ declare namespace LocalJSX {
             coords_count: number;
         }[];
     }
+    interface RadialArea {
+        "genome_size"?: number;
+        "sgrna_length"?: number;
+        "sgrnas"?: SGRNAForOneEntry[];
+    }
     interface ResultPage {
         "all_data"?: string;
         "complete_data"?: string;
@@ -186,6 +203,7 @@ declare namespace LocalJSX {
         "genomic-card2": GenomicCard2;
         "linear-card": LinearCard;
         "occurences-graph": OccurencesGraph;
+        "radial-area": RadialArea;
         "result-page": ResultPage;
         "table-crispr": TableCrispr;
     }
@@ -199,6 +217,7 @@ declare module "@stencil/core" {
             "genomic-card2": LocalJSX.GenomicCard2 & JSXBase.HTMLAttributes<HTMLGenomicCard2Element>;
             "linear-card": LocalJSX.LinearCard & JSXBase.HTMLAttributes<HTMLLinearCardElement>;
             "occurences-graph": LocalJSX.OccurencesGraph & JSXBase.HTMLAttributes<HTMLOccurencesGraphElement>;
+            "radial-area": LocalJSX.RadialArea & JSXBase.HTMLAttributes<HTMLRadialAreaElement>;
             "result-page": LocalJSX.ResultPage & JSXBase.HTMLAttributes<HTMLResultPageElement>;
             "table-crispr": LocalJSX.TableCrispr & JSXBase.HTMLAttributes<HTMLTableCrisprElement>;
         }
