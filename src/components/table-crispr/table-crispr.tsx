@@ -67,7 +67,6 @@ export class TableCrispr {
 
   /* Filter sgRNA on search*/
   sgRNAFilter(sgrna: string = undefined): void {
-    console.log("filter")
     //Filter on min occurences
     //const minOcc: any = (this.element.shadowRoot.querySelector("#minOcc") as HTMLInputElement).value;
     const search = sgrna ? sgrna : (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value;
@@ -318,8 +317,6 @@ export class TableCrispr {
     if (this.state == "stop") {
       return this.error_msg
     }
-
-    console.log("RENDER")
 
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
