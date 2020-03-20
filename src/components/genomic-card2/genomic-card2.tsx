@@ -166,7 +166,6 @@ export class GenomicCard {
                         <text transform={`translate(${this.diagonal_svg / 2 - 30} , ${this.diagonal_svg / 2})`}> {this.selected.size} pb </text>
                     </svg>
                 </div>
-                <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size}></circular-barplot>
             </div>
 
             

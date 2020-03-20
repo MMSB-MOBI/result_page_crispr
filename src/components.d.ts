@@ -7,10 +7,6 @@
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { CurrentSelection, SequenceSGRNAHit, SGRNAForOneEntry, } from "./components/result-page/interfaces";
 export namespace Components {
-    interface CircularBarplot {
-        "genome_size": number;
-        "list_coordinates": number[];
-    }
     interface GenomicCard {
         "all_data": string;
         "diagonal_svg": number;
@@ -71,12 +67,6 @@ export namespace Components {
     }
 }
 declare global {
-    interface HTMLCircularBarplotElement extends Components.CircularBarplot, HTMLStencilElement {
-    }
-    var HTMLCircularBarplotElement: {
-        prototype: HTMLCircularBarplotElement;
-        new (): HTMLCircularBarplotElement;
-    };
     interface HTMLGenomicCardElement extends Components.GenomicCard, HTMLStencilElement {
     }
     var HTMLGenomicCardElement: {
@@ -120,7 +110,6 @@ declare global {
         new (): HTMLTableCrisprElement;
     };
     interface HTMLElementTagNameMap {
-        "circular-barplot": HTMLCircularBarplotElement;
         "genomic-card": HTMLGenomicCardElement;
         "genomic-card2": HTMLGenomicCard2Element;
         "linear-card": HTMLLinearCardElement;
@@ -131,10 +120,6 @@ declare global {
     }
 }
 declare namespace LocalJSX {
-    interface CircularBarplot {
-        "genome_size"?: number;
-        "list_coordinates"?: number[];
-    }
     interface GenomicCard {
         "all_data"?: string;
         "diagonal_svg"?: number;
@@ -198,7 +183,6 @@ declare namespace LocalJSX {
         "shouldHighlight"?: boolean;
     }
     interface IntrinsicElements {
-        "circular-barplot": CircularBarplot;
         "genomic-card": GenomicCard;
         "genomic-card2": GenomicCard2;
         "linear-card": LinearCard;
@@ -212,7 +196,6 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "circular-barplot": LocalJSX.CircularBarplot & JSXBase.HTMLAttributes<HTMLCircularBarplotElement>;
             "genomic-card": LocalJSX.GenomicCard & JSXBase.HTMLAttributes<HTMLGenomicCardElement>;
             "genomic-card2": LocalJSX.GenomicCard2 & JSXBase.HTMLAttributes<HTMLGenomicCard2Element>;
             "linear-card": LocalJSX.LinearCard & JSXBase.HTMLAttributes<HTMLLinearCardElement>;
