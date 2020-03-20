@@ -12,6 +12,7 @@ declare const d3: any;
 export class CircularBarplot{
     @Prop() list_coordinates: number[];
     @Prop() genome_size : number; 
+    @Prop() selected_sgrna_coordinates : string[]; 
 
     bin_number:number = 50; 
     bin_data: CoordinatesBinData[]; 
@@ -21,6 +22,9 @@ export class CircularBarplot{
     margin:number;
     width:number; 
     height:number;
+
+    circle_radius:number; 
+    circle_thickness:number;
 
     createBinData(): CoordinatesBinData[]{
         const bin_size = Math.round(this.genome_size / this.bin_number)
@@ -49,21 +53,20 @@ export class CircularBarplot{
         this.margin = 10; 
         this.width = 200; 
         this.height = this.width;
+        this.circle_radius = this.width/6; 
+        this.circle_thickness = 2; 
 
-        this.svg = d3.select(".barplot")
+        this.svg = d3.select(".circular-barplot-main")
             .append("svg")
             .attr("viewBox", [-this.width / 2, -this.height / 2, this.width, this.height])
             .append("g")
     }
 
     createCircularBarplot(){
-
+        // https://www.d3-graph-gallery.com/graph/circular_barplot_basic.html
         const innerRadius = this.width/4; 
-        const outerRadius = this.width - this.margin; 
+        const outerRadius = this.width/2.5; 
         const bin_data = this.createBinData()
-        const data_blurred = this.blur(bin_data)
-
-        this.bin_data = data_blurred;
 
         //@ts-ignore
         const x = d3.scaleBand()
@@ -72,9 +75,11 @@ export class CircularBarplot{
             .domain(bin_data.map(function (d) { return d.bin_id; }));
 
         //@ts-ignore
+        const max_prop = [...bin_data].sort((a,b) => b.number_coords_proportion - a.number_coords_proportion)[0].number_coords_proportion
+
         const y = d3.scaleRadial()
-            .range([innerRadius, outerRadius])   // Domain will be define later.
-            .domain([0, 1]); // Domain of Y is from 0 to the max seen in the data
+            .range([innerRadius, outerRadius])
+            .domain([0, max_prop]); // Domain of Y is from 0 to the max seen in the data
 
         this.svg.append("g")
             .selectAll("path")
@@ -96,7 +101,7 @@ export class CircularBarplot{
     }
 
 
-    createLinePlot(){
+    /*createLinePlot(){
         const margin = 10, 
             width = 954,
             height = width,
@@ -139,15 +144,15 @@ export class CircularBarplot{
                 //@ts-ignore
                 .y(function (d) { return y(d.blurred) })
             )
-    }
+    }*/
 
     createGenomeCircle(){
+        //Draw the circle
         const genome_circle = d3.arc()
             .startAngle(0)
             .endAngle(2 * Math.PI)
-            .innerRadius(this.width/6)
-            .outerRadius(this.width/6 + 2)
-        
+            .innerRadius(this.circle_radius)
+            .outerRadius(this.circle_radius + this.circle_thickness)
         this.svg
             .append("g")
             .attr('class', 'genomeCircle')
@@ -155,6 +160,105 @@ export class CircularBarplot{
             .attr('d', genome_circle)
             .style('fill', 'rgba(79, 93, 117)');
 
+        //Draw the coordinates ticks, inspired by http://bl.ocks.org/tomgp/6475678
+        const ticks_number:number = 12; 
+        const tickAngle= 360 / ticks_number //This is the angle between two ticks. 
+        const tickScale = d3.scaleLinear()
+            .range([-180, 180 - tickAngle]) // -180, 180 so tick 0 will be at genome origin (up middle)
+            .domain([0, ticks_number - 1])
+
+        const labelScale = d3.scaleLinear()
+            .range([0, 360 - tickAngle]) // I don't why 0,360 for label, probably something related to x and y calculations. 
+            .domain([0, ticks_number - 1])
+        
+        this.svg.selectAll(".coord-tick")
+            .data(d3.range(0,ticks_number)).enter()
+                .append("line")
+                .attr('x1', 0)
+                .attr('x2', 0)
+                .attr('y1', this.circle_radius)
+                .attr('y2', this.circle_radius - 2)
+                .attr('transform', d => 'rotate(' + tickScale(d) + ')')
+                .attr("stroke", "gray")
+                .attr("stroke-width", 0.5)
+
+        //Add coordinates label. Placements are made for 6 ticks, you will probably have to adapt if you want to change the number of ticks. 
+        const gap_between_ticks = Math.round(this.genome_size / ticks_number)
+        const label_radius = this.circle_radius - 8; 
+        const label_y_offset = 1; 
+        const radians = 0.0174532925; 
+        this.svg.selectAll(".coord-label")
+            .data(d3.range(0, ticks_number))
+                .enter()
+                .append('text')
+                .attr('class', 'coord-label')
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '3px')
+                .style('fill', 'gray')
+                .attr('x', d => {
+                    return label_radius * Math.sin(labelScale(d) * radians)})
+                .attr('y', d => {
+                    const current_radius = (d * tickAngle)%90 === 0 ? label_radius + 2 : label_radius  // Better placement of strictly vertical and horizontal labels
+                    return -current_radius * Math.cos(labelScale(d) * radians) + label_y_offset})
+                .text(d => numberWithCommas(Math.round((d * gap_between_ticks) / 1000 )) + " kb"); 
+
+        //Add genome size in the middle
+        this.svg.append("text")
+            .text(numberWithCommas(this.genome_size) + " bp")
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '4.5px')
+    }
+
+    
+
+    /*arcFunction(coord){
+        const start = parseInt(/\(([0-9]*),/.exec(coord)[1]);
+        const end: number = +this.sgrna_length + +start;
+        datum.startAngle = 2*Math.PI * datum.start * (1/sizeGenome);
+        let endAngle = 2*Math.PI * end * (1/sizeGenome)  ;
+        datum.endAngle = (Math.abs(endAngle - datum.startAngle) < 0.01) ? endAngle + 0.01 : endAngle;
+        return d3.select(this)
+                .transition()
+                  .ease(d3.easeBackInOut)
+                  .duration(600)
+                  .attr('d', pathSgRNA)
+                  .attr('transform', `translate( ${width / 2} , ${height / 2})`);
+      }*/
+
+    addSingleCoordinatesPoints(){
+        const coordinateScale = d3.scaleLinear()
+            .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
+            .domain([0, this.genome_size])
+
+        this.svg.selectAll("single-coord-ticks")
+            .data(this.selected_sgrna_coordinates)
+            .enter()
+            .append("circle")
+            .attr("fill", "red")
+            .attr('cx', 0)
+            .attr("r", 0.5)
+            .attr('cy', this.circle_radius + this.circle_thickness + 3)
+            .attr('transform', d => 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')')
+    }
+
+    addSingleCoordinatesTicks(){
+        const coordinateScale = d3.scaleLinear()
+            .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
+            .domain([0, this.genome_size])
+
+        this.svg.selectAll("single-coord-ticks")
+            .data(this.selected_sgrna_coordinates)
+            .enter()
+            .append("line")
+            .attr("stroke", "red")
+            .attr("stroke-width", "0.5")
+            .attr('x1', 0)
+            .attr("x2", 0)
+            .attr("y1", this.circle_radius + this.circle_thickness + 3)
+            .attr("y2", this.circle_radius + this.circle_thickness + 6)
+            .attr('transform', d => {console.log(coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1]))); return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})
     }
 
 
@@ -169,18 +273,24 @@ export class CircularBarplot{
           });
     }
 
-    componentDidLoad(){
+    componentDidRender(){
         this.initializeSvg();
         this.createGenomeCircle();
         this.createCircularBarplot(); 
+        this.addSingleCoordinatesTicks();
     }
 
     render(){
-    return (
-    <div class="circular-barplot-main">
-        <div class="barplot"></div>
-    </div>
-    )
+        console.log(this.selected_sgrna_coordinates)
+        return (
+        <div class="circular-barplot-main">
+        </div>
+        )
     }
 
+}
+
+//https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }

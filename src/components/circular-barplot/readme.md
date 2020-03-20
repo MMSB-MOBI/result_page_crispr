@@ -7,10 +7,11 @@
 
 ## Properties
 
-| Property           | Attribute     | Description | Type       | Default     |
-| ------------------ | ------------- | ----------- | ---------- | ----------- |
-| `genome_size`      | `genome_size` |             | `number`   | `undefined` |
-| `list_coordinates` | --            |             | `number[]` | `undefined` |
+| Property                     | Attribute     | Description | Type       | Default     |
+| ---------------------------- | ------------- | ----------- | ---------- | ----------- |
+| `genome_size`                | `genome_size` |             | `number`   | `undefined` |
+| `list_coordinates`           | --            |             | `number[]` | `undefined` |
+| `selected_sgrna_coordinates` | --            |             | `string[]` | `undefined` |
 
 
 ## Dependencies

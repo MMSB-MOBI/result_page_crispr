@@ -10,6 +10,7 @@ export namespace Components {
     interface CircularBarplot {
         "genome_size": number;
         "list_coordinates": number[];
+        "selected_sgrna_coordinates": string[];
     }
     interface GenomicCard {
         "all_data": string;
@@ -134,6 +135,7 @@ declare namespace LocalJSX {
     interface CircularBarplot {
         "genome_size"?: number;
         "list_coordinates"?: number[];
+        "selected_sgrna_coordinates"?: string[];
     }
     interface GenomicCard {
         "all_data"?: string;

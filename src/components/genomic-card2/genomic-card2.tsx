@@ -50,6 +50,7 @@ export class GenomicCard {
 
     @Listen('table-crispr.org-click', { target: 'window'})
     handleTableOrganismClick(){
+        this.removeSvg(); 
         this.highlight_selection = true; 
     }
 
@@ -88,16 +89,21 @@ export class GenomicCard {
             .coords.length
     }
 
+    getCoordinates(sgrna:string){
+        return this.current_sgrnas
+            .find(e => e.seq === sgrna).coords
+    }
+
     componentDidRender() {
         const coords = this.current_sgrnas.find(e => e.seq === this.selected.sgrna).coords
         const old_current_sgrnas:{[seq:string]:string[]} = {}
         this.initial_sgrnas.map(e => old_current_sgrnas[e.seq] = e.coords)
-        dspl.generateGenomicCard(DisplayGenome, this.diagonal_svg, this.selected.size, this.element.shadowRoot, coords, this.selected.sgrna);
+        /*dspl.generateGenomicCard(DisplayGenome, this.diagonal_svg, this.selected.size, this.element.shadowRoot, coords, this.selected.sgrna);
         dspl.generateSunburst(this.selected.size, old_current_sgrnas, this.diagonal_svg, this.element.shadowRoot.querySelector('#displayGenomicCard'), this.selected_section_on_card, false);
         this.element.shadowRoot.querySelector('.genomeCircle').addEventListener("click", () => {
             this.selected_section_on_card = -1;
             this.current_sgrnas = this.initial_sgrnas; 
-        })
+        })*/
         //this.styleHelp(".genomeCircle>path", ".help-gen");
         //this.styleHelp(".sunburst>path", ".help-section");
         //this.styleHelp("#notif>.material-icons", "#notif-text");*/
@@ -111,9 +117,14 @@ export class GenomicCard {
         }
     }
 
+    removeSvg(){
+        if (this.element.shadowRoot.querySelector("circular-barplot svg")) {
+            this.element.shadowRoot.querySelector("circular-barplot svg").remove(); 
+        }
+    }
+
     render() {
-        console.log(this.selected.size)
-        console.log(this.all_start_coordinates)
+        console.log("RENDER")
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -128,7 +139,7 @@ export class GenomicCard {
                             <mmsb-select
                                 data={this.organisms.map(name => [name, name])}
                                 selected={[this.selected.org]}
-                                onSelect={e => this.changeOrganism(e)}
+                                onSelect={e => {this.removeSvg(); this.changeOrganism(e)}}
                                 color={this.highlight_selection ? "#539ddc54" : undefined}
                             />
                         </div>
@@ -136,7 +147,7 @@ export class GenomicCard {
                             <span class="selection-header">References</span>
                             <select 
                                 class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
-                                onChange={e => this.changeRef((e.target as HTMLSelectElement).value)}>
+                                onChange={e => {this.removeSvg(); this.changeRef((e.target as HTMLSelectElement).value)}}>
                                 {this.current_references.map(ref => <option>{ref}</option>)}
                             </select>
                         </div>
@@ -172,8 +183,9 @@ export class GenomicCard {
                             </div>
                         </div>
                     </div>
+
                 </div>
-                <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size}></circular-barplot>
+                <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size} selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)}></circular-barplot>>
             </div>
 
             
