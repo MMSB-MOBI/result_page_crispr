@@ -93,7 +93,6 @@ export class ResultPage {
    * @param filtered_sgrna : sgrna to keep if selection has been done
    */
   getSgrnas(org: string, ref: string, filtered_sgrna?: string[]): SGRNAForOneEntry[]{
-    console.log("getSgrnas", org, ref, filtered_sgrna)
     let sgrnas = this.organism_data
       .find(e => e.organism === org)
       .fasta_entry.find(e => e.ref === ref).sgrna
@@ -203,9 +202,7 @@ export class ResultPage {
               }}
 
               changeSgrnaSubset = {(sgrna_subset) => {
-                console.log("sgrna_subset", sgrna_subset)
                 this.current_sgrnas = this.getSgrnas(this.selected.org, this.selected.ref, sgrna_subset)
-                console.log("current_sgrnas", this.current_sgrnas)
                 if (!sgrna_subset.includes(this.selected.sgrna)) {
                   this.selected = {
                     ...this.selected,

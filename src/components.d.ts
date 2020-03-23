@@ -163,6 +163,7 @@ declare namespace LocalJSX {
         "initial_sgrnas"?: SGRNAForOneEntry[];
         "onClickHighlight"?: () => void;
         "onGenomic-card.button-click"?: (event: CustomEvent<any>) => void;
+        "onGenomic-card.coordinate-click"?: (event: CustomEvent<any>) => void;
         "organisms"?: string[];
         "selected"?: CurrentSelection;
     }

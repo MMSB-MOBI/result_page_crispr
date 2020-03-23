@@ -28,6 +28,7 @@ export class GenomicCard {
     @Prop() onClickHighlight:() => void; 
 
     @State() highlight_selection:boolean = false; 
+    @State() display_circular_barplot:boolean = true; 
 
     selected_section_on_card:number = -1; 
     
@@ -39,6 +40,7 @@ export class GenomicCard {
     }
 
     @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
+    @Event({ eventName: 'genomic-card.coordinate-click'}) onClickCoordinate: EventEmitter; 
 
     @Listen('sectionSelected', { target: 'window' })
     handleSectionSelected(event: CustomEvent) {
@@ -118,13 +120,19 @@ export class GenomicCard {
     }
 
     removeSvg(){
+        console.log("remove svg")
         if (this.element.shadowRoot.querySelector("circular-barplot svg")) {
             this.element.shadowRoot.querySelector("circular-barplot svg").remove(); 
         }
     }
 
+    removeSvgCoordTicks(){
+        //this.element.shadowRoot.querySelectorAll("circular-barplot svg .single-coord-ticks"); 
+    }
+
     render() {
-        console.log("RENDER")
+        console.log("genomic-card RENDER")
+        console.log(this.selected)
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -152,7 +160,7 @@ export class GenomicCard {
                             </select>
                         </div>
                         <div>
-                            <button class="highlight-sgrna-button" onClick={() => { this.onClickHighlight(); this.onClickHighlightButton.emit(); }}> 
+                            <button class="highlight-sgrna-button" onClick={() => { this.onClickHighlight(); this.removeSvg(); this.onClickHighlightButton.emit(); }}> 
                                 <i class="material-icons" style={{ float: 'left' }}>arrow_left</i>
 
                                 <span>Highlight this sgRNA</span>
@@ -168,7 +176,8 @@ export class GenomicCard {
                                     .map(sgRna => [sgRna.seq, sgRna.seq + " (" + String(this.getNumberOccurences(sgRna.seq)) + ")"])}
                                 selected={[this.selected.sgrna]}
                                 onSelect={(e) => {
-                                    this.changeSgrna(e)
+                                    this.changeSgrna(e); 
+                                    //this.removeSvgCoordTicks(); 
                                 }}
                                 color={this.highlight_selection ? "#539ddc54" : undefined}/>
                         </div>
@@ -178,14 +187,15 @@ export class GenomicCard {
                                 <ul>
                                     {this.current_sgrnas
                                         .find(e => e.seq === this.selected.sgrna).coords
-                                        .map(e => <li>{e}</li>)}
+                                        .map(coord => <li onMouseOver={() => this.onClickCoordinate.emit(coord)}>{coord}</li>)}
                                 </ul>
                             </div>
                         </div>
                     </div>
 
                 </div>
-                <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size} selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)}></circular-barplot>>
+                <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size} selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)}></circular-barplot>
+                
             </div>
 
             

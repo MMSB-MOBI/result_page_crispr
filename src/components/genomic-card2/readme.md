@@ -24,9 +24,10 @@
 
 ## Events
 
-| Event                       | Description | Type               |
-| --------------------------- | ----------- | ------------------ |
-| `genomic-card.button-click` |             | `CustomEvent<any>` |
+| Event                           | Description | Type               |
+| ------------------------------- | ----------- | ------------------ |
+| `genomic-card.button-click`     |             | `CustomEvent<any>` |
+| `genomic-card.coordinate-click` |             | `CustomEvent<any>` |
 
 
 ## Dependencies
