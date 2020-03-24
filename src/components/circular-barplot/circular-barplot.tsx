@@ -31,23 +31,28 @@ export class CircularBarplot{
         this.addSingleCoordinatesTicks(); 
     }
 
-    @Listen('genomic-card.coordinate-click', { target: 'window' })
-    handleCoordinateChange(coord){
-        console.log("click coord", coord.detail); 
+    @Listen('genomic-card.coordinate-over', { target: 'window' })
+    handleCoordinateOver(coord){
         const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`)
-        console.log(tick)
         tick.remove(); 
 
-        this.highlightCoordinatesTicks([coord.detail], " #ff0000")
+        this.highlightCoordinatesTicks([coord.detail], "#ff0000")
+    }
+
+    @Listen('genomic-card.coordinate-out', { target: 'window' })
+    handleCoordinateOut(coord){
+        const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`)
+        tick.remove(); 
+
+        this.highlightCoordinatesTicks([coord.detail], "#ff9999")
     }
 
     highlightCoordinatesTicks(coords:string[], color:string){
-        console.log(coords); 
         const coordinateScale = d3.scaleLinear()
             .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
             .domain([0, this.genome_size])
 
-        const ticks = this.svg.selectAll(".single-sgrna-ticks-container")
+        this.svg.selectAll(".single-sgrna-ticks-container")
             .selectAll(".singe-sgrna-ticks")
             .data(coords)
             .enter()
@@ -63,19 +68,6 @@ export class CircularBarplot{
             .attr("y1", this.circle_radius + this.circle_thickness + 3)
             .attr("y2", this.circle_radius + this.circle_thickness + 6)
             .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})
-
-        ticks.transition()
-            .duration(500)
-            .attr("stroke", "#ff9999")
-            .transition()
-            .duration(500)
-            .attr('stroke', color)
-            .transition()
-            .duration(500)
-            .attr('stroke', "#ff9999")
-            .transition()
-            .duration(500)
-            .attr('stroke', color)
             
     }
 
@@ -211,7 +203,6 @@ export class CircularBarplot{
     }*/
 
     createGenomeCircle(){
-        console.log("create circle", this.genome_size)
         //Draw the circle
         const genome_circle = d3.arc()
             .startAngle(0)
@@ -352,10 +343,6 @@ export class CircularBarplot{
             .attr("stroke", "#ff9999")
     }
 
-    getCoordinateTick(coord:string){
-        console.log("get tick", coord)
-    }
-
     blur(data:CoordinatesBinData[]){
         // From https://bl.ocks.org/curran/853fa00b8f0732fb2bee7fccfd7b4523
         return data.map((d, i) => {
@@ -373,7 +360,7 @@ export class CircularBarplot{
     }
 
     render(){
-        console.log("circular-barplot RENDER")
+        //console.log("circular-barplot RENDER")
         return (
         <div class="circular-barplot-main">
         </div>

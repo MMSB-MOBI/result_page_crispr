@@ -40,7 +40,8 @@ export class GenomicCard {
     }
 
     @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
-    @Event({ eventName: 'genomic-card.coordinate-click'}) onClickCoordinate: EventEmitter; 
+    @Event({ eventName: 'genomic-card.coordinate-over'}) onOverCoordinate: EventEmitter; 
+    @Event({ eventName: 'genomic-card.coordinate-out'}) onOutCoordinate:EventEmitter; 
 
     @Listen('sectionSelected', { target: 'window' })
     handleSectionSelected(event: CustomEvent) {
@@ -52,7 +53,7 @@ export class GenomicCard {
 
     @Listen('table-crispr.org-click', { target: 'window'})
     handleTableOrganismClick(){
-        this.removeSvg(); 
+        //this.removeSvg(); 
         this.highlight_selection = true; 
     }
 
@@ -147,7 +148,7 @@ export class GenomicCard {
                             <mmsb-select
                                 data={this.organisms.map(name => [name, name])}
                                 selected={[this.selected.org]}
-                                onSelect={e => {this.removeSvg(); this.changeOrganism(e)}}
+                                onSelect={e => {/*this.removeSvg();*/ this.changeOrganism(e)}}
                                 color={this.highlight_selection ? "#539ddc54" : undefined}
                             />
                         </div>
@@ -155,12 +156,12 @@ export class GenomicCard {
                             <span class="selection-header">References</span>
                             <select 
                                 class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
-                                onChange={e => {this.removeSvg(); this.changeRef((e.target as HTMLSelectElement).value)}}>
+                                onChange={e => {/*this.removeSvg();*/this.changeRef((e.target as HTMLSelectElement).value)}}>
                                 {this.current_references.map(ref => <option>{ref}</option>)}
                             </select>
                         </div>
                         <div>
-                            <button class="highlight-sgrna-button" onClick={() => { this.onClickHighlight(); this.removeSvg(); this.onClickHighlightButton.emit(); }}> 
+                            <button class="highlight-sgrna-button" onClick={() => { this.onClickHighlight(); /*this.removeSvg()*/; this.onClickHighlightButton.emit(); }}> 
                                 <i class="material-icons" style={{ float: 'left' }}>arrow_left</i>
 
                                 <span>Highlight this sgRNA</span>
@@ -187,7 +188,11 @@ export class GenomicCard {
                                 <ul>
                                     {this.current_sgrnas
                                         .find(e => e.seq === this.selected.sgrna).coords
-                                        .map(coord => <li onMouseOver={() => this.onClickCoordinate.emit(coord)}>{coord}</li>)}
+                                        .map(coord => <li 
+                                            onMouseOver={() => this.onOverCoordinate.emit(coord)}
+                                            onMouseOut={() => this.onOutCoordinate.emit(coord)}>
+                                                {coord}
+                                            </li>)}
                                 </ul>
                             </div>
                         </div>

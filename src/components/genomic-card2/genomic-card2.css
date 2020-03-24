@@ -226,4 +226,7 @@
   /*animation: bluefade 1s;*/
 }
 
+.coord-box li:hover{
+  color:#ff0000; 
+}
 
