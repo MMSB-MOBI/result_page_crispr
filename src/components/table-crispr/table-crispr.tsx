@@ -47,6 +47,9 @@ export class TableCrispr {
   @State() minocc_filter: number[];
   @State() maxocc_filter: number[];
 
+  initial_minocc: number[]; //Minimum occurences initial min (always 0) and max 
+  initial_maxocc: number[]; //Maximum occurences initial min (always 0) and max
+
   // *************************** LISTEN & EMIT ***************************
 
   constructor() {
@@ -57,27 +60,22 @@ export class TableCrispr {
 
   @Listen('genomic-card.button-click', { target: 'window' })
   handleButtonSelectSgrna() {
+    this.reinitializeSliders();
     this.highlighted_sgrna = this.selected.sgrna;
     this.sgRNAFilter(this.highlighted_sgrna);
     const selected_sgrna_index = this.currentSgrnas.map(e => e.seq).indexOf(this.selected.sgrna)
     const current_page = Math.trunc(selected_sgrna_index / 10) + 1;
     this.page = current_page;
-    this.reinitializeSliders(); 
   }
 
   /* Filter sgRNA on search*/
   sgRNAFilter(sgrna: string = undefined): void {
     //Filter on min occurences
-    //const minOcc: any = (this.element.shadowRoot.querySelector("#minOcc") as HTMLInputElement).value;
     const search = sgrna ? sgrna : (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value;
-    //this.currentSgrnas = this.initial_min_max_data.filter(d => d.min_occurences >= minOcc).filter(a => RegExp(search).test(a.seq))
     this.currentSgrnas = this.initial_min_max_data
       .filter(a => RegExp(search).test(a.seq))
       .filter(a => a.min_occurences >= this.minocc_filter[0] && a.min_occurences <= this.minocc_filter[1])
       .filter(a => a.max_occurences >= this.maxocc_filter[0] && a.max_occurences <= this.maxocc_filter[1])
-
-
-
     this.page = 1;
   }
 
@@ -126,14 +124,13 @@ export class TableCrispr {
     }
 
     const minocc_max = this.currentSgrnas.reduce((val, e) => val > e.min_occurences ? val : e.min_occurences, 0)
-    const minocc_min = this.currentSgrnas.reduce((val, e) => val < e.min_occurences ? val : e.min_occurences, 0)
+    //const minocc_min = this.currentSgrnas.reduce((val, e) => val < e.min_occurences ? val : e.min_occurences, 0)
     const maxocc_max = this.currentSgrnas.reduce((val, e) => val > e.max_occurences ? val : e.max_occurences, 0)
-    const maxocc_min = this.currentSgrnas.reduce((val, e) => val < e.max_occurences ? val : e.max_occurences, 0)
-    this.minocc_filter = [minocc_min, minocc_max];
-    this.maxocc_filter = [maxocc_min, maxocc_max]
-  }
-
-  componentWillRender() {
+    //const maxocc_min = this.currentSgrnas.reduce((val, e) => val < e.max_occurences ? val : e.max_occurences, 0)
+    this.initial_minocc = [0, minocc_max];
+    this.initial_maxocc = [0, maxocc_max]; 
+    this.minocc_filter = this.initial_minocc; 
+    this.maxocc_filter = this.initial_maxocc; 
   }
 
   componentDidLoad() {
@@ -143,7 +140,13 @@ export class TableCrispr {
   }
 
   componentWillUpdate() {
-    this.sortData()
+    //Selection of on other sgrna on genomic-card after highlight a sgrna
+    if (this.highlighted_sgrna && this.highlighted_sgrna != this.selected.sgrna){
+      this.highlighted_sgrna = undefined; 
+      (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "" //reinitialize sequence search bar
+    }
+    this.sgRNAFilter();
+    this.sortData(); 
     this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
 
 
@@ -307,6 +310,8 @@ export class TableCrispr {
   reinitializeSliders(){
     this.element.shadowRoot.querySelector(".slider-min svg").remove();
     this.element.shadowRoot.querySelector(".slider-max svg").remove();
+    this.minocc_filter = this.initial_minocc; 
+    this.maxocc_filter = this.initial_maxocc; 
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
     this.addSvgText(); 
@@ -317,7 +322,6 @@ export class TableCrispr {
     if (this.state == "stop") {
       return this.error_msg
     }
-
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
