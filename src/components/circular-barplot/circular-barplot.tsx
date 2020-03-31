@@ -113,21 +113,22 @@ export class CircularBarplot{
      * Draw genome circle with coordinates ticks and labels on it.
      */
     createGenomeCircle(){
-
-        //Draw the circle, it's an arc from 0 to 2pi. 
-        const genome_circle = d3.arc()
-            .startAngle(0)
-            .endAngle(2 * Math.PI)
-            .innerRadius(this.circle_radius)
-            .outerRadius(this.circle_radius + this.circle_thickness); 
         
-        //Add the circle to svg
+        //Draw and add the circle to svg
         this.svg
             .append("g")
             .attr('class', 'genome-circle')
-            .append('path')
-            .attr('d', genome_circle)
-            .style('fill', 'rgba(79, 93, 117)')
+            .append('circle')
+            .on("click", () => {
+                this.svg.selectAll(".detailed-barplot").remove(); //Remove detailed barplot if exists
+                this.svg.selectAll(".bin").style("opacity", "1"); //All bins with initial opacity
+            })
+            .attr("cx", 0)
+            .attr("cy", 0)
+            .attr("r", this.circle_radius + this.circle_thickness)
+            .style("fill", "transparent")
+            .style("stroke", "rgba(79, 93, 117)")
+            .style("stroke-width", this.circle_thickness)
         
         //Draw the coordinates ticks and labels, inspired by http://bl.ocks.org/tomgp/6475678
         const ticks_number:number = 12; 
@@ -218,6 +219,11 @@ export class CircularBarplot{
             .append("path")
               .attr("fill", "#69b3a2")
               .attr("class", "bin")
+                .on("click", function(d){ //Call function to access the object in this
+                    component.svg.selectAll(".bin").style("opacity", "0.5") //Fade all bins
+                    d3.select(this).style("opacity","1.0"); //Highlight current bin
+                    component.addBarplotDetailed(d) //Add the detailed barplot for current bin
+                })
               .attr("d", d3.arc()
                   .innerRadius(innerRadius)
                   //@ts-ignore
@@ -228,11 +234,7 @@ export class CircularBarplot{
                   .endAngle(function(d) { return x(d.bin_id) + x.bandwidth(); })
                   .padAngle(0.01)
                   .padRadius(innerRadius))
-              .on("click", function(d){ //Call function to access the object in this
-                  this.svg.selectAll(".bin").style("opacity", "0.5") //Fade all bins
-                  d3.select(this).style("opacity","1.0"); //Highlight current bin
-                  component.addBarplotDetailed(d) //Add the detailed barplot for current bin
-                })
+              
     }
 
     addBarplotDetailed(bin_data:CoordinatesBinData){
