@@ -1,4 +1,4 @@
-import {Component, h, Prop, Listen, Watch, Element, State} from '@stencil/core';
+import {Component, h, Prop, Listen, Watch} from '@stencil/core';
 import { CoordinatesBinData } from '../result-page/interfaces';
 declare const d3: any;
 
@@ -24,6 +24,10 @@ export class CircularBarplot{
 
     circle_radius:number; 
     circle_thickness:number;
+    barplot_begin:number; 
+    barplot_end: number; 
+    detailed_barplot_begin:number; 
+    detailed_barplot_end:number; 
 
     @Watch('selected_sgrna_coordinates')
     selectedSgrnaChange(){
@@ -33,78 +37,66 @@ export class CircularBarplot{
 
     @Listen('genomic-card.coordinate-over', { target: 'window' })
     handleCoordinateOver(coord){
-        const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`)
+        const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`) //Select corresponding coord tick
         tick.remove(); 
-
         this.highlightCoordinatesTicks([coord.detail], "#ff0000")
     }
 
     @Listen('genomic-card.coordinate-out', { target: 'window' })
     handleCoordinateOut(coord){
-        const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`)
+        const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`) //Select corresponding coord tick
         tick.remove(); 
-
         this.highlightCoordinatesTicks([coord.detail], "#ff9999")
     }
 
-    highlightCoordinatesTicks(coords:string[], color:string){
-        const coordinateScale = d3.scaleLinear()
-            .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
-            .domain([0, this.genome_size])
-
-        this.svg.selectAll(".single-sgrna-ticks-container")
-            .selectAll(".singe-sgrna-ticks")
-            .data(coords)
-            .enter()
-            .append("line")
-            .attr("class", d => {  
-                const start = parseInt(/\(([0-9]*),/.exec(d)[1]);
-                return `single-sgrna-ticks start${start}`})
-            //.attr("class", d => {const start = parseInt(/\(([0-9]*),/.exec(d)[1]); return `start${start}`})
-            .attr("stroke", color)
-            .attr("stroke-width", "0.5")
-            .attr('x1', 0)
-            .attr("x2", 0)
-            .attr("y1", this.circle_radius + this.circle_thickness + 3)
-            .attr("y2", this.circle_radius + this.circle_thickness + 6)
-            .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})
-            
-    }
-
-    createBinData(): CoordinatesBinData[]{
-        const bin_size = Math.round(this.genome_size / this.bin_number)
+    /**
+     * Format data for bin construction
+     * @param list_coordinates list of start coordinates
+     * @param bin_number number of bins to construct
+     * @param start histogram start coordinate
+     * @param end histogram end coordinate
+     */
+    createBinData(list_coordinates:number[], bin_number:number, start:number, end:number): CoordinatesBinData[]{
+        const bin_size = Math.ceil((end - start) / bin_number)
         const bin_data = []; 
 
         let bin_id = 0; 
-        for (let i = 0; i < this.genome_size; i = i + bin_size){
+        for (let i = start; i < end; i = i + bin_size){
             bin_data.push({ bin_start: i, bin_end: i + bin_size, number_coords_inside: 0, bin_id : bin_id.toString()})
             bin_id += 1; 
         }
         
-        bin_data[bin_data.length - 1].bin_end = this.genome_size //Correct the last value because of round approximation
+        bin_data[bin_data.length - 1].bin_end = end //Correct the last value because of round approximation
         
-        this.list_coordinates.map(coord => {
+        list_coordinates.map(coord => {
             const bin = bin_data.find(e => coord >= e.bin_start && coord < e.bin_end); 
             bin.number_coords_inside++; 
         })
 
-        bin_data.map(e => e.number_coords_proportion = e.number_coords_inside / this.list_coordinates.length)
+        bin_data.map(e => e.number_coords_proportion = e.number_coords_inside / list_coordinates.length)
 
         return bin_data
-
     }
 
+    /**
+     * Fix svg margin, circles radius, and create svg tag. 
+     */
     initializeSvg(){
         this.margin = 10; 
         this.width = 200; 
         this.height = this.width;
         this.circle_radius = this.width/6; 
         this.circle_thickness = 2; 
+        this.barplot_begin = this.width/4.5; 
+        this.barplot_end = this.width/3; 
+        this.detailed_barplot_begin = this.width/3;
+        this.detailed_barplot_end = this.width/2 - 1; 
 
         this.svg = d3.select(".circular-barplot-main")
             .append("svg")
             .attr("viewBox", [-this.width / 2, -this.height / 2, this.width, this.height])
             .append("g")
+        
     }
 
     displaySvgContent(){
@@ -117,106 +109,27 @@ export class CircularBarplot{
         this.svg.selectAll("g").remove(); 
     }
 
-    createCircularBarplot(){
-        // https://www.d3-graph-gallery.com/graph/circular_barplot_basic.html
-        const innerRadius = this.width/4; 
-        const outerRadius = this.width/2.5; 
-        const bin_data = this.createBinData()
-
-        //@ts-ignore
-        const x = d3.scaleBand()
-            .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
-            .align(0)                  // This does nothing ?
-            .domain(bin_data.map(function (d) { return d.bin_id; }));
-
-        //@ts-ignore
-        const max_prop = [...bin_data].sort((a,b) => b.number_coords_proportion - a.number_coords_proportion)[0].number_coords_proportion
-
-        const y = d3.scaleRadial()
-            .range([innerRadius, outerRadius])
-            .domain([0, max_prop]); // Domain of Y is from 0 to the max seen in the data
-
-        this.svg.append("g")
-            .attr("class", "barplot-container")
-            .selectAll("path")
-            .data(bin_data)
-            .enter()
-            .append("path")
-              .attr("fill", "#69b3a2")
-              //@ts-ignore
-              .attr("d", d3.arc()     // imagine your doing a part of a donut plot
-                  .innerRadius(innerRadius)
-                  //@ts-ignore
-                  .outerRadius(function(d) { return y(d.number_coords_proportion); })
-                  //@ts-ignore
-                  .startAngle(function(d) { return x(d.bin_id); })
-                  //@ts-ignore
-                  .endAngle(function(d) { return x(d.bin_id) + x.bandwidth(); })
-                  .padAngle(0.01)
-                  .padRadius(innerRadius))
-    }
-
-
-    /*createLinePlot(){
-        const margin = 10, 
-            width = 954,
-            height = width,
-            innerRadius = width/5,
-            outerRadius = width/2 - margin
-
-        //@ts-ignore
-        var svg = d3.select(".lineplot")
-            .append("svg")
-            //@ts-ignore
-            .attr("viewBox", [-width / 2, -height / 2, width, height])
-            .append("g")
-
-        //@ts-ignore
-        var x = d3.scaleLinear()
-            .domain([0, this.genome_size])
-            .range([0, width]);
-        svg.append("g")
-            .attr("transform", "translate(0," + height + ")")
-            //@ts-ignore
-            .call(d3.axisBottom(x));
-
-        //@ts-ignore
-        var y = d3.scaleLinear()
-            .domain([0, 1])
-            .range([height, 0]);
-        svg.append("g")
-        //@ts-ignore
-            .call(d3.axisLeft(y)); 
-
-        svg.append("path")
-            .datum(this.bin_data)
-            .attr("fill", "none")
-            .attr("stroke", "steelblue")
-            .attr("stroke-width", 1.5)
-            //@ts-ignore
-            .attr("d", d3.line()
-                //@ts-ignore
-                .x(function (d) { return x(d.bin_start) })
-                //@ts-ignore
-                .y(function (d) { return y(d.blurred) })
-            )
-    }*/
-
+    /**
+     * Draw genome circle with coordinates ticks and labels on it.
+     */
     createGenomeCircle(){
-        //Draw the circle
+
+        //Draw the circle, it's an arc from 0 to 2pi. 
         const genome_circle = d3.arc()
             .startAngle(0)
             .endAngle(2 * Math.PI)
             .innerRadius(this.circle_radius)
-            .outerRadius(this.circle_radius + this.circle_thickness)
+            .outerRadius(this.circle_radius + this.circle_thickness); 
+        
+        //Add the circle to svg
         this.svg
             .append("g")
             .attr('class', 'genome-circle')
             .append('path')
             .attr('d', genome_circle)
-            .style('fill', 'rgba(79, 93, 117)');
-
-        //Draw the coordinates ticks, inspired by http://bl.ocks.org/tomgp/6475678
+            .style('fill', 'rgba(79, 93, 117)')
+        
+        //Draw the coordinates ticks and labels, inspired by http://bl.ocks.org/tomgp/6475678
         const ticks_number:number = 12; 
         const tickAngle= 360 / ticks_number //This is the angle between two ticks. 
         const tickScale = d3.scaleLinear()
@@ -225,8 +138,7 @@ export class CircularBarplot{
 
         const labelScale = d3.scaleLinear()
             .range([0, 360 - tickAngle]) // I don't why 0,360 for label, probably something related to x and y calculations. 
-            .domain([0, ticks_number - 1])
-        
+            .domain([0, ticks_number - 1])   
         this.svg
             .append("g")
             .attr("class", "coord-ticks-container")
@@ -242,7 +154,7 @@ export class CircularBarplot{
                 .attr("stroke", "gray")
                 .attr("stroke-width", 0.5)
 
-        //Add coordinates label. Placements are made for 6 ticks, you will probably have to adapt if you want to change the number of ticks. 
+        //Add coordinates label. Placements are made for 12 ticks, you will probably have to adapt if you want to change the number of ticks. 
         const gap_between_ticks = Math.round(this.genome_size / ticks_number)
         const label_radius = this.circle_radius - 8; 
         const label_y_offset = 1; 
@@ -277,46 +189,135 @@ export class CircularBarplot{
             .attr('font-size', '4.5px')
     }
 
-    
+    /**
+     * Draw circular barplot for distribution of all sgRNAs
+     */
+    createCircularBarplot(){
+        // https://www.d3-graph-gallery.com/graph/circular_barplot_basic.html
+        const innerRadius = this.barplot_begin;
+        const outerRadius = this.barplot_end;
+        const bin_data = this.createBinData(this.list_coordinates, this.bin_number, 0, this.genome_size); 
 
-    /*arcFunction(coord){
-        const start = parseInt(/\(([0-9]*),/.exec(coord)[1]);
-        const end: number = +this.sgrna_length + +start;
-        datum.startAngle = 2*Math.PI * datum.start * (1/sizeGenome);
-        let endAngle = 2*Math.PI * end * (1/sizeGenome)  ;
-        datum.endAngle = (Math.abs(endAngle - datum.startAngle) < 0.01) ? endAngle + 0.01 : endAngle;
-        return d3.select(this)
-                .transition()
-                  .ease(d3.easeBackInOut)
-                  .duration(600)
-                  .attr('d', pathSgRNA)
-                  .attr('transform', `translate( ${width / 2} , ${height / 2})`);
-      }*/
+        const x = d3.scaleBand()
+            .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
+            .align(0)                  // This does nothing ?
+            .domain(bin_data.map(function (d) { return d.bin_id; }));
 
-    addSingleCoordinatesPoints(){
-        const coordinateScale = d3.scaleLinear()
-            .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
-            .domain([0, this.genome_size])
+        const max_prop = [...bin_data].sort((a,b) => b.number_coords_proportion - a.number_coords_proportion)[0].number_coords_proportion //maximum height for bin
 
-        this.svg.selectAll("single-coord-ticks")
-            .data(this.selected_sgrna_coordinates)
+        const y = d3.scaleRadial()
+            .range([innerRadius, outerRadius])
+            .domain([0, max_prop]); // Domain of Y is from 0 to the max seen in the data
+
+        const component = this; //Save component in variable for use in click function
+        this.svg.append("g")
+            .attr("class", "barplot-container")
+            .selectAll("path")
+            .data(bin_data)
             .enter()
-            .append("circle")
-            .attr("fill", "red")
-            .attr('cx', 0)
-            .attr("r", 0.5)
-            .attr('cy', this.circle_radius + this.circle_thickness + 3)
-            .attr('transform', d => 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')')
+            .append("path")
+              .attr("fill", "#69b3a2")
+              .attr("class", "bin")
+              .attr("d", d3.arc()
+                  .innerRadius(innerRadius)
+                  //@ts-ignore
+                  .outerRadius(function(d) { return y(d.number_coords_proportion); })
+                  //@ts-ignore
+                  .startAngle(function(d) { return x(d.bin_id); })
+                  //@ts-ignore
+                  .endAngle(function(d) { return x(d.bin_id) + x.bandwidth(); })
+                  .padAngle(0.01)
+                  .padRadius(innerRadius))
+              .on("click", function(d){ //Call function to access the object in this
+                  this.svg.selectAll(".bin").style("opacity", "0.5") //Fade all bins
+                  d3.select(this).style("opacity","1.0"); //Highlight current bin
+                  component.addBarplotDetailed(d) //Add the detailed barplot for current bin
+                })
     }
 
+    addBarplotDetailed(bin_data:CoordinatesBinData){
+        this.svg.selectAll(".detailed-barplot").remove(); //Remove if an other detailed barplot exist 
+
+        const coordinates_inside = this.list_coordinates.filter(e => e >= bin_data.bin_start && e < bin_data.bin_end) //list of coordinates inside the bin
+        
+        const detailed_bin_data = this.createBinData(coordinates_inside, 20, bin_data.bin_start, bin_data.bin_end); //Format data for detailed histogram
+
+        const middle = bin_data.bin_start + (bin_data.bin_end - bin_data.bin_start) / 2; //Middle placement of new histogram
+        const midlength = this.genome_size / 16; //Length at each side
+
+        const arc_placement = d3.scaleLinear() //Scale to place new histogram on circle
+            .range([0, 2 * Math.PI])
+            .domain([0, this.genome_size])
+
+        const start_angle = arc_placement(middle - midlength)
+        const end_angle = arc_placement(middle + midlength)
+
+        //Draw axis to follow circle, so it's an arc
+        const detailed_barplot_axis = d3.arc()
+            .startAngle(start_angle)
+            .endAngle(end_angle)
+            .innerRadius(this.detailed_barplot_begin + 1)
+            .outerRadius(this.detailed_barplot_begin + 1.5)
+
+        //Scale for x axis of barplot
+        const bin_x = d3.scaleLinear()
+            .range([start_angle, end_angle])
+            .domain([bin_data.bin_start, bin_data.bin_end])
+        
+        //Scale for y axis of barplot
+        const bin_y = d3.scaleLinear()
+            .range([this.detailed_barplot_begin + 1.5, this.detailed_barplot_end])
+            .domain([0,1]) //Maybe max height instead of 1 ? Between 0 and 1 because we work with proportion.
+
+        //Add the axis
+        this.svg
+            .append("g")
+            .attr("class", "detailed-barplot")
+            .append('path')
+            .attr("class", "detailed-barplot-axis")
+            .attr('d', detailed_barplot_axis)
+            .style('fill', 'gray')
+
+        //Add the barplot
+        this.svg.selectAll(".detailed-barplot")
+            .selectAll("detailed-bin")
+            .data(detailed_bin_data)
+            .enter()
+            .append("path")
+              .attr("fill", "#69b3a2")
+              .attr("class", "detailed-bin")
+              .attr("d", d3.arc()   
+                  .innerRadius(bin_y(0))
+                  .outerRadius(d => bin_y(d.number_coords_proportion))
+                  .startAngle(d => bin_x(d.bin_start))
+                  .endAngle(d => bin_x(d.bin_end))
+                ); 
+
+        //Scale for placing start and end coordinates of barplot
+        const coordAngle = d3.scaleLinear()
+            .range([0, 360]) //Angle
+            .domain([0, 2*Math.PI]) //Circle coordinates  
+
+        this.svg.selectAll(".detailed-barplot")
+            .selectAll("detailed-barplot-label")
+            .data([[bin_data.bin_start, start_angle], [bin_data.bin_end, end_angle]])
+            .enter()
+            .append("text")
+            .attr("class", "detailed-barplot-label")
+            .attr('text-anchor', (d,i) => i === 0 ? 'end' : 'start') //If it's start coordinate, anchor end. If it's end coordinates, anchor start.
+            .attr("x", 0)
+            .attr("y", - this.detailed_barplot_begin)
+            .attr('transform', d => `rotate(${coordAngle(d[1])})`)
+            .text(d => numberWithCommas(d[0]))
+            .attr("font-size", "3px")
+
+    }
+
+    //Add coordinates ticks for the current sgrna
     addSingleCoordinatesTicks(){
         const coordinateScale = d3.scaleLinear()
             .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
             .domain([0, this.genome_size])
-
-        const t = d3.transition()
-            .duration(600)
-            .ease(d3.easeBackInOut)
 
         const ticks = this.svg
             .append("g")
@@ -328,7 +329,6 @@ export class CircularBarplot{
             .attr("class", d => { 
                 const start = parseInt(/\(([0-9]*),/.exec(d)[1]);
                 return `single-sgrna-ticks start${start}`})
-            //.attr("class", d => {const start = parseInt(/\(([0-9]*),/.exec(d)[1]); return `start${start}`})
             .attr("stroke", "white")
             .attr("stroke-width", "0.5")
             .attr('x1', 0)
@@ -337,30 +337,50 @@ export class CircularBarplot{
             .attr("y2", this.circle_radius + this.circle_thickness + 6)
             .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})
         
+        //Transition when change sgrna
         ticks.transition()
             .delay(600)
-            //.duration(2000)
             .attr("stroke", "#ff9999")
     }
 
-    blur(data:CoordinatesBinData[]){
-        // From https://bl.ocks.org/curran/853fa00b8f0732fb2bee7fccfd7b4523
-        return data.map((d, i) => {
-            const previous = (i === 0) ? i : i - 1;
-            const next = (i === data.length - 1) ? i : i + 1;
-            const sum = data[previous].number_coords_proportion + d.number_coords_proportion + data[next].number_coords_proportion;
-            d.blurred = sum / 3;
-            return d;
-          });
+    /**
+     * Highlight the given coord. In fact it's just creation of ticks in given color, because the concerned ticks are previously removed. 
+     * @param coords : list of coords to highlight
+     * @param color : in which color you want to highlight
+     */
+
+    highlightCoordinatesTicks(coords:string[], color:string){
+        const coordinateScale = d3.scaleLinear()
+            .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
+            .domain([0, this.genome_size])
+
+        this.svg.selectAll(".single-sgrna-ticks-container")
+            .selectAll(".singe-sgrna-ticks")
+            .data(coords)
+            .enter()
+            .append("line")
+            .attr("class", d => {  
+                const start = parseInt(/\(([0-9]*),/.exec(d)[1]);
+                return `single-sgrna-ticks start${start}`})
+            //.attr("class", d => {const start = parseInt(/\(([0-9]*),/.exec(d)[1]); return `start${start}`})
+            .attr("stroke", color)
+            .attr("stroke-width", "0.5")
+            .attr('x1', 0)
+            .attr("x2", 0)
+            .attr("y1", this.circle_radius + this.circle_thickness + 3)
+            .attr("y2", this.circle_radius + this.circle_thickness + 6)
+            .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})     
     }
 
+    /**
+     * If svg exists, clean it. If not, initialize it. 
+     */
     componentDidRender(){
         this.svg ? this.cleanSvg() : this.initializeSvg(); 
         this.displaySvgContent(); 
     }
 
     render(){
-        //console.log("circular-barplot RENDER")
         return (
         <div class="circular-barplot-main">
         </div>

@@ -140,14 +140,17 @@ export class TableCrispr {
   }
 
   componentWillUpdate() {
+    console.log("Will update")
+    console.log(this.page);
     //Selection of on other sgrna on genomic-card after highlight a sgrna
     if (this.highlighted_sgrna && this.highlighted_sgrna != this.selected.sgrna){
       this.highlighted_sgrna = undefined; 
       (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "" //reinitialize sequence search bar
+      this.sgRNAFilter(); //reinitialize sgrnas 
     }
-    this.sgRNAFilter();
     this.sortData(); 
     this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
+    console.log("End will update", this.page);
 
 
     //this.sortTable("Max occurences")
@@ -217,6 +220,7 @@ export class TableCrispr {
   };
 
   actualizePaginationDisplay() {
+    console.log("Actualize pagination", this.page); 
     let start: number;
     let end: number;
     if (this.page - 3 <= 0) {
@@ -319,12 +323,14 @@ export class TableCrispr {
   }
 
   render() {
+    console.log("RENDER", this.page)
     if (this.state == "stop") {
       return this.error_msg
     }
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
+    console.log("RENDER PAGE", this.page);
 
     // Parse data and initialize allSgrna and calcul occurences
 

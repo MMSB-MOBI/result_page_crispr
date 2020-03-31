@@ -8,8 +8,8 @@
   padding: 1rem 2rem;
   box-sizing: border-box;
   grid-template-columns: min-content auto;
-  gap: 7rem;
-  row-gap : 1rem; 
+  grid-column-gap: 5rem;
+  grid-row-gap : 1rem; 
 }
 
 #display_gene_card{

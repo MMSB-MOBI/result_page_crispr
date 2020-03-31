@@ -82,6 +82,8 @@
 
 .coord-box {
   margin-bottom: 17px;
+  margin-left:15px;
+  margin-right:15px; 
   height: 110px;
   overflow: auto;
   white-space: pre-line;
@@ -111,8 +113,8 @@
 .selection {
   flex-grow: 1;
   display:grid;
-  grid-template-columns: 40% 1fr;
-  column-gap: 25px;
+  grid-template-columns: 48.5% 48.5%;
+  grid-column-gap: 3%;
 }
 
 .tooltip-coord>.material-icons {
@@ -172,10 +174,6 @@
   position: relative;
 }
 
-.list-selection{
-  margin-bottom:1rem; 
-}
-
 .selection-header{
   display:inline-block;
   margin-bottom: 0.5rem; 
@@ -200,6 +198,9 @@
   text-align: center;
   padding: 10px; 
   transition: background-color .3s;
+  margin-top:10px;
+  margin-right:10px;
+  margin-bottom:10px;
 }
 
 .highlight-sgrna-button:hover{
@@ -228,5 +229,18 @@
 
 .coord-box li:hover{
   color:#ff0000; 
+}
+
+.selection-col{
+  border-style:solid;
+  border-width:0.5px; 
+  border-color:gray;
+  border-radius:5px; 
+}
+
+.list-selection{
+  padding-left:10px;
+  padding-right:10px; 
+  padding-top:10px; 
 }
 

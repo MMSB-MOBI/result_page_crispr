@@ -142,9 +142,9 @@ export class GenomicCard {
             </head>,
             <div class="genomic-card-root">
                 <div class="selection">
-                    <div>
+                    <div class="selection-col">
                         <div class="list-selection organism-selection">
-                            <span class="selection-header"> Organisms </span>
+                            <span class="selection-header"> Choose an organism :</span>
                             <mmsb-select
                                 data={this.organisms.map(name => [name, name])}
                                 selected={[this.selected.org]}
@@ -153,14 +153,14 @@ export class GenomicCard {
                             />
                         </div>
                         <div class="list-selection ref-selection">
-                            <span class="selection-header">References</span>
+                            <span class="selection-header">This organism features {this.current_references.length} fasta sequence(s) :</span>
                             <select 
                                 class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
                                 onChange={e => {/*this.removeSvg();*/this.changeRef((e.target as HTMLSelectElement).value)}}>
                                 {this.current_references.map(ref => <option>{ref}</option>)}
                             </select>
                         </div>
-                        <div>
+                        <div class="list-selection">
                             <button class="highlight-sgrna-button" onClick={() => { this.onClickHighlight(); /*this.removeSvg()*/; this.onClickHighlightButton.emit(); }}> 
                                 <i class="material-icons" style={{ float: 'left' }}>arrow_left</i>
 
@@ -168,9 +168,9 @@ export class GenomicCard {
                             </button>
                         </div>
                     </div>
-                    <div>
+                    <div class="selection-col">
                         <div class="list-selection sgrna-selection">
-                            <span class="selection-header">sgRNA</span>
+                            <span class="selection-header">Choose a sgRNA sequence :</span>
                             <mmsb-select
                                 label="Select sgRNA"
                                 data={this.current_sgrnas
@@ -182,8 +182,8 @@ export class GenomicCard {
                                 }}
                                 color={this.highlight_selection ? "#539ddc54" : undefined}/>
                         </div>
-                        <div class="coordinates">
-                            <span class="selection-header">Coordinates</span>
+                        <div class="list-selection coordinates">
+                            <span class="selection-header">This sgRNA is present at {this.getCoordinates(this.selected.sgrna).length} position(s) :</span>
                             <div class="coord-box">
                                 <ul>
                                     {this.current_sgrnas
