@@ -1,7 +1,6 @@
 import { Component, Prop, h, State, Event, EventEmitter, Listen, Element, Watch } from '@stencil/core';
 import "@mmsb/mmsb-select";
-import { CurrentSelection, SGRNAForOneEntry, CoordinatesBinData } from '../result-page/interfaces';
-import * as dspl from './displayPlot';
+import { CurrentSelection, SGRNAForOneEntry } from '../result-page/interfaces';
 import * as d3 from "d3";
 
 
@@ -121,7 +120,6 @@ export class GenomicCard {
     }
 
     removeSvg(){
-        console.log("remove svg")
         if (this.element.shadowRoot.querySelector("circular-barplot svg")) {
             this.element.shadowRoot.querySelector("circular-barplot svg").remove(); 
         }

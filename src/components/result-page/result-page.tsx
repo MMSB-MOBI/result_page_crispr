@@ -174,6 +174,7 @@ export class ResultPage {
                 this.shouldHighlight = false; 
                 this.initial_sgrnas = this.current_sgrnas; 
               }}
+
               changeSgrna={(sgrna) => {
                 if (!sgrna) {
                   this.selected = undefined;
@@ -195,6 +196,7 @@ export class ResultPage {
                   ref,
                   size: this.getSize(this.selected.org, ref)
                 };
+                console.log("change_ref", this.selected.sgrna)
                 if (this.selected.sgrna !== old_sgrna){
                   this.shouldHighlight = false; 
                 }; 

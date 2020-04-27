@@ -1,4 +1,4 @@
-import {Component, h, Prop, Listen, Watch} from '@stencil/core';
+import {Component, h, Prop, Listen, Watch, Element} from '@stencil/core';
 import { CoordinatesBinData } from '../result-page/interfaces';
 declare const d3: any;
 
@@ -9,6 +9,8 @@ declare const d3: any;
 })
 
 export class CircularBarplot{
+    @Element() private element: HTMLElement;
+
     @Prop() list_coordinates: number[];
     @Prop() genome_size : number; 
     @Prop() selected_sgrna_coordinates : string[]; 
@@ -91,8 +93,8 @@ export class CircularBarplot{
         this.barplot_end = this.width/3; 
         this.detailed_barplot_begin = this.width/3;
         this.detailed_barplot_end = this.width/2 - 1; 
-
-        this.svg = d3.select(".circular-barplot-main")
+        const main_div = this.element.shadowRoot.querySelector('.circular-barplot-main')
+        this.svg = d3.select(main_div)
             .append("svg")
             .attr("viewBox", [-this.width / 2, -this.height / 2, this.width, this.height])
             .append("g")
@@ -113,7 +115,6 @@ export class CircularBarplot{
      * Draw genome circle with coordinates ticks and labels on it.
      */
     createGenomeCircle(){
-        
         //Draw and add the circle to svg
         this.svg
             .append("g")
@@ -379,7 +380,7 @@ export class CircularBarplot{
      */
     componentDidRender(){
         this.svg ? this.cleanSvg() : this.initializeSvg(); 
-        this.displaySvgContent(); 
+        this.displaySvgContent();
     }
 
     render(){
@@ -387,6 +388,7 @@ export class CircularBarplot{
         <div class="circular-barplot-main">
         </div>
         )
+
     }
 
 }
