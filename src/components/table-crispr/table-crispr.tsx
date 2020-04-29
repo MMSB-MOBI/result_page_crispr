@@ -17,31 +17,40 @@ export class TableCrispr {
   @Element() private element: HTMLElement;
   // Data given by the results file
   @Prop() complete_data: SequenceSGRNAHit[];
-  @Prop() selected: CurrentSelection;
-  @Prop() shouldHighlight: boolean;
-  @Prop() onOrganismClick?: (organism: string, sgrna: string) => void;
-
-  @State() page: number = 1;
-  // Current data displayed, filtered by regex and minOccurences
-  @State() state: string = "initialize";
-  @State() sort_type: SortingType = "Alphabetical"
-  @State() sort_order: SortingOrder = "descending"
-  @State() entries_by_pages: number = 10; //Number of entries by page
-  @State() minocc_filter: number[];
-  @State() maxocc_filter: number[];
 
   initial_min_max_data: MinMaxOccurencesData[]
   // sgRNA displayed on interface
   displaySgrna: MinMaxOccurencesData[] = [];
+  // Dictionary of min and max occurences for each sgRNA
+  // Display occurences with this.displaySgrna as key
+  //allOcc = new Map();
+  @State() page: number = 1;
+  // Current data displayed, filtered by regex and minOccurences
+  @State() currentSgrnas: MinMaxOccurencesData[];
+
+  @State() state: string = "initialize";
   error_msg: string = '';
-  total_pages: number; //Total number of pages
-  current_pagination_display: number[] //List of page currently displayed in pagination
-  max_pagination: number = 7; //Number of numbers to display in pagination
+
+  @State() sort_type: SortingType = "Alphabetical"
+  @State() sort_order: SortingOrder = "descending"
+
+  @Prop() selected: CurrentSelection;
+  @Prop() shouldHighlight: boolean;
+  @Prop() onOrganismClick?: (organism: string, sgrna: string) => void;
+
+  total_pages: number;
+  @State() entries_by_pages: number = 10;
+  current_pagination_display: number[]
+  max_pagination: number = 7;
+
+  @State() highlighted_sgrna: string;
+  @State() minocc_filter: number[];
+  @State() maxocc_filter: number[];
+
   initial_minocc: number[]; //Minimum occurences initial min (always 0) and max 
   initial_maxocc: number[]; //Maximum occurences initial min (always 0) and max
-  highlighted_sgrna: string;
-  currentSgrnas: MinMaxOccurencesData[];
-  @State() filtered = false; 
+
+  // *************************** LISTEN & EMIT ***************************
 
   constructor() {
     this.sgRNAFilter = this.sgRNAFilter.bind(this);
@@ -68,7 +77,6 @@ export class TableCrispr {
       .filter(a => a.min_occurences >= this.minocc_filter[0] && a.min_occurences <= this.minocc_filter[1])
       .filter(a => a.max_occurences >= this.maxocc_filter[0] && a.max_occurences <= this.maxocc_filter[1])
     this.page = 1;
-    this.filtered = true; 
   }
 
 
@@ -132,29 +140,20 @@ export class TableCrispr {
   }
 
   componentWillUpdate() {
-    
-    if (! this.highlighted_sgrna){
-      this.currentSgrnas = this.initial_min_max_data
-    }
-
-    this.sortData(); 
-    this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page)
-
+    console.log("Will update")
+    console.log(this.page);
     //Selection of on other sgrna on genomic-card after highlight a sgrna
-    /*if (this.highlighted_sgrna && this.highlighted_sgrna != this.selected.sgrna){
+    if (this.highlighted_sgrna && this.highlighted_sgrna != this.selected.sgrna){
       this.highlighted_sgrna = undefined; 
       (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "" //reinitialize sequence search bar
       this.sgRNAFilter(); //reinitialize sgrnas 
     }
-    ;*/
+    this.sortData(); 
+    this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
+    console.log("End will update", this.page);
+
 
     //this.sortTable("Max occurences")
-  }
-
-  componentDidUpdate() {
-    this.highlighted_sgrna = undefined; //reinitialize highlighted sgrna
-    /*this.currentSgrnas = this.initial_min_max_data; 
-    (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "";*/
   }
 
   sequencesOccurences(seq: string) {
@@ -221,6 +220,7 @@ export class TableCrispr {
   };
 
   actualizePaginationDisplay() {
+    console.log("Actualize pagination", this.page); 
     let start: number;
     let end: number;
     if (this.page - 3 <= 0) {
@@ -323,14 +323,14 @@ export class TableCrispr {
   }
 
   render() {
-    console.log("tabe-crispr render")
-    console.log(this.currentSgrnas)
+    console.log("RENDER", this.page)
     if (this.state == "stop") {
       return this.error_msg
     }
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
+    console.log("RENDER PAGE", this.page);
 
     // Parse data and initialize allSgrna and calcul occurences
 
@@ -397,7 +397,7 @@ export class TableCrispr {
             <td />
             <td />
           </tr>
-        
+
           {this.displaySgrna.map(sgrna => {
             const currentOccurences = this.sequencesOccurences(sgrna.seq);
             //const min = currentOccurences.reduce((p, v) => (p < v.coords_count ? p : v.coords_count), currentOccurences[0].coords_count);
