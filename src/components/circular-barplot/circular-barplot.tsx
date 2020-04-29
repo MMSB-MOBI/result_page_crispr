@@ -91,7 +91,7 @@ export class CircularBarplot{
         this.circle_thickness = 2; 
         this.barplot_begin = this.width/4.5; 
         this.barplot_end = this.width/3; 
-        this.detailed_barplot_begin = this.width/3;
+        this.detailed_barplot_begin = this.width/2.7;
         this.detailed_barplot_end = this.width/2 - 1; 
         const main_div = this.element.shadowRoot.querySelector('.circular-barplot-main')
         this.svg = d3.select(main_div)
@@ -211,6 +211,9 @@ export class CircularBarplot{
             .range([innerRadius, outerRadius])
             .domain([0, max_prop]); // Domain of Y is from 0 to the max seen in the data
 
+        //Compute all y placements, we need it for detailed barplot so it has to be precomputed.
+        bin_data.forEach(bin => bin.y_placement = y(bin.number_coords_proportion))
+
         const component = this; //Save component in variable for use in click function
         this.svg.append("g")
             .attr("class", "barplot-container")
@@ -228,11 +231,11 @@ export class CircularBarplot{
               .attr("d", d3.arc()
                   .innerRadius(innerRadius)
                   //@ts-ignore
-                  .outerRadius(function(d) { return y(d.number_coords_proportion); })
+                  .outerRadius(d => d.y_placement)
                   //@ts-ignore
-                  .startAngle(function(d) { return x(d.bin_id); })
+                  .startAngle(d => x(d.bin_id))
                   //@ts-ignore
-                  .endAngle(function(d) { return x(d.bin_id) + x.bandwidth(); })
+                  .endAngle(d => x(d.bin_id) + x.bandwidth())
                   .padAngle(0.01)
                   .padRadius(innerRadius))
               
@@ -246,7 +249,7 @@ export class CircularBarplot{
         const detailed_bin_data = this.createBinData(coordinates_inside, 20, bin_data.bin_start, bin_data.bin_end); //Format data for detailed histogram
 
         const middle = bin_data.bin_start + (bin_data.bin_end - bin_data.bin_start) / 2; //Middle placement of new histogram
-        const midlength = this.genome_size / 16; //Length at each side
+        const midlength = this.genome_size / 20; //Length at each side
 
         const arc_placement = d3.scaleLinear() //Scale to place new histogram on circle
             .range([0, 2 * Math.PI])
@@ -259,8 +262,8 @@ export class CircularBarplot{
         const detailed_barplot_axis = d3.arc()
             .startAngle(start_angle)
             .endAngle(end_angle)
-            .innerRadius(this.detailed_barplot_begin + 1)
-            .outerRadius(this.detailed_barplot_begin + 1.5)
+            .innerRadius(this.detailed_barplot_begin)
+            .outerRadius(this.detailed_barplot_begin + 0.5)
 
         //Scale for x axis of barplot
         const bin_x = d3.scaleLinear()
@@ -269,7 +272,7 @@ export class CircularBarplot{
         
         //Scale for y axis of barplot
         const bin_y = d3.scaleLinear()
-            .range([this.detailed_barplot_begin + 1.5, this.detailed_barplot_end])
+            .range([this.detailed_barplot_begin + 1, this.detailed_barplot_end])
             .domain([0,1]) //Maybe max height instead of 1 ? Between 0 and 1 because we work with proportion.
 
         //Add the axis
@@ -309,10 +312,30 @@ export class CircularBarplot{
             .attr("class", "detailed-barplot-label")
             .attr('text-anchor', (d,i) => i === 0 ? 'end' : 'start') //If it's start coordinate, anchor end. If it's end coordinates, anchor start.
             .attr("x", 0)
-            .attr("y", - this.detailed_barplot_begin)
+            .attr("y", - this.detailed_barplot_begin - 0.5)
             .attr('transform', d => `rotate(${coordAngle(d[1])})`)
             .text(d => numberWithCommas(d[0]))
             .attr("font-size", "3px")
+
+        //Lines between bin from global barplot and its detailed version
+        const line1 = [this.circleCoordinates(bin_data.bin_start, bin_data.y_placement), this.circleCoordinates(middle - midlength, this.detailed_barplot_begin)] //Coordinates (x,y) for begin and end of the first line
+        const line2 = [this.circleCoordinates(bin_data.bin_end, bin_data.y_placement), this.circleCoordinates(middle + midlength, this.detailed_barplot_begin)] //Coordinates (x,y) for begin and end of the second line
+        console.log(bin_data)
+        this.svg.selectAll(".detailed-barplot")
+            .selectAll(".detailed-barplot-line")
+            .data([line1, line2])
+            .enter()
+            .append("line")
+            .attr("stroke", "#A9A9A9")
+            .attr("stroke-width", "0.5")
+            .attr("x1", d => d[0].x)
+            .attr("y1", d => - d[0].y)
+            .attr("x2", d => d[1].x)
+            .attr("y2", d => - d[1].y)
+            .style("stroke-dasharray", ("1, 1"))
+
+        
+
 
     }
 
@@ -375,6 +398,18 @@ export class CircularBarplot{
             .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})     
     }
 
+    circleCoordinates(genome_position:number, radius : number){
+        //Give the angle for this genome position
+        const positionAngle = d3.scaleLinear()
+            .range([0,2*Math.PI])
+            .domain([0, this.genome_size])
+        
+        const angle = positionAngle(genome_position)
+        const x = Math.sin(angle) * radius //Trigonometrie sin(alpha) = opposé / hypothénuse
+        const y = Math.cos(angle) * radius // Trigonometrie cos(alpha) = adjacent / hypothénuse
+        return {x, y}
+    }
+
     /**
      * If svg exists, clean it. If not, initialize it. 
      */
@@ -397,3 +432,4 @@ export class CircularBarplot{
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+

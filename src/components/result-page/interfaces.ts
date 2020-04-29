@@ -48,6 +48,7 @@ export interface CoordinatesBinData {
     number_coords_proportion:number; 
     blurred:number; 
     bin_id:string; 
+    y_placement?: number; 
 }
 
 export type SortingOrder = 'ascending' | 'descending';
