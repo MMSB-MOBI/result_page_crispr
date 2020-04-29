@@ -43,7 +43,7 @@ export class TableCrispr {
   current_pagination_display: number[]
   max_pagination: number = 7;
 
-  @State() highlighted_sgrna: string;
+  highlighted_selection: CurrentSelection;
   @State() minocc_filter: number[];
   @State() maxocc_filter: number[];
 
@@ -61,8 +61,8 @@ export class TableCrispr {
   @Listen('genomic-card.button-click', { target: 'window' })
   handleButtonSelectSgrna() {
     this.reinitializeSliders();
-    this.highlighted_sgrna = this.selected.sgrna;
-    this.sgRNAFilter(this.highlighted_sgrna);
+    this.highlighted_selection = {...this.selected};
+    this.sgRNAFilter(this.highlighted_selection.sgrna);
     const selected_sgrna_index = this.currentSgrnas.map(e => e.seq).indexOf(this.selected.sgrna)
     const current_page = Math.trunc(selected_sgrna_index / 10) + 1;
     this.page = current_page;
@@ -70,12 +70,15 @@ export class TableCrispr {
 
   /* Filter sgRNA on search*/
   sgRNAFilter(sgrna: string = undefined): void {
+    console.log("filter")
     //Filter on min occurences
     const search = sgrna ? sgrna : (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value;
+    console.log("search", search)
     this.currentSgrnas = this.initial_min_max_data
       .filter(a => RegExp(search).test(a.seq))
       .filter(a => a.min_occurences >= this.minocc_filter[0] && a.min_occurences <= this.minocc_filter[1])
       .filter(a => a.max_occurences >= this.maxocc_filter[0] && a.max_occurences <= this.maxocc_filter[1])
+    console.log(this.currentSgrnas)
     this.page = 1;
   }
 
@@ -142,9 +145,17 @@ export class TableCrispr {
   componentWillUpdate() {
     console.log("Will update")
     console.log(this.page);
+    console.log("highlight", this.highlighted_selection)
+    console.log("selected", this.selected)
     //Selection of on other sgrna on genomic-card after highlight a sgrna
-    if (this.highlighted_sgrna && this.highlighted_sgrna != this.selected.sgrna){
-      this.highlighted_sgrna = undefined; 
+    if (this.highlighted_selection){
+      console.log("sgrna", this.highlighted_selection.sgrna != this.selected.sgrna)
+      console.log("org", this.highlighted_selection.org != this.selected.org)
+      console.log("ref", this.highlighted_selection.ref != this.selected.ref)
+      console.log(this.highlighted_selection.sgrna != this.selected.sgrna || this.highlighted_selection.org != this.selected.org || this.highlighted_selection.ref != this.highlighted_selection.ref)
+    }
+    if (this.highlighted_selection && (this.highlighted_selection.sgrna != this.selected.sgrna || this.highlighted_selection.org != this.selected.org || this.highlighted_selection.ref != this.selected.ref)){
+      this.highlighted_selection = undefined; 
       (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "" //reinitialize sequence search bar
       this.sgRNAFilter(); //reinitialize sgrnas 
     }
@@ -268,6 +279,7 @@ export class TableCrispr {
         else if (cat === "maxocc") {
           this.maxocc_filter = [val[0], val[1]]
         }
+        console.log("display slider sgrna filter")
         this.sgRNAFilter();
         this.addSvgText();
         //d3.select(elmtValue).text(val[0]);
@@ -356,7 +368,7 @@ export class TableCrispr {
       <div class="search-container">
         <div class="sgrna-search-container">
           <span class='selection-header'>Filter by sequence</span>
-          <input type="text" id="regexString" onKeyUp={() => this.sgRNAFilter()} placeholder={"Search for sgRNA.."} value={this.highlighted_sgrna ? this.highlighted_sgrna : ""} />
+          <input type="text" id="regexString" onKeyUp={() => this.sgRNAFilter()} placeholder={"Search for sgRNA.."} value={this.highlighted_selection ? this.highlighted_selection.sgrna : ""} />
           {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>*/}
         </div>
         <div class="slider-containers">
