@@ -12,19 +12,6 @@ export namespace Components {
         "list_coordinates": number[];
         "selected_sgrna_coordinates": string[];
     }
-    interface GenomicCard {
-        "all_data": string;
-        "diagonal_svg": number;
-        "gene": string;
-        "onOrganismChange": (organism: string, sgrna: string) => void;
-        "orgSelected": string;
-        "org_names": string;
-        "selectedSection": number;
-        "sgrnaSelected": string;
-        "size": string;
-        "sizeSelected": number;
-        "subSgrna": string[];
-    }
     interface GenomicCard2 {
         "changeOrganism": (org: string) => void;
         "changeRef": (ref: string) => void;
@@ -73,12 +60,6 @@ declare global {
         prototype: HTMLCircularBarplotElement;
         new (): HTMLCircularBarplotElement;
     };
-    interface HTMLGenomicCardElement extends Components.GenomicCard, HTMLStencilElement {
-    }
-    var HTMLGenomicCardElement: {
-        prototype: HTMLGenomicCardElement;
-        new (): HTMLGenomicCardElement;
-    };
     interface HTMLGenomicCard2Element extends Components.GenomicCard2, HTMLStencilElement {
     }
     var HTMLGenomicCard2Element: {
@@ -111,7 +92,6 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "circular-barplot": HTMLCircularBarplotElement;
-        "genomic-card": HTMLGenomicCardElement;
         "genomic-card2": HTMLGenomicCard2Element;
         "linear-card": HTMLLinearCardElement;
         "occurences-graph": HTMLOccurencesGraphElement;
@@ -124,21 +104,6 @@ declare namespace LocalJSX {
         "genome_size"?: number;
         "list_coordinates"?: number[];
         "selected_sgrna_coordinates"?: string[];
-    }
-    interface GenomicCard {
-        "all_data"?: string;
-        "diagonal_svg"?: number;
-        "gene"?: string;
-        "onChangeRefCard"?: (event: CustomEvent<any>) => void;
-        "onOrganismChange"?: (organism: string, sgrna: string) => void;
-        "onSgDataSection"?: (event: CustomEvent<any>) => void;
-        "orgSelected"?: string;
-        "org_names"?: string;
-        "selectedSection"?: number;
-        "sgrnaSelected"?: string;
-        "size"?: string;
-        "sizeSelected"?: number;
-        "subSgrna"?: string[];
     }
     interface GenomicCard2 {
         "changeOrganism"?: (org: string) => void;
@@ -186,7 +151,6 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "circular-barplot": CircularBarplot;
-        "genomic-card": GenomicCard;
         "genomic-card2": GenomicCard2;
         "linear-card": LinearCard;
         "occurences-graph": OccurencesGraph;
@@ -199,7 +163,6 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "circular-barplot": LocalJSX.CircularBarplot & JSXBase.HTMLAttributes<HTMLCircularBarplotElement>;
-            "genomic-card": LocalJSX.GenomicCard & JSXBase.HTMLAttributes<HTMLGenomicCardElement>;
             "genomic-card2": LocalJSX.GenomicCard2 & JSXBase.HTMLAttributes<HTMLGenomicCard2Element>;
             "linear-card": LocalJSX.LinearCard & JSXBase.HTMLAttributes<HTMLLinearCardElement>;
             "occurences-graph": LocalJSX.OccurencesGraph & JSXBase.HTMLAttributes<HTMLOccurencesGraphElement>;
