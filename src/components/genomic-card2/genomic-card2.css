@@ -196,11 +196,11 @@
   border: 1px #e4e4e4 solid; 
   width: 100%;
   text-align: center;
-  padding: 10px; 
+  /*padding: 10px;*/
   transition: background-color .3s;
-  margin-top:10px;
-  margin-right:10px;
-  margin-bottom:10px;
+  /*margin-top:10px;*/
+  /*margin-right:10px;*/
+  /*margin-bottom:10px;*/
 }
 
 .highlight-sgrna-button:hover{
@@ -210,7 +210,10 @@
 .highlight-sgrna-button > span {
   display: inline-block; 
   margin: 5px 0;
-  font-weight: bold;
+}
+
+.highlight-sgrna-button > span > i {
+  font-size:20px; 
 }
 
 @keyframes bluefade {
@@ -244,3 +247,30 @@
   padding-top:10px; 
 }
 
+.selection-content.sgrna{
+  display:grid;
+  grid-template-columns: max-content auto;
+  column-gap: 2%;
+}
+
+.selection-div2{
+  display:grid;
+  grid-template-columns: 48% 48%; 
+  column-gap: 4%;
+}
+
+.sub-selection{
+  margin-bottom:6px;
+}
+
+.sub-selection>span{
+  display:inline-block;
+  padding-bottom: 5px;
+}
+
+.selection2{
+  display:flex; 
+  row-gap:10px;
+  flex-direction:column;
+  row-gap:5%; 
+}

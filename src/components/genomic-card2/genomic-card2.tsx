@@ -139,6 +139,76 @@ export class GenomicCard {
                 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
             </head>,
             <div class="genomic-card-root">
+
+                <div class="selection2">
+                    <div class="selection-div">
+                        <div class="selection-header">
+                            <span> Choose a sgRNA sequence </span>
+                        </div>
+                        <div class="selection-content sgrna">
+                            <button class="highlight-sgrna-button" onClick={() => { this.onClickHighlight(); /*this.removeSvg()*/; this.onClickHighlightButton.emit(); }}> 
+                                <span> <i class="material-icons" style={{ float: 'left'}}>arrow_left</i>
+Display in the left pannel </span>
+                            </button>
+                            <mmsb-select
+                                label="Select sgRNA"
+                                data={this.current_sgrnas
+                                    .map(sgRna => [sgRna.seq, sgRna.seq + " (" + String(this.getNumberOccurences(sgRna.seq)) + ")"])}
+                                selected={[this.selected.sgrna]}
+                                onSelect={(e) => {
+                                    this.changeSgrna(e); 
+                                }}
+                                color={this.highlight_selection ? "#539ddc54" : undefined}/>
+                        </div>
+                    </div>
+                    <div class="selection-div2">
+                        <div class="select-org">
+                            <div class="selection-header">
+                                <span> {this.selected.sgrna} is present in organisms : </span>
+                            </div>
+                            <div class="selection-content organism">
+                                <div class="sub-selection">
+                                    <span>Choose an organism :  </span> 
+                                    <mmsb-select
+                                        data={this.organisms.map(name => [name, name])}
+                                        selected={[this.selected.org]}
+                                        onSelect={e => {/*this.removeSvg();*/ this.changeOrganism(e)}}
+                                        color={this.highlight_selection ? "#539ddc54" : undefined}
+                                    />
+                                </div>
+                                <div class="sub-selection">
+                                    <span> {this.selected.org} features {this.current_references.length} fasta sequence(s) : </span>
+                                    <select 
+                                        class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
+                                        onChange={e => {/*this.removeSvg();*/this.changeRef((e.target as HTMLSelectElement).value)}}>
+                                        {this.current_references.map(ref => <option>{ref}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="select-occurences">
+                            <div class="selection-header">
+                                <span> {this.selected.sgrna} is present at {this.getCoordinates(this.selected.sgrna).length} position(s) in {this.selected.ref} sequence of {this.selected.org} :</span>
+                            </div>
+                            <div class="selection-content">
+                                <div class="coord-box">
+                                    <ul>
+                                        {this.current_sgrnas
+                                            .find(e => e.seq === this.selected.sgrna).coords
+                                            .map(coord => <li 
+                                                onMouseOver={() => this.onOverCoordinate.emit(coord)}
+                                                onMouseOut={() => this.onOutCoordinate.emit(coord)}>
+                                                    {coord}
+                                                </li>)}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br></br>
+                <br></br>
                 <div class="selection">
                     <div class="selection-col">
                         <div class="list-selection organism-selection">
@@ -197,6 +267,10 @@ export class GenomicCard {
                     </div>
 
                 </div>
+
+                
+
+               
                 <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size} selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)}></circular-barplot>
                 
             </div>
