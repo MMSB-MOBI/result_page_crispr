@@ -20,6 +20,7 @@ export namespace Components {
         "current_references": string[];
         "current_sgrnas": SGRNAForOneEntry[];
         "diagonal_svg": number;
+        "hidden_references": string[];
         "initial_sgrnas"?: SGRNAForOneEntry[];
         "onClickHighlight": () => void;
         "organisms": string[];
@@ -113,6 +114,7 @@ declare namespace LocalJSX {
         "current_references"?: string[];
         "current_sgrnas"?: SGRNAForOneEntry[];
         "diagonal_svg"?: number;
+        "hidden_references"?: string[];
         "initial_sgrnas"?: SGRNAForOneEntry[];
         "onClickHighlight"?: () => void;
         "onGenomic-card.button-click"?: (event: CustomEvent<any>) => void;

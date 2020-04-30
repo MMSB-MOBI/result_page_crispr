@@ -29,6 +29,7 @@ export class ResultPage {
   gene_json: {};
   sequence_data_json: SequenceSGRNAHit[];
   initial_sgrnas: SGRNAForOneEntry[];
+  hidden_references: string[];
 
   componentWillLoad() {
     //Initialize data
@@ -39,6 +40,7 @@ export class ResultPage {
     
     const org = this.tableCrisprOrganisms[0];
     this.current_references = this.getReferences(org)
+    this.hidden_references = this.getHiddenReferences(org)
 
     const ref = this.current_references[0];
 
@@ -113,13 +115,16 @@ export class ResultPage {
     return this.size_data[org][ref]
   }
 
+  getHiddenReferences(org:string){
+    const current_ref = this.getReferences(org)
+    const all_ref = Object.keys(this.size_data[org])
+    const difference = all_ref.filter(x => !current_ref.includes(x)); //Get references in all_ref and not in current_ref
+    return difference
+  }
+
   render() {
-    //console.log("PARENT RENDER")
-    // console.log(this.all_data);
     // @ts-ignore
     window.result_page = this;
-    //console.log("RENDER")
-    //console.log("Selected", this.selected)
 
     return ([<head>
       <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.0.3/nouislider.min.css" rel="stylesheet"/>
@@ -154,12 +159,14 @@ export class ResultPage {
               organisms={this.org_names.split("&")}
               selected={this.selected}
               current_references={this.current_references}
+              hidden_references={this.hidden_references}
               current_sgrnas={this.current_sgrnas}
               changeOrganism={(organism) => {
                 if (!organism) {
                   this.selected = undefined;
                 }
                 this.current_references = this.getReferences(organism);
+                this.hidden_references = this.getHiddenReferences(organism); 
                 const ref_selected = this.current_references[0]
                 this.current_sgrnas = this.getSgrnas(organism, ref_selected);
                 this.selected = {
@@ -196,7 +203,6 @@ export class ResultPage {
                   ref,
                   size: this.getSize(this.selected.org, ref)
                 };
-                console.log("change_ref", this.selected.sgrna)
                 if (this.selected.sgrna !== old_sgrna){
                   this.shouldHighlight = false; 
                 }; 

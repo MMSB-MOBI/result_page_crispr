@@ -51,9 +51,16 @@ export interface CoordinatesBinData {
     y_placement?: number; 
 }
 
+export interface FastaReferences {
+    ref:string; //fasta identifiant
+    status:DisplayStatus; 
+}
+
 export type SortingOrder = 'ascending' | 'descending';
 
 export type SortingType = "Min occurences" | "Max occurences" | "Alphabetical";
+
+export type DisplayStatus = "hidden" | "display"
 
 /*export interface OrganismHit {
     [organismName: string]: RefHit;

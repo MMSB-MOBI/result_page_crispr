@@ -19,6 +19,7 @@ export class GenomicCard {
     @Prop() current_sgrnas: SGRNAForOneEntry[];
     @Prop() diagonal_svg:number; 
     @Prop() initial_sgrnas?:SGRNAForOneEntry[]; 
+    @Prop() hidden_references:string[]; //Fasta sequences of the organism with no sgrna on it
 
     @Prop() changeOrganism: (org: string) => void;
     @Prop() changeSgrna: (sgrna: string) => void;
@@ -130,8 +131,8 @@ export class GenomicCard {
     }
 
     render() {
-        console.log("genomic-card RENDER")
-        console.log(this.selected)
+        console.log(this.current_references)
+        console.log(this.hidden_references)
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -177,11 +178,12 @@ Display in the left pannel </span>
                                     />
                                 </div>
                                 <div class="sub-selection">
-                                    <span> {this.selected.org} features {this.current_references.length} fasta sequence(s) : </span>
+                                    <span> {this.selected.org} features {this.current_references.length + this.hidden_references.length} fasta sequence(s) and {this.current_references.length} have occurences: </span>
                                     <select 
                                         class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
                                         onChange={e => {/*this.removeSvg();*/this.changeRef((e.target as HTMLSelectElement).value)}}>
                                         {this.current_references.map(ref => <option>{ref}</option>)}
+                                        {this.hidden_references.map(ref => <option disabled>{ref}</option>)}
                                     </select>
                                 </div>
                             </div>

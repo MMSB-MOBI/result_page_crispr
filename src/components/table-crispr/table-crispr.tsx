@@ -70,15 +70,12 @@ export class TableCrispr {
 
   /* Filter sgRNA on search*/
   sgRNAFilter(sgrna: string = undefined): void {
-    console.log("filter")
     //Filter on min occurences
     const search = sgrna ? sgrna : (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value;
-    console.log("search", search)
     this.currentSgrnas = this.initial_min_max_data
       .filter(a => RegExp(search).test(a.seq))
       .filter(a => a.min_occurences >= this.minocc_filter[0] && a.min_occurences <= this.minocc_filter[1])
       .filter(a => a.max_occurences >= this.maxocc_filter[0] && a.max_occurences <= this.maxocc_filter[1])
-    console.log(this.currentSgrnas)
     this.page = 1;
   }
 
@@ -143,17 +140,7 @@ export class TableCrispr {
   }
 
   componentWillUpdate() {
-    console.log("Will update")
-    console.log(this.page);
-    console.log("highlight", this.highlighted_selection)
-    console.log("selected", this.selected)
-    //Selection of on other sgrna on genomic-card after highlight a sgrna
-    if (this.highlighted_selection){
-      console.log("sgrna", this.highlighted_selection.sgrna != this.selected.sgrna)
-      console.log("org", this.highlighted_selection.org != this.selected.org)
-      console.log("ref", this.highlighted_selection.ref != this.selected.ref)
-      console.log(this.highlighted_selection.sgrna != this.selected.sgrna || this.highlighted_selection.org != this.selected.org || this.highlighted_selection.ref != this.highlighted_selection.ref)
-    }
+    //Reinitialize sgrna list when selection change
     if (this.highlighted_selection && (this.highlighted_selection.sgrna != this.selected.sgrna || this.highlighted_selection.org != this.selected.org || this.highlighted_selection.ref != this.selected.ref)){
       this.highlighted_selection = undefined; 
       (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "" //reinitialize sequence search bar
@@ -161,10 +148,6 @@ export class TableCrispr {
     }
     this.sortData(); 
     this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
-    console.log("End will update", this.page);
-
-
-    //this.sortTable("Max occurences")
   }
 
   sequencesOccurences(seq: string) {
@@ -231,7 +214,6 @@ export class TableCrispr {
   };
 
   actualizePaginationDisplay() {
-    console.log("Actualize pagination", this.page); 
     let start: number;
     let end: number;
     if (this.page - 3 <= 0) {
@@ -279,7 +261,6 @@ export class TableCrispr {
         else if (cat === "maxocc") {
           this.maxocc_filter = [val[0], val[1]]
         }
-        console.log("display slider sgrna filter")
         this.sgRNAFilter();
         this.addSvgText();
         //d3.select(elmtValue).text(val[0]);
@@ -335,14 +316,12 @@ export class TableCrispr {
   }
 
   render() {
-    console.log("RENDER", this.page)
     if (this.state == "stop") {
       return this.error_msg
     }
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
-    console.log("RENDER PAGE", this.page);
 
     // Parse data and initialize allSgrna and calcul occurences
 
@@ -492,11 +471,6 @@ export class TableCrispr {
             Last
         </div>
         </div>
-        {/*<div class="pagination-select-page">
-          <span>Go to page : </span>
-          <input type="text" style={{width:'30px'}} onKeyUp={(e) => console.log(e)}></input>
-          </div>*/}
-
       </div>
     </div>
     ]);

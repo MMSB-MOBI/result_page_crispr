@@ -16,6 +16,7 @@
 | `current_references` | --             |             | `string[]`                         | `undefined` |
 | `current_sgrnas`     | --             |             | `SGRNAForOneEntry[]`               | `undefined` |
 | `diagonal_svg`       | `diagonal_svg` |             | `number`                           | `undefined` |
+| `hidden_references`  | --             |             | `string[]`                         | `undefined` |
 | `initial_sgrnas`     | --             |             | `SGRNAForOneEntry[]`               | `undefined` |
 | `onClickHighlight`   | --             |             | `() => void`                       | `undefined` |
 | `organisms`          | --             |             | `string[]`                         | `undefined` |
