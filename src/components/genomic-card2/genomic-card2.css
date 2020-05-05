@@ -20,43 +20,6 @@
   border: 1px #e4e4e4 solid !important;
 }
 
-/*  Tooltip for coordinates*/
-.tooltip-coord {
-  position: absolute;
-  text-align: left;
-  width: 220px;
-  height: 65px;
-  padding: 2px;
-  font: 12px sans-serif;
-  background: lightsteelblue;
-  border: 0px;
-  border-radius: 8px;
-  pointer-events: none;
-}
-
-#notif {
-  display: initial;
-  width: 1.2em;
-  margin-left: 8px;
-}
-
-#notif .material-icons {
-  font-size: 1.2em;
-  cursor: help;
-}
-
-#notif:hover #notif-text {
-  display: block;
-  position: absolute;
-  background: #6da7c3b3;
-  border-radius: 8px;
-  padding: 8px;
-  z-index: 1;
-}
-
-#notif-text {
-  display: none
-}
 
 /*  The loader Spinner */
 .spinner-grow {
@@ -71,10 +34,6 @@
   stroke-width: 1px;
 }
 
-.sunburst>path:hover,
-.genomeCircle>path:hover {
-  cursor: pointer;
-}
 
 .coordBoxContainer {
   flex-grow: 2;
@@ -117,9 +76,6 @@
   grid-column-gap: 3%;
 }
 
-.tooltip-coord>.material-icons {
-  font-size: 12px;
-}
 
 .help:hover .help-text {
   display: block;
@@ -207,13 +163,14 @@
   background-color: #e6e6e6; 
 }
 
-.highlight-sgrna-button > span {
-  display: inline-block; 
-  margin: 5px 0;
+.inside-sgrna-button{
+  display:grid;
+  grid-template-columns: min-content auto;
 }
 
-.highlight-sgrna-button > span > i {
-  font-size:20px; 
+.inside-sgrna-button > span {
+  display:flex;
+  align-items:center; 
 }
 
 @keyframes bluefade {
@@ -263,6 +220,12 @@
   margin-bottom:6px;
 }
 
+.sub-selection-content{
+  display:grid; 
+  grid-template-columns: 49% 49%;
+  grid-gap:2%
+}
+
 .sub-selection>span{
   display:inline-block;
   padding-bottom: 5px;
@@ -273,4 +236,74 @@
   row-gap:10px;
   flex-direction:column;
   row-gap:5%; 
+}
+
+/*.fasta-tooltip{
+  display:flex;
+}
+
+.fasta-tooltip-icon{
+  display:flex !important;
+  align-items:center; 
+  font-size:22px !important; 
+  cursor:default; 
+}
+
+.fasta-tooltip-text{
+  opacity: 0;
+  transition: opacity 0.3s; 
+  margin-top:6px; 
+  padding-right:1%;
+  padding-left:1%; 
+  align-items: center;
+  text-align: left;
+  font-size:12px; 
+  border-radius: 5px;
+  background-color:lightgrey; 
+  grid-area: info-text;
+}
+
+.ref-selector{
+  display:grid; 
+  grid-template-areas: 'select info' 'info-text info-text';
+  grid-template-columns: auto min-content;
+  column-gap:1rem; 
+}
+
+.fasta-tooltip-icon:active + .fasta-tooltip-text{
+  opacity:1
+}*/
+
+.ref-selector {
+  display:grid; 
+  grid-template-columns:60% min-content auto; 
+  align-items:center; 
+  text-align: left;
+  column-gap:1em; 
+}
+
+.ref-tooltip-icon {
+  display:flex; 
+  align-items: center;
+  font-size: 22px !important; 
+  cursor:pointer; 
+}
+
+.ref-tooltip-info {
+  display:flex; 
+  align-items:center; 
+  font-size: 12px; 
+  background-color:lightgrey; 
+  border-radius:5px; 
+  margin-top:6px; 
+}
+
+.tooltip-text{
+  visibility: hidden;
+  font-size:10px; 
+  font-style: italic;
+}
+
+.ref-tooltip-icon:hover + .tooltip-text{
+  visibility: visible;
 }
