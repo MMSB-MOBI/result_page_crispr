@@ -254,6 +254,7 @@ export class TableCrispr {
       .ticks(5)
       .default([min, max])
       .fill('#2196f3')
+      .tickFormat(d3.format(',.0f'))
       .on('onchange', val => {
         if (cat === "minocc") {
           this.minocc_filter = [val[0], val[1]]
