@@ -43,6 +43,7 @@ export namespace Components {
     interface ResultPage {
         "all_data": string;
         "complete_data": string;
+        "fasta_metadata": string;
         "gene": string;
         "org_names": string;
         "size": string;
@@ -140,6 +141,7 @@ declare namespace LocalJSX {
     interface ResultPage {
         "all_data"?: string;
         "complete_data"?: string;
+        "fasta_metadata"?: string;
         "gene"?: string;
         "org_names"?: string;
         "size"?: string;

@@ -32,11 +32,12 @@
     console.log("Fichier chargé et reçu");
     results_json = JSON.parse(results)
     let node = document.createElement("result-page")
-    node.setAttribute('all_data', JSON.stringify(results_json["all_data"]));
-    node.setAttribute('org_names', results_json["organisms"])
+    node.setAttribute('all_data', JSON.stringify(results_json["data_card"]));
+    node.setAttribute('org_names', results_json["gi"])
     //node.setAttribute("diagonal_svg", results_json["diagonal_svg"])
     node.setAttribute("size", JSON.stringify(results_json["size"]))
-    node.setAttribute("complete_data", JSON.stringify(results_json["complete_data"]))
+    node.setAttribute("complete_data", JSON.stringify(results_json["data"]))
+    node.setAttribute("fasta_metadata", JSON.stringify(results_json["fasta_metadata"]))
     //node.setAttribute("gene", JSON.stringify(results_json["gene"]))
     document.body.appendChild(node)
     //document.getElementsByTagName('genomic-card')[0].setAttribute('size', '{"Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1":{"NC_015662.1":800}}')

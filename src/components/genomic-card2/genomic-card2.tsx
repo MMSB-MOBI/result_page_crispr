@@ -135,7 +135,7 @@ export class GenomicCard {
             html_fasta_info.className = "ref-tooltip-info";
             html_fasta_info.innerHTML = `<ul> 
                 <li> NCBI link : <a href = "https://www.ncbi.nlm.nih.gov/nuccore/${this.selected.ref}" target = "_blank"> ${this.selected.ref} </a>
-                <li> Description : ldldldldldldl
+                <li> Description : ${this.selected.fasta_header}
             </ul>`
             parent_node.appendChild(html_fasta_info);
             //node.appendChild(text); 

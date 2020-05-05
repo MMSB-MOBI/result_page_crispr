@@ -16,6 +16,7 @@ export class ResultPage {
   @Prop() org_names: string;
   @Prop() gene: string;
   @Prop() size: string;
+  @Prop() fasta_metadata:string;
 
   @State() display_linear_card: boolean = true;
   @State() tableCrisprOrganisms: string[] = [];
@@ -30,6 +31,7 @@ export class ResultPage {
   sequence_data_json: SequenceSGRNAHit[];
   initial_sgrnas: SGRNAForOneEntry[];
   hidden_references: string[];
+  fasta_metadata_json; //Need to be typed
 
   componentWillLoad() {
     //Initialize data
@@ -37,6 +39,7 @@ export class ResultPage {
     this.sequence_data_json = this.loadSequenceData();
     this.organism_data = this.formatOrganismData()
     this.size_data = JSON.parse(this.size)
+    this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     
     const org = this.tableCrisprOrganisms[0];
     this.current_references = this.getReferences(org)
@@ -49,7 +52,8 @@ export class ResultPage {
       org,
       sgrna: this.current_sgrnas[0].seq,
       ref,
-      size: this.getSize(org,ref)
+      size: this.getSize(org,ref),
+      fasta_header: this.getFastaHeader(org, ref)
     };
 
     this.initial_sgrnas = this.current_sgrnas; 
@@ -132,6 +136,11 @@ export class ResultPage {
     return difference
   }
 
+  getFastaHeader(org, ref){
+    const fasta_header = this.fasta_metadata_json.find( e => e.org === org && e.fasta_ref === ref).header
+    return fasta_header
+  }
+
   render() {
     // @ts-ignore
     window.result_page = this;
@@ -155,7 +164,8 @@ export class ResultPage {
                 org: organism,
                 sgrna,
                 ref: ref_selected,
-                size: this.getSize(organism, ref_selected)
+                size: this.getSize(organism, ref_selected),
+                fasta_header: this.getFastaHeader(organism, ref_selected)
               };
               this.shouldHighlight = true;
               this.initial_sgrnas = this.current_sgrnas; 
@@ -183,7 +193,8 @@ export class ResultPage {
                   ...this.selected,
                   org: organism,
                   ref: ref_selected,
-                  size: this.getSize(organism, ref_selected)
+                  size: this.getSize(organism, ref_selected),
+                  fasta_header : this.getFastaHeader(organism, ref_selected)
                 }
 
                 //this.current_sgrnas = this.getSgrnas(this.selected[0], this.selected[1])

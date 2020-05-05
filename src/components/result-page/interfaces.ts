@@ -39,6 +39,7 @@ export interface CurrentSelection {
     sgrna: string;
     ref: string;
     size: number; 
+    fasta_header : string
 }
 
 export interface CoordinatesBinData {

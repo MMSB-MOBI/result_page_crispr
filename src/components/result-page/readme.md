@@ -7,13 +7,14 @@
 
 ## Properties
 
-| Property        | Attribute       | Description | Type     | Default     |
-| --------------- | --------------- | ----------- | -------- | ----------- |
-| `all_data`      | `all_data`      |             | `string` | `undefined` |
-| `complete_data` | `complete_data` |             | `string` | `undefined` |
-| `gene`          | `gene`          |             | `string` | `undefined` |
-| `org_names`     | `org_names`     |             | `string` | `undefined` |
-| `size`          | `size`          |             | `string` | `undefined` |
+| Property         | Attribute        | Description | Type     | Default     |
+| ---------------- | ---------------- | ----------- | -------- | ----------- |
+| `all_data`       | `all_data`       |             | `string` | `undefined` |
+| `complete_data`  | `complete_data`  |             | `string` | `undefined` |
+| `fasta_metadata` | `fasta_metadata` |             | `string` | `undefined` |
+| `gene`           | `gene`           |             | `string` | `undefined` |
+| `org_names`      | `org_names`      |             | `string` | `undefined` |
+| `size`           | `size`           |             | `string` | `undefined` |
 
 
 ## Dependencies
