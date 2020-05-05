@@ -34,7 +34,7 @@ export class ResultPage {
   componentWillLoad() {
     //Initialize data
     this.tableCrisprOrganisms = this.org_names.split("&");
-    this.sequence_data_json = JSON.parse(this.complete_data)
+    this.sequence_data_json = this.loadSequenceData();
     this.organism_data = this.formatOrganismData()
     this.size_data = JSON.parse(this.size)
     
@@ -55,6 +55,16 @@ export class ResultPage {
     this.initial_sgrnas = this.current_sgrnas; 
   }
 
+  loadSequenceData(){
+    let sequence_data = JSON.parse(this.complete_data)
+    sequence_data
+      .forEach(e => e.occurences
+        .forEach(occ => occ.all_ref
+          .forEach(ref => ref.coords = Object.values(ref.coords))));
+      
+    return sequence_data 
+  }
+
   componentDidRender(){
     //this.createSlider(); 
   }
@@ -72,7 +82,7 @@ export class ResultPage {
           fasta_entry: Object.entries(org_entry[1])
             .map(fasta_entry => ({ 
               ref: fasta_entry[0], 
-              sgrna: Object.entries(fasta_entry[1]).map(sgrna => ({ seq: sgrna[0], coords: sgrna[1] as string[] }))
+              sgrna: Object.entries(fasta_entry[1]).map(sgrna => ({ seq: sgrna[0], coords: Object.values(sgrna[1]) as any }))
             })) 
         }
       }); 
