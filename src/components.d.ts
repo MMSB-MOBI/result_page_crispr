@@ -46,7 +46,6 @@ export namespace Components {
         "fasta_metadata": string;
         "gene": string;
         "org_names": string;
-        "size": string;
     }
     interface TableCrispr {
         "complete_data": SequenceSGRNAHit[];
@@ -144,7 +143,6 @@ declare namespace LocalJSX {
         "fasta_metadata"?: string;
         "gene"?: string;
         "org_names"?: string;
-        "size"?: string;
     }
     interface TableCrispr {
         "complete_data"?: SequenceSGRNAHit[];

@@ -57,20 +57,16 @@ export interface FastaReferences {
     status:DisplayStatus; 
 }
 
+export interface FastaMetadata{
+    org:string;
+    fasta_ref:string;
+    size:number;
+    header:string; 
+
+}
+
 export type SortingOrder = 'ascending' | 'descending';
 
 export type SortingType = "Min occurences" | "Max occurences" | "Alphabetical";
 
 export type DisplayStatus = "hidden" | "display"
-
-/*export interface OrganismHit {
-    [organismName: string]: RefHit;
-}
-
-export interface RefHit {
-    [ref: string]: SGRNAHit;
-}
-
-export interface SGRNAHit {
-    [seq: string]: string[];
-}*/

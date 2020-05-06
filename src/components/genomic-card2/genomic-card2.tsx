@@ -1,9 +1,6 @@
 import { Component, Prop, h, State, Event, EventEmitter, Listen, Element, Watch } from '@stencil/core';
 import "@mmsb/mmsb-select";
 import { CurrentSelection, SGRNAForOneEntry } from '../result-page/interfaces';
-import * as d3 from "d3";
-import { html } from 'd3';
-
 
 @Component({
     tag: 'genomic-card2',
@@ -19,7 +16,7 @@ export class GenomicCard {
     @Prop() current_references: string[];
     @Prop() current_sgrnas: SGRNAForOneEntry[];
     @Prop() diagonal_svg:number; 
-    @Prop() initial_sgrnas?:SGRNAForOneEntry[]; 
+    @Prop() initial_sgrnas?:SGRNAForOneEntry[];
     @Prop() hidden_references:string[]; //Fasta sequences of the organism with no sgrna on it
 
     @Prop() changeOrganism: (org: string) => void;
@@ -31,8 +28,6 @@ export class GenomicCard {
     @State() highlight_selection:boolean = false; 
     @State() display_circular_barplot:boolean = true; 
     @State() fasta_info_active:boolean = false; 
-
-    selected_section_on_card:number = -1; 
     
 
     //Hack to animate background color when change, because @keyframes don't work.
@@ -44,14 +39,6 @@ export class GenomicCard {
     @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
     @Event({ eventName: 'genomic-card.coordinate-over'}) onOverCoordinate: EventEmitter; 
     @Event({ eventName: 'genomic-card.coordinate-out'}) onOutCoordinate:EventEmitter; 
-
-    @Listen('sectionSelected', { target: 'window' })
-    handleSectionSelected(event: CustomEvent) {
-        if ( event.detail.sgRNA.length > 0 ){
-            this.changeSgrnaSubset(event.detail.sgRNA);
-            this.selected_section_on_card = event.detail.section; 
-        }
-    }
 
     @Listen('table-crispr.org-click', { target: 'window'})
     handleTableOrganismClick(){
@@ -71,19 +58,6 @@ export class GenomicCard {
         return all_coords.sort((a, b) => a - b);
     }
 
-    get overlapping_positions(): number[]{
-        const word_length: number = this.current_sgrnas[0].seq.length
-        const all_pos:number[] = [];
-        this.current_sgrnas.map(e => 
-            e.coords.map(coord => {
-                const start = parseInt(/\(([0-9]*),/.exec(coord)[1]); 
-                for (let i = start; i < start + word_length; i++){
-                    all_pos.push(i)
-                }
-            }))
-        return all_pos; 
-    }
-
     /**
      * Get number of occurences for one sgrna sequence
      * @param sgrna : sgrna sequence
@@ -100,7 +74,6 @@ export class GenomicCard {
     }
 
     componentDidRender() {
-        const coords = this.current_sgrnas.find(e => e.seq === this.selected.sgrna).coords
         const old_current_sgrnas:{[seq:string]:string[]} = {}
         this.initial_sgrnas.map(e => old_current_sgrnas[e.seq] = e.coords)
         /*dspl.generateGenomicCard(DisplayGenome, this.diagonal_svg, this.selected.size, this.element.shadowRoot, coords, this.selected.sgrna);
@@ -112,14 +85,6 @@ export class GenomicCard {
         //this.styleHelp(".genomeCircle>path", ".help-gen");
         //this.styleHelp(".sunburst>path", ".help-section");
         //this.styleHelp("#notif>.material-icons", "#notif-text");*/
-    }
-
-    styleHelp(ref: string, target: string) {
-        if (this.element.shadowRoot.querySelector(ref) != null) {
-            var coordGen = this.element.shadowRoot.querySelector(ref).getBoundingClientRect();
-            (this.element.shadowRoot.querySelector(target) as HTMLElement).style.top = coordGen.top.toString() + "px";
-            (this.element.shadowRoot.querySelector(target) as HTMLElement).style.left = coordGen.left.toString() + "px";
-        }
     }
 
     switchFastaInfo(){
@@ -138,25 +103,6 @@ export class GenomicCard {
                 <li> Description : ${this.selected.fasta_header}
             </ul>`
             parent_node.appendChild(html_fasta_info);
-            //node.appendChild(text); 
-        }
-    }
-
-    removeSvg(){
-        if (this.element.shadowRoot.querySelector("circular-barplot svg")) {
-            this.element.shadowRoot.querySelector("circular-barplot svg").remove(); 
-        }
-    }
-
-    removeSvgCoordTicks(){
-        //this.element.shadowRoot.querySelectorAll("circular-barplot svg .single-coord-ticks"); 
-    }
-
-    componentWillRender(){
-        const fasta_tooltip = this.element.shadowRoot.querySelector(".ref-tooltip-info");
-        if (fasta_tooltip){
-            this.fasta_info_active = false; 
-            this.element.shadowRoot.querySelector(".sub-selection.ref").removeChild(fasta_tooltip)
         }
     }
 
@@ -204,7 +150,8 @@ export class GenomicCard {
                                     <mmsb-select
                                         data={this.organisms.map(name => [name, name])}
                                         selected={[this.selected.org]}
-                                        onSelect={e => {/*this.removeSvg();*/ this.changeOrganism(e)}}
+                                        onSelect={e => {/*this.removeSvg();*/ this.changeOrganism(e); 
+                                            if (this.fasta_info_active) this.switchFastaInfo()}}
                                         color={this.highlight_selection ? "#539ddc54" : undefined}
                                     />
                                 </div>
@@ -213,7 +160,8 @@ export class GenomicCard {
                                     <div class="ref-selector">
                                         <select 
                                             class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
-                                            onChange={e => {/*this.removeSvg();*/this.changeRef((e.target as HTMLSelectElement).value)}}>
+                                            onChange={e => {this.changeRef((e.target as HTMLSelectElement).value);
+                                                if (this.fasta_info_active) this.switchFastaInfo(); }}>
                                             {this.current_references.map(ref => <option>{ref}</option>)}
                                             {this.hidden_references.map(ref => <option disabled>{ref}</option>)}
                                         </select>
@@ -255,25 +203,4 @@ export class GenomicCard {
                 
         ])
     }
-}
-
-function DisplayGenome(root: ShadowRoot, width: number, height: number): void {
-    // Clean all arc
-    d3.select(root.querySelector('#displayGenomicCard')).selectAll('g').remove();
-    let arcGenerator = d3.arc();
-    // Generator arc for the complete genome
-    let pathGenome = arcGenerator({
-        startAngle: 0,
-        endAngle: 2 * Math.PI,
-        innerRadius: width * 15 / 100 - width * 1 / 100,
-        outerRadius: width * 15 / 100
-    })
-    // Draw the complete genome
-    d3.select(root.querySelector('svg'))
-        .append("g")
-        .attr('class', 'genomeCircle')
-        .append('path')
-        .attr('d', pathGenome)
-        .attr('transform', 'translate(' + width / 2 + ', ' + height / 2 + ')')
-        .style('fill', 'rgba(79, 93, 117)');
 }

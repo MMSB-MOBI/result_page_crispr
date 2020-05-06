@@ -14,7 +14,6 @@
 | `fasta_metadata` | `fasta_metadata` |             | `string` | `undefined` |
 | `gene`           | `gene`           |             | `string` | `undefined` |
 | `org_names`      | `org_names`      |             | `string` | `undefined` |
-| `size`           | `size`           |             | `string` | `undefined` |
 
 
 ## Dependencies

@@ -68,7 +68,10 @@ export class TableCrispr {
     this.page = current_page;
   }
 
-  /* Filter sgRNA on search*/
+  /**
+   * Filter sgrna based on current regex given in regex field and current min and max occurences selected. If a sgrna is given, will filter only this sgrna.
+   * @param sgrna : optional, sgrna to filter
+   */
   sgRNAFilter(sgrna: string = undefined): void {
     //Filter on min occurences
     const search = sgrna ? sgrna : (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value;
@@ -82,22 +85,11 @@ export class TableCrispr {
 
   // *************************** DISPLAY ***************************
 
-  /*
-    * Find min and max occurences for each sgRNA summing occurences for each organism
-    * @param {Number} maxPages Number of maximum pages
-  */
-  colorPagination(maxPages: Number): void {
-    // Color arrows for pagination
-    let colorBg = (this.page === 1) ? "#f1f1f1" : "rgba(239, 71, 111)";
-    let colorArrow = (this.page === 1) ? "black" : "white";
-    (this.element.shadowRoot.querySelector(".previous") as HTMLElement).style.background = colorBg;
-    (this.element.shadowRoot.querySelector(".previous") as HTMLElement).style.color = colorArrow;
-    colorBg = (this.page === maxPages) ? "#f1f1f1" : "rgba(239, 71, 111)";
-    colorArrow = (this.page === maxPages) ? "black" : "white";
-    (this.element.shadowRoot.querySelector(".next") as HTMLElement).style.background = colorBg;
-    (this.element.shadowRoot.querySelector(".next") as HTMLElement).style.color = colorArrow;
-  }
-
+  /**
+   * Get pagination that needs to be currently displayed
+   * @param start : first page to display in pagination field
+   * @param end : last page to display in pagination field
+   */
   getCurrentPagination(start: number, end: number): number[] {
     let pagination_display = [];
     for (let i = start; i <= end; i++) {
@@ -118,15 +110,14 @@ export class TableCrispr {
     }
     else {
       this.initial_min_max_data = this.minMaxOccurences()
+      console.log(this.initial_min_max_data)
       this.currentSgrnas = this.initial_min_max_data
       this.sortData()
       this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
     }
 
     const minocc_max = this.currentSgrnas.reduce((val, e) => val > e.min_occurences ? val : e.min_occurences, 0)
-    //const minocc_min = this.currentSgrnas.reduce((val, e) => val < e.min_occurences ? val : e.min_occurences, 0)
     const maxocc_max = this.currentSgrnas.reduce((val, e) => val > e.max_occurences ? val : e.max_occurences, 0)
-    //const maxocc_min = this.currentSgrnas.reduce((val, e) => val < e.max_occurences ? val : e.max_occurences, 0)
     this.initial_minocc = [0, minocc_max];
     this.initial_maxocc = [0, maxocc_max]; 
     this.minocc_filter = this.initial_minocc; 
@@ -136,7 +127,7 @@ export class TableCrispr {
   componentDidLoad() {
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
-    this.addSvgText();
+    this.addSliderSvgText();
   }
 
   componentWillUpdate() {
@@ -150,7 +141,11 @@ export class TableCrispr {
     this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
   }
 
-  sequencesOccurences(seq: string) {
+  /**
+   * Get occurences of the given sequence with organism and number of occurence informations.
+   * @param seq : sequence 
+   */
+  sequencesOccurences(seq: string): {name:string, coords_count:number}[]{
     const hit = this.complete_data.find(s => s.sequence === seq);
     return hit.occurences.map(o => {
       const coords_count = o.all_ref.reduce((acc, val) => acc + val.coords.length, 0);
@@ -160,7 +155,10 @@ export class TableCrispr {
       .sort((a,b) => b.coords_count - a.coords_count)
   }
 
-  minMaxOccurences() {
+  /**
+   * Get all occurences formated to have access to min occurences and max occurences informations
+   */
+  minMaxOccurences():MinMaxOccurencesData[] {
     return this.complete_data.map(sgrna => {
       let nb_occurences = []
       sgrna.occurences.map(occ => {
@@ -170,7 +168,11 @@ export class TableCrispr {
       return { seq: sgrna.sequence, min_occurences: nb_occurences[0], max_occurences: nb_occurences[nb_occurences.length - 1] };
     })
   }
-
+  
+  /**
+   * Sort data based on current sorting type (min occurences, max occurences, alphabetical) and current sort order (descending, ascending).
+   * The sorting change currentSgrnas variable
+   */
   sortData() {
     if (this.sort_type === "Min occurences" && this.sort_order === "descending") {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.min_occurences - a.min_occurences)
@@ -192,12 +194,9 @@ export class TableCrispr {
     }
   }
 
-  clickOnOrganismList(organism: string, sgrna: string) {
-    if (this.onOrganismClick) {
-      this.onOrganismClick(organism, sgrna);
-    }
-  }
-
+  /**
+   * Call with click for sorting. Get the sorting order and the sorting type from html fields and click event and change sort_order and sort_type variables.
+   */
   handleChangeSortMethod = (e: MouseEvent) => {
     const clicked_e = e.currentTarget as HTMLTableHeaderCellElement;
     const icon_element = clicked_e.querySelector('i');
@@ -213,6 +212,10 @@ export class TableCrispr {
     }
   };
 
+  /**
+   * Get start and end of pagination depending on the current page. 
+   * We want to display 3 pages before and 3 pages after current page. If we have less than 3 available, only the availables are displayed.
+   */
   actualizePaginationDisplay() {
     let start: number;
     let end: number;
@@ -231,18 +234,13 @@ export class TableCrispr {
     this.current_pagination_display = this.getCurrentPagination(start, end);
   }
 
-  /*createSlider(){
-    const slider = this.element.shadowRoot.querySelector('.slider') as HTMLElement
-    noUiSlider.create(slider, {
-      start: [2, 5],
-      connect: true,
-      range: {
-          'min': 0,
-          'max': 10
-      }
-    });
-  }*/
-
+  /**
+   * Display slider for min and max occurences selection.
+   * @param elmt html element where to put slider
+   * @param min : min occurences
+   * @param max : max occurences
+   * @param cat : slider category, min slider or max slider
+   */
   displaySlider(elmt: HTMLElement, min: number, max: number, cat: string) {
     const sliderRange = d3_slider
       .sliderHorizontal()
@@ -263,7 +261,7 @@ export class TableCrispr {
           this.maxocc_filter = [val[0], val[1]]
         }
         this.sgRNAFilter();
-        this.addSvgText();
+        this.addSliderSvgText();
         //d3.select(elmtValue).text(val[0]);
       });
 
@@ -276,7 +274,10 @@ export class TableCrispr {
       .call(sliderRange);
   }
 
-  addSvgText() {
+  /**
+   * Highlight current selected value in sliders below the cursor.
+   */
+  addSliderSvgText() {
     let i = 0
     this.element.shadowRoot.querySelectorAll('.slider-min .parameter-value')
       .forEach(svg_elmt => {
@@ -305,6 +306,9 @@ export class TableCrispr {
 
   }
 
+  /**
+   * Sliders in their initial state.
+   */
   reinitializeSliders(){
     this.element.shadowRoot.querySelector(".slider-min svg").remove();
     this.element.shadowRoot.querySelector(".slider-max svg").remove();
@@ -312,7 +316,7 @@ export class TableCrispr {
     this.maxocc_filter = this.initial_maxocc; 
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
     this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
-    this.addSvgText(); 
+    this.addSliderSvgText(); 
 
   }
 
@@ -411,7 +415,7 @@ export class TableCrispr {
                         class="sgrna-organism"
                         style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}
                         onClick={() => {
-                          this.clickOnOrganismList(o.name, sgrna.seq);
+                          this.onOrganismClick(o.name, sgrna.seq);;
                           this.onClickTableOrganism.emit();
                         }}
                       >

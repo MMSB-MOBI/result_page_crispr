@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element } from '@stencil/core';
-import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection} from './interfaces';
+import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection, FastaMetadata} from './interfaces';
 import "@mmsb/mmsb-select";
 
 @Component({
@@ -15,7 +15,6 @@ export class ResultPage {
   @Prop() all_data: string;
   @Prop() org_names: string;
   @Prop() gene: string;
-  @Prop() size: string;
   @Prop() fasta_metadata:string;
 
   @State() display_linear_card: boolean = true;
@@ -26,19 +25,16 @@ export class ResultPage {
   @State() current_sgrnas: SGRNAForOneEntry[];
 
   organism_data: OrganismHit[];
-  size_data: {[org:string]: { [ref:string]: number}}
-  gene_json: {};
   sequence_data_json: SequenceSGRNAHit[];
   initial_sgrnas: SGRNAForOneEntry[];
   hidden_references: string[];
-  fasta_metadata_json; //Need to be typed
+  fasta_metadata_json: FastaMetadata[]; //Need to be typed
 
   componentWillLoad() {
     //Initialize data
     this.tableCrisprOrganisms = this.org_names.split("&");
     this.sequence_data_json = this.loadSequenceData();
     this.organism_data = this.formatOrganismData()
-    this.size_data = JSON.parse(this.size)
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     
     const org = this.tableCrisprOrganisms[0];
@@ -59,7 +55,7 @@ export class ResultPage {
     this.initial_sgrnas = this.current_sgrnas; 
   }
 
-  loadSequenceData(){
+  loadSequenceData(): SequenceSGRNAHit[]{
     let sequence_data = JSON.parse(this.complete_data)
     sequence_data
       .forEach(e => e.occurences
@@ -67,10 +63,6 @@ export class ResultPage {
           .forEach(ref => ref.coords = Object.values(ref.coords))));
       
     return sequence_data 
-  }
-
-  componentDidRender(){
-    //this.createSlider(); 
   }
 
   /**
@@ -129,14 +121,24 @@ export class ResultPage {
     return this.fasta_metadata_json.find( e => e.org === org && e.fasta_ref === ref).size
   }
 
-  getHiddenReferences(org:string){
+  /**
+   * For given organism, get fasta subsequences with no sgrna on it.
+   * @param org : organism
+   */
+  getHiddenReferences(org:string):string[]{
     const current_ref = this.getReferences(org)
-    const all_ref = Object.keys(this.size_data[org])
+    const all_ref = this.fasta_metadata_json.filter(fasta_metadata => fasta_metadata.org === org).map(e => e.fasta_ref)
     const difference = all_ref.filter(x => !current_ref.includes(x)); //Get references in all_ref and not in current_ref
     return difference
   }
 
-  getFastaHeader(org, ref){
+  
+  /**
+   * For given organism and fasta subsequence, get fasta header
+   * @param org : organism
+   * @param ref : reference of fasta subsequence
+   */
+  getFastaHeader(org:string, ref:string):string{
     const fasta_header = this.fasta_metadata_json.find( e => e.org === org && e.fasta_ref === ref).header
     return fasta_header
   }
