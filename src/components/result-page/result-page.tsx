@@ -126,7 +126,7 @@ export class ResultPage {
    * @param ref : reference
    */
   getSize(org:string, ref:string): number{
-    return this.size_data[org][ref]
+    return this.fasta_metadata_json.find( e => e.org === org && e.fasta_ref === ref).size
   }
 
   getHiddenReferences(org:string){
@@ -222,7 +222,8 @@ export class ResultPage {
                   ...this.selected,
                   sgrna: this.current_sgrnas.find(e => e.seq === old_sgrna) ? old_sgrna : this.current_sgrnas[0].seq,
                   ref,
-                  size: this.getSize(this.selected.org, ref)
+                  size: this.getSize(this.selected.org, ref),
+                  fasta_header : this.getFastaHeader(this.selected.org, ref)
                 };
                 if (this.selected.sgrna !== old_sgrna){
                   this.shouldHighlight = false; 
