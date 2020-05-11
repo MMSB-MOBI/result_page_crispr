@@ -1,5 +1,5 @@
 import { Component, Prop, h, State, Element } from '@stencil/core';
-import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection, FastaMetadata} from './interfaces';
+import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection, FastaMetadata, Coordinate} from './interfaces';
 import "@mmsb/mmsb-select";
 
 @Component({
@@ -14,7 +14,7 @@ export class ResultPage {
   @Prop() complete_data: string;
   @Prop() all_data: string;
   @Prop() org_names: string;
-  @Prop() gene: string;
+  @Prop() gene?: string;
   @Prop() fasta_metadata:string;
 
   @State() display_linear_card: boolean = true;
@@ -26,9 +26,12 @@ export class ResultPage {
 
   organism_data: OrganismHit[];
   sequence_data_json: SequenceSGRNAHit[];
+  gene_json?:{[org : string]:{[ref: string]:Coordinate[]}}; 
   initial_sgrnas: SGRNAForOneEntry[];
   hidden_references: string[];
   fasta_metadata_json: FastaMetadata[]; //Need to be typed
+  current_genes?:Coordinate[]; 
+
 
   componentWillLoad() {
     //Initialize data
@@ -53,6 +56,10 @@ export class ResultPage {
     };
 
     this.initial_sgrnas = this.current_sgrnas; 
+    if(this.gene){
+      this.gene_json = JSON.parse(this.gene); 
+      this.current_genes = this.getGenesCoordinates(org, ref);
+    }
   }
 
   loadSequenceData(): SequenceSGRNAHit[]{
@@ -143,6 +150,10 @@ export class ResultPage {
     return fasta_header
   }
 
+  getGenesCoordinates(org:string, ref:string):Coordinate[]{
+    return this.gene_json[org][ref]
+  }
+
   render() {
     // @ts-ignore
     window.result_page = this;
@@ -183,6 +194,7 @@ export class ResultPage {
               current_references={this.current_references}
               hidden_references={this.hidden_references}
               current_sgrnas={this.current_sgrnas}
+              current_genes={this.current_genes}
               changeOrganism={(organism) => {
                 if (!organism) {
                   this.selected = undefined;

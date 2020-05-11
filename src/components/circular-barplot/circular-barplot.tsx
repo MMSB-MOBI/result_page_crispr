@@ -1,5 +1,5 @@
 import {Component, h, Prop, Listen, Watch, Element} from '@stencil/core';
-import { CoordinatesBinData } from '../result-page/interfaces';
+import { CoordinatesBinData, Coordinate} from '../result-page/interfaces';
 declare const d3: any;
 
 @Component({
@@ -14,6 +14,7 @@ export class CircularBarplot{
     @Prop() list_coordinates: number[];
     @Prop() genome_size : number; 
     @Prop() selected_sgrna_coordinates : string[]; 
+    @Prop() gene_coordinates?: Coordinate[]; 
 
     bin_number:number = 50; 
     bin_data: CoordinatesBinData[]; 
@@ -30,6 +31,10 @@ export class CircularBarplot{
     barplot_end: number; 
     detailed_barplot_begin:number; 
     detailed_barplot_end:number; 
+    coordinates_begin:number;
+    coordinates_end:number;
+    gene_begin?:number; 
+    gene_tickness?:number; 
 
     @Watch('selected_sgrna_coordinates')
     selectedSgrnaChange(){
@@ -89,10 +94,15 @@ export class CircularBarplot{
         this.height = this.width;
         this.circle_radius = this.width/6; 
         this.circle_thickness = 2; 
-        this.barplot_begin = this.width/4.5; 
-        this.barplot_end = this.width/3; 
-        this.detailed_barplot_begin = this.width/2.7;
+        this.barplot_begin = this.gene_coordinates ? this.width/4 : this.width/4.5; 
+        this.barplot_end = this.gene_coordinates ? this.width/2.7 : this.width/3; 
+        this.detailed_barplot_begin = this.gene_coordinates ? this.width/2.5 : this.width/2.7;
         this.detailed_barplot_end = this.width/2 - 1; 
+        this.coordinates_begin = this.circle_radius + this.circle_thickness + 3
+        this.coordinates_end = this.circle_radius + this.circle_thickness + 6 
+        this.gene_begin = this.gene_coordinates ? this.barplot_begin - 6 : undefined
+        this.gene_tickness = 3; 
+
         const main_div = this.element.shadowRoot.querySelector('.circular-barplot-main')
         this.svg = d3.select(main_div)
             .append("svg")
@@ -105,6 +115,7 @@ export class CircularBarplot{
         this.createGenomeCircle();
         this.createCircularBarplot(); 
         this.addSingleCoordinatesTicks();
+        this.displayGenes(); 
     }
 
     cleanSvg(){
@@ -320,7 +331,6 @@ export class CircularBarplot{
         //Lines between bin from global barplot and its detailed version
         const line1 = [this.circleCoordinates(bin_data.bin_start, bin_data.y_placement), this.circleCoordinates(middle - midlength, this.detailed_barplot_begin)] //Coordinates (x,y) for begin and end of the first line
         const line2 = [this.circleCoordinates(bin_data.bin_end, bin_data.y_placement), this.circleCoordinates(middle + midlength, this.detailed_barplot_begin)] //Coordinates (x,y) for begin and end of the second line
-        console.log(bin_data)
         this.svg.selectAll(".detailed-barplot")
             .selectAll(".detailed-barplot-line")
             .data([line1, line2])
@@ -359,8 +369,8 @@ export class CircularBarplot{
             .attr("stroke-width", "0.5")
             .attr('x1', 0)
             .attr("x2", 0)
-            .attr("y1", this.circle_radius + this.circle_thickness + 3)
-            .attr("y2", this.circle_radius + this.circle_thickness + 6)
+            .attr("y1", this.coordinates_begin)
+            .attr("y2", this.coordinates_end)
             .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})
         
         //Transition when change sgrna
@@ -393,8 +403,8 @@ export class CircularBarplot{
             .attr("stroke-width", "0.5")
             .attr('x1', 0)
             .attr("x2", 0)
-            .attr("y1", this.circle_radius + this.circle_thickness + 3)
-            .attr("y2", this.circle_radius + this.circle_thickness + 6)
+            .attr("y1", this.coordinates_begin)
+            .attr("y2", this.coordinates_end)
             .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})     
     }
 
@@ -408,6 +418,25 @@ export class CircularBarplot{
         const x = Math.sin(angle) * radius //Trigonometrie sin(alpha) = opposé / hypothénuse
         const y = Math.cos(angle) * radius // Trigonometrie cos(alpha) = adjacent / hypothénuse
         return {x, y}
+    }
+
+    displayGenes(){
+        const angle = d3.scaleLinear()
+            .range([0, 360])
+            .domain([0, this.genome_size])
+
+        this.svg
+            .append("g")
+            .attr("class", "genes")
+            .selectAll(".gene-arc")
+            .data(this.gene_coordinates)
+            .enter()
+            .append("polygon")
+                .attr("points", d => {
+                    const coord = this.circleCoordinates(d.end - d.start / 2, this.gene_begin)
+                    return `0, ${- this.gene_begin} -2,${ - this.gene_begin - this.gene_tickness} 2,${- this.gene_begin - this.gene_tickness}`
+                })
+                .attr("transform", d => `rotate(${angle(d.end - d.start / 2)})`)
     }
 
     /**

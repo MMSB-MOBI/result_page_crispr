@@ -7,20 +7,21 @@
 
 ## Properties
 
-| Property             | Attribute      | Description | Type                               | Default     |
-| -------------------- | -------------- | ----------- | ---------------------------------- | ----------- |
-| `changeOrganism`     | --             |             | `(org: string) => void`            | `undefined` |
-| `changeRef`          | --             |             | `(ref: string) => void`            | `undefined` |
-| `changeSgrna`        | --             |             | `(sgrna: string) => void`          | `undefined` |
-| `changeSgrnaSubset`  | --             |             | `(sgrna_subset: string[]) => void` | `undefined` |
-| `current_references` | --             |             | `string[]`                         | `undefined` |
-| `current_sgrnas`     | --             |             | `SGRNAForOneEntry[]`               | `undefined` |
-| `diagonal_svg`       | `diagonal_svg` |             | `number`                           | `undefined` |
-| `hidden_references`  | --             |             | `string[]`                         | `undefined` |
-| `initial_sgrnas`     | --             |             | `SGRNAForOneEntry[]`               | `undefined` |
-| `onClickHighlight`   | --             |             | `() => void`                       | `undefined` |
-| `organisms`          | --             |             | `string[]`                         | `undefined` |
-| `selected`           | --             |             | `CurrentSelection`                 | `undefined` |
+| Property             | Attribute      | Description | Type                                | Default     |
+| -------------------- | -------------- | ----------- | ----------------------------------- | ----------- |
+| `changeOrganism`     | --             |             | `(org: string) => void`             | `undefined` |
+| `changeRef`          | --             |             | `(ref: string) => void`             | `undefined` |
+| `changeSgrna`        | --             |             | `(sgrna: string) => void`           | `undefined` |
+| `changeSgrnaSubset`  | --             |             | `(sgrna_subset: string[]) => void`  | `undefined` |
+| `current_genes`      | --             |             | `{ start: number; end: number; }[]` | `undefined` |
+| `current_references` | --             |             | `string[]`                          | `undefined` |
+| `current_sgrnas`     | --             |             | `SGRNAForOneEntry[]`                | `undefined` |
+| `diagonal_svg`       | `diagonal_svg` |             | `number`                            | `undefined` |
+| `hidden_references`  | --             |             | `string[]`                          | `undefined` |
+| `initial_sgrnas`     | --             |             | `SGRNAForOneEntry[]`                | `undefined` |
+| `onClickHighlight`   | --             |             | `() => void`                        | `undefined` |
+| `organisms`          | --             |             | `string[]`                          | `undefined` |
+| `selected`           | --             |             | `CurrentSelection`                  | `undefined` |
 
 
 ## Events

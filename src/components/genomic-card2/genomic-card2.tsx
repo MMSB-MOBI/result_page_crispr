@@ -18,6 +18,7 @@ export class GenomicCard {
     @Prop() diagonal_svg:number; 
     @Prop() initial_sgrnas?:SGRNAForOneEntry[];
     @Prop() hidden_references:string[]; //Fasta sequences of the organism with no sgrna on it
+    @Prop() current_genes:{start:number, end:number}[];
 
     @Prop() changeOrganism: (org: string) => void;
     @Prop() changeSgrna: (sgrna: string) => void;
@@ -195,7 +196,12 @@ export class GenomicCard {
                         </div>
                     </div>
                 </div>
-                <circular-barplot list_coordinates={this.all_start_coordinates} genome_size={this.selected.size} selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)}></circular-barplot>
+                <circular-barplot 
+                    list_coordinates={this.all_start_coordinates}
+                    genome_size={this.selected.size} 
+                    selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)} 
+                    gene_coordinates={this.current_genes}
+                ></circular-barplot>
                 
             </div>
 

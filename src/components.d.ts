@@ -5,9 +5,10 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { CurrentSelection, SequenceSGRNAHit, SGRNAForOneEntry, } from "./components/result-page/interfaces";
+import { Coordinate, CurrentSelection, SequenceSGRNAHit, SGRNAForOneEntry, } from "./components/result-page/interfaces";
 export namespace Components {
     interface CircularBarplot {
+        "gene_coordinates"?: Coordinate[];
         "genome_size": number;
         "list_coordinates": number[];
         "selected_sgrna_coordinates": string[];
@@ -17,6 +18,10 @@ export namespace Components {
         "changeRef": (ref: string) => void;
         "changeSgrna": (sgrna: string) => void;
         "changeSgrnaSubset": (sgrna_subset: string[]) => void;
+        "current_genes": {
+            start: number;
+            end: number;
+        }[];
         "current_references": string[];
         "current_sgrnas": SGRNAForOneEntry[];
         "diagonal_svg": number;
@@ -44,7 +49,7 @@ export namespace Components {
         "all_data": string;
         "complete_data": string;
         "fasta_metadata": string;
-        "gene": string;
+        "gene"?: string;
         "org_names": string;
     }
     interface TableCrispr {
@@ -102,6 +107,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface CircularBarplot {
+        "gene_coordinates"?: Coordinate[];
         "genome_size"?: number;
         "list_coordinates"?: number[];
         "selected_sgrna_coordinates"?: string[];
@@ -111,6 +117,10 @@ declare namespace LocalJSX {
         "changeRef"?: (ref: string) => void;
         "changeSgrna"?: (sgrna: string) => void;
         "changeSgrnaSubset"?: (sgrna_subset: string[]) => void;
+        "current_genes"?: {
+            start: number;
+            end: number;
+        }[];
         "current_references"?: string[];
         "current_sgrnas"?: SGRNAForOneEntry[];
         "diagonal_svg"?: number;

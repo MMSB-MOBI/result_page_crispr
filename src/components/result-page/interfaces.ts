@@ -65,6 +65,11 @@ export interface FastaMetadata{
 
 }
 
+export interface Coordinate{
+    start:number;
+    end:number;
+}
+
 export type SortingOrder = 'ascending' | 'descending';
 
 export type SortingType = "Min occurences" | "Max occurences" | "Alphabetical";
