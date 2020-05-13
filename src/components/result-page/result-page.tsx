@@ -37,7 +37,8 @@ export class ResultPage {
     //Initialize data
     this.tableCrisprOrganisms = this.org_names.split("&");
     this.sequence_data_json = this.loadSequenceData();
-    this.organism_data = this.formatOrganismData()
+    this.organism_data = this.formatOrganismData(); 
+    console.log("organism data", this.organism_data); 
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     
     const org = this.tableCrisprOrganisms[0];
@@ -56,7 +57,9 @@ export class ResultPage {
     };
 
     this.initial_sgrnas = this.current_sgrnas; 
-    if(this.gene){
+    console.log("gene", this.gene)
+    console.log(typeof this.gene)
+    if(this.gene !== "undefined"){
       this.gene_json = JSON.parse(this.gene); 
       this.current_genes = this.getGenesCoordinates(org, ref);
     }
@@ -85,7 +88,8 @@ export class ResultPage {
           fasta_entry: Object.entries(org_entry[1])
             .map(fasta_entry => ({ 
               ref: fasta_entry[0], 
-              sgrna: Object.entries(fasta_entry[1]).map(sgrna => ({ seq: sgrna[0], coords: Object.values(sgrna[1]) as any }))
+              // @ts-ignore
+              sgrna: Object.entries(fasta_entry[1]).map(sgrna => ({ seq: sgrna[0], coords: sgrna[1].coords, on_gene: sgrna[1].on_gene ? sgrna[1].on_gene : undefined, not_on_gene: sgrna[1].not_on_gene ? sgrna[1].not_on_gene : undefined}))
             })) 
         }
       }); 

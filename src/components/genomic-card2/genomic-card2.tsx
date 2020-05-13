@@ -53,9 +53,10 @@ export class GenomicCard {
     }
 
     get all_start_coordinates(){
-        const all_coords:number[] = []; 
-        this.current_sgrnas.map(e => 
-            e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
+        const all_coords:number[] = [];
+        this.current_sgrnas.map(e => {console.log(e); e.coords.map(coord => console.log(coord))});
+        //this.current_sgrnas.map(e => 
+        //    e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
         return all_coords.sort((a, b) => a - b);
     }
 
