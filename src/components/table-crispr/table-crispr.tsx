@@ -17,6 +17,7 @@ export class TableCrispr {
   @Element() private element: HTMLElement;
   // Data given by the results file
   @Prop() complete_data: SequenceSGRNAHit[];
+  @Prop() gene:boolean; 
 
   initial_min_max_data: MinMaxOccurencesData[]
   // sgRNA displayed on interface
@@ -110,7 +111,6 @@ export class TableCrispr {
     }
     else {
       this.initial_min_max_data = this.minMaxOccurences()
-      console.log(this.initial_min_max_data)
       this.currentSgrnas = this.initial_min_max_data
       this.sortData()
       this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
@@ -145,12 +145,13 @@ export class TableCrispr {
    * Get occurences of the given sequence with organism and number of occurence informations.
    * @param seq : sequence 
    */
-  sequencesOccurences(seq: string): {name:string, coords_count:number}[]{
+  sequencesOccurences(seq: string): {name:string, coords_count:number, on_gene_count:number, not_on_gene_count:number}[]{
     const hit = this.complete_data.find(s => s.sequence === seq);
     return hit.occurences.map(o => {
       const coords_count = o.all_ref.reduce((acc, val) => acc + val.coords.length, 0);
-
-      return { name: o.org, coords_count };
+      const on_gene_count = this.gene ? o.all_ref.reduce((acc, val) => acc + val.on_gene.length, 0):undefined;
+      const not_on_gene_count = this.gene ? o.all_ref.reduce((acc, val) => acc + val.not_on_gene.length, 0):undefined;
+      return { name: o.org, coords_count, on_gene_count, not_on_gene_count };
     })
       .sort((a,b) => b.coords_count - a.coords_count)
   }
@@ -327,6 +328,7 @@ export class TableCrispr {
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
+    console.log("displaySgrna", this.displaySgrna)
 
     // Parse data and initialize allSgrna and calcul occurences
 
@@ -358,7 +360,7 @@ export class TableCrispr {
         <div class="slider-containers">
           <span class="selection-header">Filter by number of occurences</span>
           <div class="slider-min">
-            <span>Minimum</span>
+            <span>Minimum among organisms</span>
           </div>
           <div class="slider-max">
             <span>Maximum</span>
@@ -386,6 +388,14 @@ export class TableCrispr {
               <i class={"material-icons table-sort-icon " + (this.sort_type === "Max occurences" ? "highlighted" : "")}>keyboard_arrow_down</i>
             </th>
           </tr>
+          <tr>
+            <th rowSpan={this.gene ? 2: 1}>Sequence</th>
+            <th colSpan={2}>Occurences number</th>
+          </tr>
+          {this.gene ? <tr>
+            <td>On homologous gene</td>
+            <td>Not on homologous gene</td>
+          </tr> : ''}
         </thead>
         <tbody>
           <tr style={{ height: '8px' }}>
@@ -397,36 +407,30 @@ export class TableCrispr {
           {this.displaySgrna.map(sgrna => {
             const currentOccurences = this.sequencesOccurences(sgrna.seq);
             //const min = currentOccurences.reduce((p, v) => (p < v.coords_count ? p : v.coords_count), currentOccurences[0].coords_count);
+            
+            let to_return = [<tr class="seq-header">
+            <td colSpan = {3}>
+              <strong>{sgrna.seq.slice(0, -3)}<span style={{ color: "rgba(239, 71, 111)" }}>{sgrna.seq.slice(-3)} </span></strong>
+            </td>
+          </tr>]
+          {currentOccurences.map(o => {
+            const selected = this.selected && this.selected.org === o.name && this.selected.sgrna === sgrna.seq;
+            to_return.push(<tr><td
+              class="sgrna-organism"
+              style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}
+              onClick={() => {
+                this.onOrganismClick(o.name, sgrna.seq);;
+                this.onClickTableOrganism.emit();
+              }}
+            >
+            {o.name}
+            </td>
+              {this.gene ? <td style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>{o.on_gene_count}</td> : <td colSpan={2} style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>{o.coords_count}</td>}
+              {this.gene ? <td style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>{o.not_on_gene_count}</td> : ''}
+            </tr>)             
+          })}
 
-            return ([
-              <tr class="seq-header">
-                <td>
-                  <strong>{sgrna.seq.slice(0, -3)}<span style={{ color: "rgba(239, 71, 111)" }}>{sgrna.seq.slice(-3)} </span></strong>
-                </td>
-                <td class="occurence-text"><strong>{sgrna.min_occurences}</strong></td>
-                <td class="occurence-text"><strong>{sgrna.max_occurences}</strong></td>
-              </tr>,
-              <tr>
-                <td colSpan={3}>
-                  <ul>
-                    {currentOccurences.map(o => {
-                      const selected = this.selected && this.selected.org === o.name && this.selected.sgrna === sgrna.seq;
-                      return <li
-                        class="sgrna-organism"
-                        style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}
-                        onClick={() => {
-                          this.onOrganismClick(o.name, sgrna.seq);;
-                          this.onClickTableOrganism.emit();
-                        }}
-                      >
-                        {o.name} <span class="tinyGrayText"> ({o.coords_count}) </span>
-                      </li>
-                    })}
-                  </ul>
-                </td>
-
-              </tr>
-            ]);
+            return to_return; 
           })}
         </tbody>
       </table>

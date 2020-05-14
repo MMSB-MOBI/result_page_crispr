@@ -10,6 +10,7 @@
 | Property          | Attribute          | Description | Type                                        | Default     |
 | ----------------- | ------------------ | ----------- | ------------------------------------------- | ----------- |
 | `complete_data`   | --                 |             | `SequenceSGRNAHit[]`                        | `undefined` |
+| `gene`            | `gene`             |             | `boolean`                                   | `undefined` |
 | `onOrganismClick` | --                 |             | `(organism: string, sgrna: string) => void` | `undefined` |
 | `selected`        | --                 |             | `CurrentSelection`                          | `undefined` |
 | `shouldHighlight` | `should-highlight` |             | `boolean`                                   | `undefined` |

@@ -11,6 +11,8 @@ export interface OccurenceSGRNAHit {
 export interface RefSGRNAHit {
     ref: string;
     coords: string[];
+    on_gene?: string[];
+    not_on_gene?: string[];
 }
 
 export interface MinMaxOccurencesData {
