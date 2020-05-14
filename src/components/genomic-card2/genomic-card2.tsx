@@ -198,12 +198,13 @@ export class GenomicCard {
                 </div>
 
                 <div class="genome-representation"> 
-                <circular-barplot-legend gene={this.current_genes ? true : false}></circular-barplot-legend>
+                    <circular-barplot-legend gene={this.current_genes ? true : false}></circular-barplot-legend>
                     <circular-barplot 
                         list_coordinates={this.all_start_coordinates}
                         genome_size={this.selected.size} 
                         selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)} 
                         gene_coordinates={this.current_genes}
+                        active_rotation
                     ></circular-barplot>
 
                     

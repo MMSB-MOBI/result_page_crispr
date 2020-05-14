@@ -8,6 +8,7 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 import { Coordinate, CurrentSelection, SequenceSGRNAHit, SGRNAForOneEntry, } from "./components/result-page/interfaces";
 export namespace Components {
     interface CircularBarplot {
+        "active_rotation"?: any;
         "gene_coordinates"?: Coordinate[];
         "genome_size": number;
         "list_coordinates": number[];
@@ -118,6 +119,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface CircularBarplot {
+        "active_rotation"?: any;
         "gene_coordinates"?: Coordinate[];
         "genome_size"?: number;
         "list_coordinates"?: number[];

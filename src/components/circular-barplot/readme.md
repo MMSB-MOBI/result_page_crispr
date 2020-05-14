@@ -7,12 +7,13 @@
 
 ## Properties
 
-| Property                     | Attribute     | Description | Type           | Default     |
-| ---------------------------- | ------------- | ----------- | -------------- | ----------- |
-| `gene_coordinates`           | --            |             | `Coordinate[]` | `undefined` |
-| `genome_size`                | `genome_size` |             | `number`       | `undefined` |
-| `list_coordinates`           | --            |             | `number[]`     | `undefined` |
-| `selected_sgrna_coordinates` | --            |             | `string[]`     | `undefined` |
+| Property                     | Attribute         | Description | Type           | Default     |
+| ---------------------------- | ----------------- | ----------- | -------------- | ----------- |
+| `active_rotation`            | `active_rotation` |             | `any`          | `undefined` |
+| `gene_coordinates`           | --                |             | `Coordinate[]` | `undefined` |
+| `genome_size`                | `genome_size`     |             | `number`       | `undefined` |
+| `list_coordinates`           | --                |             | `number[]`     | `undefined` |
+| `selected_sgrna_coordinates` | --                |             | `string[]`     | `undefined` |
 
 
 ## Dependencies

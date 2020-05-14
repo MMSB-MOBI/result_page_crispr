@@ -15,6 +15,7 @@ export class CircularBarplot{
     @Prop() genome_size : number; 
     @Prop() selected_sgrna_coordinates : string[]; 
     @Prop() gene_coordinates?: Coordinate[]; 
+    @Prop() active_rotation?
 
     bin_number:number = 50; 
     bin_data: CoordinatesBinData[]; 
@@ -40,6 +41,7 @@ export class CircularBarplot{
     genome_color:string; 
     gene_color:string; 
     coord_color:string; 
+
 
     @Watch('selected_sgrna_coordinates')
     selectedSgrnaChange(){
@@ -145,6 +147,10 @@ export class CircularBarplot{
             .on("click", () => {
                 this.svg.selectAll(".detailed-barplot").remove(); //Remove detailed barplot if exists
                 this.svg.selectAll(".bin").style("opacity", "1"); //All bins with initial opacity
+                if(this.active_rotation){
+                    this.applyRotation(0)
+                    this.deEmphasizeZero();
+                }
             })
             .attr("cx", 0)
             .attr("cy", 0)
@@ -159,10 +165,7 @@ export class CircularBarplot{
         const tickScale = d3.scaleLinear()
             .range([-180, 180 - tickAngle]) // -180, 180 so tick 0 will be at genome origin (up middle)
             .domain([0, ticks_number - 1])
-
-        const labelScale = d3.scaleLinear()
-            .range([0, 360 - tickAngle]) // I don't why 0,360 for label, probably something related to x and y calculations. 
-            .domain([0, ticks_number - 1])   
+        
         this.svg
             .append("g")
             .attr("class", "coord-ticks-container")
@@ -178,28 +181,30 @@ export class CircularBarplot{
                 .attr("stroke", "gray")
                 .attr("stroke-width", 0.5)
 
-        //Add coordinates label. Placements are made for 12 ticks, you will probably have to adapt if you want to change the number of ticks. 
+        //Add coordinates label. 
         const gap_between_ticks = Math.round(this.genome_size / ticks_number)
         const label_radius = this.circle_radius - 8; 
-        const label_y_offset = 1; 
-        const radians = 0.0174532925; 
-        this.svg
-            .append("g")
+
+        //Compute coords, x and y coordinates for each tick
+        let data_label = []
+        for(let i = 0; i < ticks_number; i++){
+            const coordinates = this.circleCoordinates(i*gap_between_ticks, label_radius)
+            data_label.push({coord:i*gap_between_ticks, x:coordinates.x, y:coordinates.y})
+        }
+        
+        this.svg.append("g")
             .attr("class", "coord-label-container")
             .selectAll(".coord-label")
-            .data(d3.range(0, ticks_number))
+            .data(data_label)
                 .enter()
-                .append('text')
+                .append("text")
                 .attr('class', 'coord-label')
-                .attr('text-anchor', 'middle')
-                .attr('font-size', '3px')
-                .style('fill', 'gray')
-                .attr('x', d => {
-                    return label_radius * Math.sin(labelScale(d) * radians)})
-                .attr('y', d => {
-                    const current_radius = (d * tickAngle)%90 === 0 ? label_radius + 2 : label_radius  // Better placement of strictly vertical and horizontal labels
-                    return -current_radius * Math.cos(labelScale(d) * radians) + label_y_offset})
-                .text(d => numberWithCommas(Math.round((d * gap_between_ticks) / 1000 )) + " kb"); 
+                .attr("font-size", "3px")
+                .attr("text-anchor", "middle")
+                .style("fill", "gray")
+                .attr("x", d => d.x)
+                .attr("y", d => d.y)
+                .text(d => numberWithCommas(Math.round(d.coord / 1000 )) + " kb")
 
         //Add genome size in the middle
         this.svg
@@ -236,6 +241,10 @@ export class CircularBarplot{
         //Compute all y placements, we need it for detailed barplot so it has to be precomputed.
         bin_data.forEach(bin => bin.y_placement = y(bin.number_coords_proportion))
 
+        const angle = d3.scaleLinear()
+            .range([0,360])
+            .domain([0, this.genome_size])
+
         const component = this; //Save component in variable for use in click function
         this.svg.append("g")
             .attr("class", "barplot-container")
@@ -249,6 +258,14 @@ export class CircularBarplot{
                     component.svg.selectAll(".bin").style("opacity", "0.5") //Fade all bins
                     d3.select(this).style("opacity","1.0"); //Highlight current bin
                     component.addBarplotDetailed(d) //Add the detailed barplot for current bin
+                    if (component.active_rotation){
+                        const middle  = d.bin_start + ((d.bin_end - d.bin_start)/2)
+                        component.applyRotation(-angle(middle))
+                        component.emphasizeZero(); 
+                    }
+                    
+                    //component.applyRotation(90);
+
                 })
               .attr("d", d3.arc()
                   .innerRadius(innerRadius)
@@ -292,10 +309,11 @@ export class CircularBarplot{
             .range([start_angle, end_angle])
             .domain([bin_data.bin_start, bin_data.bin_end])
         
+        const max_prop = [...detailed_bin_data].sort((a,b) => b.number_coords_proportion - a.number_coords_proportion)[0].number_coords_proportion
         //Scale for y axis of barplot
         const bin_y = d3.scaleLinear()
             .range([this.detailed_barplot_begin + 1, this.detailed_barplot_end])
-            .domain([0,1]) //Maybe max height instead of 1 ? Between 0 and 1 because we work with proportion.
+            .domain([0,max_prop]) //Maybe max height instead of 1 ? Between 0 and 1 because we work with proportion.
 
         //Add the axis
         this.svg
@@ -531,6 +549,7 @@ export class CircularBarplot{
         const angle = d3.scaleLinear()
             .range([0, 360])
             .domain([0, this.genome_size])
+
         const component = this;
         this.svg
             .append("g")
@@ -555,8 +574,49 @@ export class CircularBarplot{
                     const middle = d.start + ((d.end - d.start) / 2)
                     const triangle_gap = this.genome_size / 204
                     component.addBarplotDetailed2(d.start, d.end, middle - triangle_gap, middle + triangle_gap, this.gene_begin + this.gene_tickness, this.barplot_gene_begin, this.barplot_gene_end, ".barplot-detailed-gene", this.gene_color, 20, 10)
+                    component.applyRotation(-angle(middle))
                 })
     }
+
+    applyRotation(angle:number){
+        console.log("apply rotation", angle)
+        this.svg
+            .transition()
+            .duration(1000)
+            .attr("transform", `rotate(${angle})`)
+
+        this.svg.selectAll(".genome-size-container")
+            .transition()
+            .duration(1000)
+            .attr("transform", `rotate(${-angle})`)
+
+        this.svg.selectAll(".coord-label-container text")
+            .transition()
+            .duration(1000)
+            .attr("transform", d => `rotate(${-angle}, ${d.x}, ${d.y})`);
+        //this.svg.selectAll(".coord-label text").attr("transform", d => console.log("d",d))
+
+    }
+
+    emphasizeZero(){
+        this.svg.select(".coord-tick")
+            .attr("stroke", "red")
+            .attr("stroke-width", 0.7)
+        this.svg.select(".coord-label")
+            .style("fill", "red")
+            .style("font-weight", "bold")
+    }
+
+    deEmphasizeZero(){
+        this.svg.select(".coord-tick")
+            .attr("stroke", "grey")
+            .attr("stroke-width", 0.5)
+        this.svg.select(".coord-label")
+            .style("fill", "grey")
+            .style("font-weight", "normal")
+    }
+
+    
 
     /**
      * If svg exists, clean it. If not, initialize it. 
