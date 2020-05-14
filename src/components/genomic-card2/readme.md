@@ -42,12 +42,14 @@
 ### Depends on
 
 - mmsb-select
+- [circular-barplot-legend](../circular-barplot-legend)
 - [circular-barplot](../circular-barplot)
 
 ### Graph
 ```mermaid
 graph TD;
   genomic-card2 --> mmsb-select
+  genomic-card2 --> circular-barplot-legend
   genomic-card2 --> circular-barplot
   result-page --> genomic-card2
   style genomic-card2 fill:#f9f,stroke:#333,stroke-width:4px

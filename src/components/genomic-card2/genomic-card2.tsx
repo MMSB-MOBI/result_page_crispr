@@ -54,9 +54,8 @@ export class GenomicCard {
 
     get all_start_coordinates(){
         const all_coords:number[] = [];
-        this.current_sgrnas.map(e => {console.log(e); e.coords.map(coord => console.log(coord))});
-        //this.current_sgrnas.map(e => 
-        //    e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
+        this.current_sgrnas.map(e => 
+            e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
         return all_coords.sort((a, b) => a - b);
     }
 
@@ -197,12 +196,19 @@ export class GenomicCard {
                         </div>
                     </div>
                 </div>
-                <circular-barplot 
-                    list_coordinates={this.all_start_coordinates}
-                    genome_size={this.selected.size} 
-                    selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)} 
-                    gene_coordinates={this.current_genes}
-                ></circular-barplot>
+
+                <div class="genome-representation"> 
+                <circular-barplot-legend gene={this.current_genes ? true : false}></circular-barplot-legend>
+                    <circular-barplot 
+                        list_coordinates={this.all_start_coordinates}
+                        genome_size={this.selected.size} 
+                        selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)} 
+                        gene_coordinates={this.current_genes}
+                    ></circular-barplot>
+
+                    
+                </div>
+                
                 
             </div>
 

@@ -13,6 +13,9 @@ export namespace Components {
         "list_coordinates": number[];
         "selected_sgrna_coordinates": string[];
     }
+    interface CircularBarplotLegend {
+        "gene"?: boolean;
+    }
     interface GenomicCard2 {
         "changeOrganism": (org: string) => void;
         "changeRef": (ref: string) => void;
@@ -54,6 +57,7 @@ export namespace Components {
     }
     interface TableCrispr {
         "complete_data": SequenceSGRNAHit[];
+        "gene": boolean;
         "onOrganismClick"?: (organism: string, sgrna: string) => void;
         "selected": CurrentSelection;
         "shouldHighlight": boolean;
@@ -65,6 +69,12 @@ declare global {
     var HTMLCircularBarplotElement: {
         prototype: HTMLCircularBarplotElement;
         new (): HTMLCircularBarplotElement;
+    };
+    interface HTMLCircularBarplotLegendElement extends Components.CircularBarplotLegend, HTMLStencilElement {
+    }
+    var HTMLCircularBarplotLegendElement: {
+        prototype: HTMLCircularBarplotLegendElement;
+        new (): HTMLCircularBarplotLegendElement;
     };
     interface HTMLGenomicCard2Element extends Components.GenomicCard2, HTMLStencilElement {
     }
@@ -98,6 +108,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "circular-barplot": HTMLCircularBarplotElement;
+        "circular-barplot-legend": HTMLCircularBarplotLegendElement;
         "genomic-card2": HTMLGenomicCard2Element;
         "linear-card": HTMLLinearCardElement;
         "occurences-graph": HTMLOccurencesGraphElement;
@@ -111,6 +122,9 @@ declare namespace LocalJSX {
         "genome_size"?: number;
         "list_coordinates"?: number[];
         "selected_sgrna_coordinates"?: string[];
+    }
+    interface CircularBarplotLegend {
+        "gene"?: boolean;
     }
     interface GenomicCard2 {
         "changeOrganism"?: (org: string) => void;
@@ -156,6 +170,7 @@ declare namespace LocalJSX {
     }
     interface TableCrispr {
         "complete_data"?: SequenceSGRNAHit[];
+        "gene"?: boolean;
         "onOrganismClick"?: (organism: string, sgrna: string) => void;
         "onTable-crispr.org-click"?: (event: CustomEvent<any>) => void;
         "selected"?: CurrentSelection;
@@ -163,6 +178,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "circular-barplot": CircularBarplot;
+        "circular-barplot-legend": CircularBarplotLegend;
         "genomic-card2": GenomicCard2;
         "linear-card": LinearCard;
         "occurences-graph": OccurencesGraph;
@@ -175,6 +191,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "circular-barplot": LocalJSX.CircularBarplot & JSXBase.HTMLAttributes<HTMLCircularBarplotElement>;
+            "circular-barplot-legend": LocalJSX.CircularBarplotLegend & JSXBase.HTMLAttributes<HTMLCircularBarplotLegendElement>;
             "genomic-card2": LocalJSX.GenomicCard2 & JSXBase.HTMLAttributes<HTMLGenomicCard2Element>;
             "linear-card": LocalJSX.LinearCard & JSXBase.HTMLAttributes<HTMLLinearCardElement>;
             "occurences-graph": LocalJSX.OccurencesGraph & JSXBase.HTMLAttributes<HTMLOccurencesGraphElement>;

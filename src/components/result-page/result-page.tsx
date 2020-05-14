@@ -89,7 +89,7 @@ export class ResultPage {
             .map(fasta_entry => ({ 
               ref: fasta_entry[0], 
               // @ts-ignore
-              sgrna: Object.entries(fasta_entry[1]).map(sgrna => ({ seq: sgrna[0], coords: sgrna[1].coords, on_gene: sgrna[1].on_gene ? sgrna[1].on_gene : undefined, not_on_gene: sgrna[1].not_on_gene ? sgrna[1].not_on_gene : undefined}))
+              sgrna: Object.entries(fasta_entry[1]).map(sgrna => ({ seq: sgrna[0], coords: Object.values(sgrna[1].coords), on_gene: sgrna[1].on_gene ? Object.values(sgrna[1].on_gene) : undefined, not_on_gene: sgrna[1].not_on_gene ? Object.values(sgrna[1].not_on_gene) : undefined}))
             })) 
         }
       }); 
@@ -188,6 +188,7 @@ export class ResultPage {
               this.initial_sgrnas = this.current_sgrnas; 
             }}
             shouldHighlight={this.shouldHighlight}
+            gene={this.current_genes ? true:false}
           />
         </div>
         <div>
