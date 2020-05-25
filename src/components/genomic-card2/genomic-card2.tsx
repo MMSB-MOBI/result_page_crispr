@@ -19,12 +19,14 @@ export class GenomicCard {
     @Prop() initial_sgrnas?:SGRNAForOneEntry[];
     @Prop() hidden_references:string[]; //Fasta sequences of the organism with no sgrna on it
     @Prop() current_genes:{start:number, end:number}[];
+    @Prop() fasta_metadata;
 
     @Prop() changeOrganism: (org: string) => void;
     @Prop() changeSgrna: (sgrna: string) => void;
     @Prop() changeRef: (ref: string) => void; 
     @Prop() changeSgrnaSubset: (sgrna_subset: string[]) => void; 
     @Prop() onClickHighlight:() => void; 
+    @Prop() onClickBarplot:(start:number, end:number) => void; 
 
     @State() highlight_selection:boolean = false; 
     @State() display_circular_barplot:boolean = true; 
@@ -74,6 +76,13 @@ export class GenomicCard {
             .find(e => e.seq === sgrna).coords
     }
 
+    getFastaMetadata(ref:string){
+        console.log("getFastaMetadata")
+        console.log(this.fasta_metadata)
+        console.log(this.fasta_metadata.find(e => e.fasta_ref === ref))
+        return this.fasta_metadata.find(e => e.fasta_ref === ref)
+    }
+
     componentDidRender() {
         const old_current_sgrnas:{[seq:string]:string[]} = {}
         this.initial_sgrnas.map(e => old_current_sgrnas[e.seq] = e.coords)
@@ -89,7 +98,7 @@ export class GenomicCard {
     }
 
     switchFastaInfo(){
-        const parent_node = this.element.shadowRoot.querySelector(".sub-selection.ref");
+        const parent_node = this.element.shadowRoot.querySelector(".selection-div.organism");
         if (this.fasta_info_active){
             this.fasta_info_active = false; 
             const node_to_delete = this.element.shadowRoot.querySelector(".ref-tooltip-info");
@@ -108,6 +117,7 @@ export class GenomicCard {
     }
 
     render() {
+        console.log(this.selected.ref)
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -119,7 +129,7 @@ export class GenomicCard {
                 <div class="selection2">
                     <div class="selection-div">
                         <div class="selection-header">
-                            <span> Choose a sgRNA sequence </span>
+                            <span> Choose a sgRNA </span>
                         </div>
                         <div class="selection-content sgrna">
                             <button class="highlight-sgrna-button" onClick={() => { this.onClickHighlight(); /*this.removeSvg()*/; this.onClickHighlightButton.emit(); }}> 
@@ -134,78 +144,85 @@ export class GenomicCard {
                                     .map(sgRna => [sgRna.seq, sgRna.seq + " (" + String(this.getNumberOccurences(sgRna.seq)) + ")"])}
                                 selected={[this.selected.sgrna]}
                                 onSelect={(e) => {
-                                    this.changeSgrna(e); 
-
-                                }}
-                                color={this.highlight_selection ? "#539ddc54" : undefined}/>
-                        </div>
+                                    this.changeSgrna(e); }}
+                                color={this.highlight_selection ? "#539ddc54" : undefined}
+                                boldOnSelected/>
                     </div>
-                    <div class="selection-div2">
+                                 
+                    </div>
+                    
+                    <div class="selection-div organism">
                         <div class="select-org">
                             <div class="selection-header">
-                                <span> {this.selected.sgrna} is present in organisms : </span>
-                            </div>
-                            <div class="selection-content organism">
-                                <div class="sub-selection">
-                                    <span>Choose an organism :  </span> 
-                                    <mmsb-select
-                                        data={this.organisms.map(name => [name, name])}
-                                        selected={[this.selected.org]}
-                                        onSelect={e => {/*this.removeSvg();*/ this.changeOrganism(e); 
-                                            if (this.fasta_info_active) this.switchFastaInfo()}}
-                                        color={this.highlight_selection ? "#539ddc54" : undefined}
-                                    />
-                                </div>
-                                <div class="sub-selection ref">
-                                    <span> {this.selected.org} features {this.current_references.length + this.hidden_references.length} fasta sequence(s) and {this.current_references.length} have occurences : </span>
-                                    <div class="ref-selector">
-                                        <select 
-                                            class={"custom-select" + (this.highlight_selection ? " highlight-select":"")} 
-                                            onChange={e => {this.changeRef((e.target as HTMLSelectElement).value);
-                                                if (this.fasta_info_active) this.switchFastaInfo(); }}>
-                                            {this.current_references.map(ref => <option>{ref}</option>)}
-                                            {this.hidden_references.map(ref => <option disabled>{ref}</option>)}
-                                        </select>
-                                        <i class="material-icons ref-tooltip-icon"
-                                            style={{ color: this.fasta_info_active ? "red" : "black" }} 
-                                            onClick={() => this.switchFastaInfo()}>info</i>
-                                        <span class="tooltip-text"> Display more informations about {this.selected.ref} </span>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="select-occurences">
-                            <div class="selection-header">
-                                <span> {this.selected.sgrna} is present at {this.getCoordinates(this.selected.sgrna).length} position(s) in {this.selected.ref} sequence of {this.selected.org} :</span>
+                                <span> Choose an organism </span>
                             </div>
                             <div class="selection-content">
-                                <div class="coord-box">
-                                    <ul>
-                                        {this.current_sgrnas
-                                            .find(e => e.seq === this.selected.sgrna).coords
-                                            .map(coord => <li 
-                                                onMouseOver={() => this.onOverCoordinate.emit(coord)}
-                                                onMouseOut={() => this.onOutCoordinate.emit(coord)}>
-                                                    {coord}
-                                                </li>)}
-                                    </ul>
-                                </div>
+                                <mmsb-select
+                                    data={this.organisms.map(name => [name, name])}
+                                    selected={[this.selected.org]}
+                                    onSelect={e => {/*this.removeSvg();*/ this.changeOrganism(e); 
+                                        if (this.fasta_info_active) this.switchFastaInfo()}}
+                                    color={this.highlight_selection ? "#539ddc54" : undefined}/>
                             </div>
                         </div>
-                    </div>
-                </div>
+                        <i class="material-icons left-arrow-icon">arrow_right</i>
+                        <div class="select-fasta">
+                            <div class="selection-header">
+                                <span>Choose fasta sequence</span>
+                            </div>
+                           
+                                
+                            <div class="selection-content fasta">
+                                {this.current_references.map(ref => 
+                                    <div class="select-div"> 
+                                        <span class={"select-text active" + (this.selected.ref === ref ? " current":"")} onClick = {() => this.changeRef(ref)}>{ref}</span> 
+                                        <span class="tooltip-text2">{this.getFastaMetadata(ref).header}</span>
+                                    </div>
+                                    )}
+                                {this.hidden_references.map(ref =>
+                                    <div class="select-div"> 
+                                        <span class="select-text inactive">{ref}</span> 
+                                        <span class="tooltip-text2">{this.getFastaMetadata(ref).header}</span>
+                                </div>)}
+                            </div>
+                                
 
+                        </div>
+                        
+                        
+                    </div>
+
+                </div>
+                <div class="legend">
+                    <circular-barplot-legend gene={this.current_genes ? true:false}></circular-barplot-legend>
+                </div>
                 <div class="genome-representation"> 
-                    <circular-barplot-legend gene={this.current_genes ? true : false}></circular-barplot-legend>
                     <circular-barplot 
                         list_coordinates={this.all_start_coordinates}
                         genome_size={this.selected.size} 
                         selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)} 
                         gene_coordinates={this.current_genes}
                         active_rotation
+                        onClickBarplot={(start, end) => this.onClickBarplot(start,end)}
                     ></circular-barplot>
+                    <div class="select-occurences">
+                        <div class="selection-header">
+                            <span> {this.selected.sgrna} is present at {this.getCoordinates(this.selected.sgrna).length} position(s) in {this.selected.ref} sequence of {this.selected.org} :</span>
+                        </div>
+                        <div class="selection-content">
+                            <div class="coord-box">
+                                <ul>
+                                    {this.current_sgrnas
+                                        .find(e => e.seq === this.selected.sgrna).coords
+                                        .map(coord => <li 
+                                            onMouseOver={() => this.onOverCoordinate.emit(coord)}
+                                            onMouseOut={() => this.onOutCoordinate.emit(coord)}>
+                                                {coord}
+                                            </li>)}
+                                </ul>
+                            </div>
+                         </div>
+                    </div>                    
 
                     
                 </div>

@@ -51,6 +51,9 @@ export class TableCrispr {
   initial_minocc: number[]; //Minimum occurences initial min (always 0) and max 
   initial_maxocc: number[]; //Maximum occurences initial min (always 0) and max
 
+  initial_occ_limits:number[];
+  @State() occ_filter: number[];
+
   // *************************** LISTEN & EMIT ***************************
 
   constructor() {
@@ -78,8 +81,7 @@ export class TableCrispr {
     const search = sgrna ? sgrna : (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value;
     this.currentSgrnas = this.initial_min_max_data
       .filter(a => RegExp(search).test(a.seq))
-      .filter(a => a.min_occurences >= this.minocc_filter[0] && a.min_occurences <= this.minocc_filter[1])
-      .filter(a => a.max_occurences >= this.maxocc_filter[0] && a.max_occurences <= this.maxocc_filter[1])
+      .filter(a => a.total_occurences >= this.occ_filter[0] && a.total_occurences <= this.occ_filter[1])
     this.page = 1;
   }
 
@@ -121,17 +123,24 @@ export class TableCrispr {
     this.initial_minocc = [0, minocc_max];
     this.initial_maxocc = [0, maxocc_max]; 
     this.minocc_filter = this.initial_minocc; 
-    this.maxocc_filter = this.initial_maxocc; 
+    this.maxocc_filter = this.initial_maxocc;
+
+    const occ_max = this.currentSgrnas.reduce((val, e) => val > e.total_occurences ? val : e.total_occurences, 0)
+    const occ_min = this.currentSgrnas.reduce((val, e) => val < e.total_occurences ? val : e.total_occurences, occ_max)
+    this.initial_occ_limits = [occ_min, occ_max]
+    this.occ_filter = this.initial_occ_limits; 
+
+
   }
 
   componentDidLoad() {
-    this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
-    this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
+    this.displaySlider(this.element.shadowRoot.querySelector(".slider"), this.occ_filter[0], this.occ_filter[1]);
     this.addSliderSvgText();
   }
 
   componentWillUpdate() {
     //Reinitialize sgrna list when selection change
+    console.log("WillUpdate")
     if (this.highlighted_selection && (this.highlighted_selection.sgrna != this.selected.sgrna || this.highlighted_selection.org != this.selected.org || this.highlighted_selection.ref != this.selected.ref)){
       this.highlighted_selection = undefined; 
       (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "" //reinitialize sequence search bar
@@ -166,7 +175,7 @@ export class TableCrispr {
         nb_occurences.push(occ.all_ref.reduce((acc, val) => acc + val.coords.length, 0))
       })
       nb_occurences.sort((a, b) => a - b)
-      return { seq: sgrna.sequence, min_occurences: nb_occurences[0], max_occurences: nb_occurences[nb_occurences.length - 1] };
+      return { seq: sgrna.sequence, min_occurences: nb_occurences[0], max_occurences: nb_occurences[nb_occurences.length - 1], total_occurences:nb_occurences.reduce((acc,val) => acc + val, 0) };
     })
   }
   
@@ -175,7 +184,7 @@ export class TableCrispr {
    * The sorting change currentSgrnas variable
    */
   sortData() {
-    if (this.sort_type === "Min occurences" && this.sort_order === "descending") {
+    /*if (this.sort_type === "Min occurences" && this.sort_order === "descending") {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.min_occurences - a.min_occurences)
     }
     else if (this.sort_type === "Min occurences" && this.sort_order === "ascending") {
@@ -186,12 +195,21 @@ export class TableCrispr {
     }
     else if (this.sort_type === "Max occurences" && this.sort_order === "ascending") {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => a.max_occurences - b.max_occurences)
-    }
-    else if (this.sort_type === "Alphabetical" && this.sort_order === "descending") {
+    }*/
+    console.log(this.sort_type, this.sort_order)
+    if (this.sort_type === "Alphabetical" && this.sort_order === "descending") {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.seq < a.seq ? 1 : -1)
     }
     else if (this.sort_type === "Alphabetical" && this.sort_order === "ascending") {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.seq < a.seq ? -1 : 1)
+    }
+    else if (this.sort_type === "Occurences" && this.sort_order === "descending") {
+      console.log("current before sort", this.currentSgrnas)
+      this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.total_occurences - a.total_occurences)
+    }
+    else if (this.sort_type === "Occurences" && this.sort_order === "ascending") {
+      console.log("current before sort", this.currentSgrnas);
+      this.currentSgrnas = this.currentSgrnas.sort((a, b) => a.total_occurences - b.total_occurences)
     }
   }
 
@@ -203,11 +221,15 @@ export class TableCrispr {
     const icon_element = clicked_e.querySelector('i');
     this.page = 1;
     const selected_mode = clicked_e.dataset.type as SortingType;
+    console.log(clicked_e);
+    console.log(selected_mode);
+    console.log("previous", this.sort_type)
     if (selected_mode === this.sort_type) {
       this.sort_order = this.sort_order === "ascending" ? "descending" : "ascending";
       icon_element.classList.toggle("ascending");
     }
     else {
+      console.log("OOOOOOOOOOOO")
       this.sort_order = icon_element.classList.contains("ascending") ? "ascending" : "descending";
       this.sort_type = selected_mode;
     }
@@ -242,25 +264,19 @@ export class TableCrispr {
    * @param max : max occurences
    * @param cat : slider category, min slider or max slider
    */
-  displaySlider(elmt: HTMLElement, min: number, max: number, cat: string) {
+  displaySlider(elmt: HTMLElement, min: number, max: number) {
     const sliderRange = d3_slider
       .sliderHorizontal()
       .min(min)
       .max(max)
       .step(1)
-      .width(250)
-      //.tickFormat(d3.format('.2%'))
-      .ticks(5)
+      .width(450)
+      .ticks(10)
       .default([min, max])
       .fill('#2196f3')
       .tickFormat(d3.format(',.0f'))
       .on('onchange', val => {
-        if (cat === "minocc") {
-          this.minocc_filter = [val[0], val[1]]
-        }
-        else if (cat === "maxocc") {
-          this.maxocc_filter = [val[0], val[1]]
-        }
+        this.occ_filter = [val[0], val[1]]
         this.sgRNAFilter();
         this.addSliderSvgText();
         //d3.select(elmtValue).text(val[0]);
@@ -268,7 +284,7 @@ export class TableCrispr {
 
     d3.select(elmt)
       .append('svg')
-      .attr('width', 300)
+      .attr('width', 500)
       .attr('height', 50)
       .append('g')
       .attr('transform', 'translate(10,10)')
@@ -280,45 +296,35 @@ export class TableCrispr {
    */
   addSliderSvgText() {
     let i = 0
-    this.element.shadowRoot.querySelectorAll('.slider-min .parameter-value')
+    this.element.shadowRoot.querySelectorAll('.slider .parameter-value')
       .forEach(svg_elmt => {
         d3.select(svg_elmt).select('text').remove()
         d3.select(svg_elmt)
           .append('text')
-          .text(this.minocc_filter[i])
+          .text(this.occ_filter[i])
           .attr('font-size', 10)
           .attr('dy', '.71em')
           .attr('y', '27')
         i += 1;
       })
-
-    let j = 0
-    this.element.shadowRoot.querySelectorAll('.slider-max .parameter-value')
-      .forEach(svg_elmt => {
-        d3.select(svg_elmt).select('text').remove()
-        d3.select(svg_elmt)
-          .append('text')
-          .text(this.maxocc_filter[j])
-          .attr('font-size', 10)
-          .attr('dy', '.71em')
-          .attr('y', '27')
-        j += 1;
-      })
-
   }
 
   /**
    * Sliders in their initial state.
    */
   reinitializeSliders(){
-    this.element.shadowRoot.querySelector(".slider-min svg").remove();
-    this.element.shadowRoot.querySelector(".slider-max svg").remove();
+    this.element.shadowRoot.querySelector(".slider svg").remove();
     this.minocc_filter = this.initial_minocc; 
     this.maxocc_filter = this.initial_maxocc; 
-    this.displaySlider(this.element.shadowRoot.querySelector(".slider-min"), this.minocc_filter[0], this.minocc_filter[1], "minocc");
-    this.displaySlider(this.element.shadowRoot.querySelector(".slider-max"), this.maxocc_filter[0], this.maxocc_filter[1], "maxocc");
+    this.displaySlider(this.element.shadowRoot.querySelector(".slider"), this.occ_filter[0], this.occ_filter[1]);
     this.addSliderSvgText(); 
 
+  }
+
+  reinitalizeSgrna(){
+    (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = ''; 
+    this.sgRNAFilter();
+    this.highlighted_selection = undefined; 
   }
 
   render() {
@@ -328,7 +334,7 @@ export class TableCrispr {
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
-    console.log("displaySgrna", this.displaySgrna)
+    console.log("highlighted selection", this.highlighted_selection); 
 
     // Parse data and initialize allSgrna and calcul occurences
 
@@ -355,15 +361,12 @@ export class TableCrispr {
         <div class="sgrna-search-container">
           <span class='selection-header'>Filter by sequence</span>
           <input type="text" id="regexString" onKeyUp={() => this.sgRNAFilter()} placeholder={"Search for sgRNA.."} value={this.highlighted_selection ? this.highlighted_selection.sgrna : ""} />
+          <i class="material-icons close-icon" onClick={() => this.reinitalizeSgrna() }>close</i>
           {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>*/}
         </div>
         <div class="slider-containers">
           <span class="selection-header">Filter by number of occurences</span>
-          <div class="slider-min">
-            <span>Minimum among organisms</span>
-          </div>
-          <div class="slider-max">
-            <span>Maximum</span>
+          <div class="slider">
           </div>
         </div>
 
@@ -373,24 +376,20 @@ export class TableCrispr {
       <table id="resultTab" style={{ width: '100%' }}>
         <thead>
           <tr>
-            <th onClick={this.handleChangeSortMethod} data-type="Alphabetical">
-              <span>Sequence</span>
-              <i class={"material-icons table-sort-icon " + (this.sort_type === "Alphabetical" ? "highlighted" : "")}>keyboard_arrow_down</i>
+            <th 
+              rowSpan={this.gene ? 2: 1}
+              onClick={this.handleChangeSortMethod}
+              data-type="Alphabetical">
+                <span>Sequence(s) ({this.currentSgrnas.length} sgRNAs selected)</span>
+                <i class={"material-icons table-sort-icon " + (this.sort_type === "Alphabetical" ? "highlighted" : "")}>keyboard_arrow_down</i>
             </th>
-
-            <th onClick={this.handleChangeSortMethod} data-type="Min occurences" class="align-right">
-              <span>Minimum</span>
-              <i class={"material-icons table-sort-icon " + (this.sort_type === "Min occurences" ? "highlighted" : "")}>keyboard_arrow_down</i>
+            <th 
+              colSpan={2}
+              onClick={this.handleChangeSortMethod}
+              data-type="Occurences">
+                <span>Occurences number</span>
+                <i class={"material-icons table-sort-icon " + (this.sort_type === "Occurences" ? "highlighted" : "")}>keyboard_arrow_down</i>
             </th>
-
-            <th onClick={this.handleChangeSortMethod} data-type="Max occurences" class="align-right">
-              <span>Maximum</span>
-              <i class={"material-icons table-sort-icon " + (this.sort_type === "Max occurences" ? "highlighted" : "")}>keyboard_arrow_down</i>
-            </th>
-          </tr>
-          <tr>
-            <th rowSpan={this.gene ? 2: 1}>Sequence</th>
-            <th colSpan={2}>Occurences number</th>
           </tr>
           {this.gene ? <tr>
             <td>On homologous gene</td>
@@ -409,24 +408,37 @@ export class TableCrispr {
             //const min = currentOccurences.reduce((p, v) => (p < v.coords_count ? p : v.coords_count), currentOccurences[0].coords_count);
             
             let to_return = [<tr class="seq-header">
-            <td colSpan = {3}>
+            <td>
               <strong>{sgrna.seq.slice(0, -3)}<span style={{ color: "rgba(239, 71, 111)" }}>{sgrna.seq.slice(-3)} </span></strong>
             </td>
+            {this.gene ? <td>
+              <strong>{currentOccurences.reduce((acc, val) => acc + val.on_gene_count, 0)}</strong>
+            </td> : 
+            <td colSpan={2}>
+              <strong>{currentOccurences.reduce((acc, val) => acc + val.coords_count, 0)}</strong>
+            </td>}
+            {this.gene ? <td>
+              <strong>{currentOccurences.reduce((acc, val) => acc + val.not_on_gene_count, 0)}</strong>
+            </td> : ''} 
+            
           </tr>]
           {currentOccurences.map(o => {
             const selected = this.selected && this.selected.org === o.name && this.selected.sgrna === sgrna.seq;
-            to_return.push(<tr><td
-              class="sgrna-organism"
-              style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}
+            to_return.push(
+            <tr class="organism-line"
               onClick={() => {
                 this.onOrganismClick(o.name, sgrna.seq);;
                 this.onClickTableOrganism.emit();
               }}
+              style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>
+            
+            <td
+              class="sgrna-organism"   
             >
             {o.name}
             </td>
-              {this.gene ? <td style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>{o.on_gene_count}</td> : <td colSpan={2} style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>{o.coords_count}</td>}
-              {this.gene ? <td style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>{o.not_on_gene_count}</td> : ''}
+              {this.gene ? <td> {o.on_gene_count}</td> : <td colSpan={2}>{o.coords_count}</td>}
+              {this.gene ? <td> {o.not_on_gene_count}</td> : ''}
             </tr>)             
           })}
 

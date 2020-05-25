@@ -19,6 +19,7 @@ export interface MinMaxOccurencesData {
     seq:string
     min_occurences:number
     max_occurences:number
+    total_occurences:number
 }
 
 export interface OrganismHit {
@@ -76,6 +77,6 @@ export interface Coordinate{
 
 export type SortingOrder = 'ascending' | 'descending';
 
-export type SortingType = "Min occurences" | "Max occurences" | "Alphabetical";
+export type SortingType = "Min occurences" | "Max occurences" | "Alphabetical" | "Occurences";
 
 export type DisplayStatus = "hidden" | "display"

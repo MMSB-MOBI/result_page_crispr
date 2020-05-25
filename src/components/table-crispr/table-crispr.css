@@ -166,6 +166,10 @@ ul {
     width:80%; 
 }
 
+.organism-line:hover{
+    background-color: lightgrey;
+}
+
 .align-right {
     text-align: right;
 }
@@ -217,3 +221,24 @@ ul {
     font-weight: bold;
   
   }
+
+  .sgrna-search-container{
+      display:grid; 
+      grid-template-areas: "header header" "filter close";
+      grid-template-columns: auto min-content;
+  }
+
+  .sgrna-search-container .selection-header{
+      grid-area:header; 
+  }
+
+  .close-icon{
+      align-self:center; 
+      margin-left:0.5em; 
+      cursor: pointer; 
+  }
+
+  .close-icon:hover{
+      font-weight: bold;
+  }
+  

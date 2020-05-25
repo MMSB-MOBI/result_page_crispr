@@ -146,6 +146,10 @@
   list-style-type: none;
 }
 
+li {
+  list-style-type: none;
+}
+
 .highlight-sgrna-button{
   border-radius: 5px;
   background-color: #f9f9f9;
@@ -210,10 +214,23 @@
   column-gap: 2%;
 }
 
+.selection-content.fasta{
+  position:relative; 
+}
+
+.selection-content.organism{
+  display:flex; 
+}
+
 .selection-div2{
   display:grid;
   grid-template-columns: 48% 48%; 
   column-gap: 4%;
+}
+
+.selection-div.organism{
+  display:grid;
+  grid-template-columns:55% 5% 40%; 
 }
 
 .sub-selection{
@@ -290,6 +307,12 @@
   cursor:pointer; 
 }
 
+.left-arrow-icon{
+  font-size:30px !important; 
+  padding-top:1.2em; 
+  justify-self:center; 
+}
+
 .ref-tooltip-info {
   display:flex; 
   align-items:center; 
@@ -308,3 +331,89 @@
 .ref-tooltip-icon:hover + .tooltip-text{
   visibility: visible;
 }
+
+.genome-representation{
+  display:grid; 
+  grid-template-columns: 70% 30%;
+}
+
+.select-occurences{
+  display:flex; 
+  flex-direction:column; 
+  padding-top:10em;
+}
+
+.label{
+  color:red;
+}
+
+.legend{
+  max-width:50em; 
+}
+
+
+.select-text{
+  border-bottom: 1px dotted grey
+}
+
+.select-text.active{
+  cursor:pointer;
+}
+
+.tooltip-text2 {
+  position:absolute;
+  z-index:1; 
+  background-color: lightgrey;
+  font-size:12px; 
+  border-radius:6px; 
+  text-align:center;
+  margin-left:1em;
+  visibility: hidden;
+
+  /*opacity: 0;
+  transition: opacity 0.3s;*/
+}
+
+.select-text:hover + .tooltip-text2{
+  visibility: visible;
+}
+
+.select-text.current{
+  background-color:lightgrey;
+}
+/*.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}*/
+
+.selection-content.fasta{
+  overflow:auto; 
+  border-color:#e4e4e4;
+  border-radius:5px; 
+  border-style:solid;
+  border-width:thin;
+  padding:10px; 
+  height:6em; 
+}
+
+.select-text.inactive{
+  color:grey; 
+  cursor:not-allowed;
+}
+
+.select-div{
+  position:relative;
+  z-index:0;
+}
+

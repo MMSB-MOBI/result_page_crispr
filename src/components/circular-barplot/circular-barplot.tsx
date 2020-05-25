@@ -17,6 +17,8 @@ export class CircularBarplot{
     @Prop() gene_coordinates?: Coordinate[]; 
     @Prop() active_rotation?
 
+    @Prop() onClickBarplot:(start:number, end:number) => void;
+
     bin_number:number = 50; 
     bin_data: CoordinatesBinData[]; 
 
@@ -96,21 +98,21 @@ export class CircularBarplot{
      * Fix svg margin, circles radius, and create svg tag. 
      */
     initializeSvg(){
-        this.margin = 10; 
-        this.width = 200; 
-        this.height = this.width;
-        this.circle_radius = this.width/6; 
+        //this.margin = 10; 
+        this.width = 150; 
+        this.height = 200;
+        this.circle_radius = this.height/6; 
         this.circle_thickness = 2; 
-        this.barplot_begin = this.gene_coordinates ? this.width/4 : this.width/4.5; 
-        this.barplot_end = this.gene_coordinates ? this.width/2.7 : this.width/3; 
-        this.detailed_barplot_begin = this.gene_coordinates ? this.width/2.5 : this.width/2.7;
-        this.detailed_barplot_end = this.width/2 - 1; 
+        this.barplot_begin = this.gene_coordinates ? this.height/4 : this.height/4.5; 
+        this.barplot_end = this.gene_coordinates ? this.height/2.7 : this.height/3; 
+        this.detailed_barplot_begin = this.gene_coordinates ? this.height/2.5 : this.height/2.7;
+        this.detailed_barplot_end = this.height/2 - 1; 
         this.coordinates_begin = this.circle_radius + this.circle_thickness + 3
         this.coordinates_end = this.circle_radius + this.circle_thickness + 6 
         this.gene_begin = this.gene_coordinates ? this.barplot_begin - 6 : undefined
         this.gene_tickness = 3; 
-        this.barplot_gene_begin = this.gene_coordinates ? this.width/3 : undefined
-        this.barplot_gene_end = this.gene_coordinates ? this.width/2 : undefined
+        this.barplot_gene_begin = this.gene_coordinates ? this.height/3 : undefined
+        this.barplot_gene_end = this.gene_coordinates ? this.height/2 : undefined
         this.genome_color = "#5E4F63"; 
         this.gene_color = "#D5912A";
         this.coord_color = "#66B032";
@@ -121,6 +123,7 @@ export class CircularBarplot{
             .append("svg")
             .attr("viewBox", [-this.width / 2, -this.height / 2, this.width, this.height])
             .append("g")
+            .attr("class", "main")
         
     }
 
@@ -129,6 +132,7 @@ export class CircularBarplot{
         this.createCircularBarplot(); 
         this.addSingleCoordinatesTicks();
         if (this.gene_coordinates) this.displayGenes(); 
+        this.addReinitializeEvent();
     }
 
     cleanSvg(){
@@ -258,6 +262,7 @@ export class CircularBarplot{
                     component.svg.selectAll(".bin").style("opacity", "0.5") //Fade all bins
                     d3.select(this).style("opacity","1.0"); //Highlight current bin
                     component.addBarplotDetailed(d) //Add the detailed barplot for current bin
+                    component.onClickBarplot(d.bin_start, d.bin_end)
                     if (component.active_rotation){
                         const middle  = d.bin_start + ((d.bin_end - d.bin_start)/2)
                         component.applyRotation(-angle(middle))
@@ -582,17 +587,17 @@ export class CircularBarplot{
         console.log("apply rotation", angle)
         this.svg
             .transition()
-            .duration(1000)
+            .duration(500)
             .attr("transform", `rotate(${angle})`)
 
         this.svg.selectAll(".genome-size-container")
             .transition()
-            .duration(1000)
+            .duration(500)
             .attr("transform", `rotate(${-angle})`)
 
         this.svg.selectAll(".coord-label-container text")
             .transition()
-            .duration(1000)
+            .duration(500)
             .attr("transform", d => `rotate(${-angle}, ${d.x}, ${d.y})`);
         //this.svg.selectAll(".coord-label text").attr("transform", d => console.log("d",d))
 
@@ -616,6 +621,10 @@ export class CircularBarplot{
             .style("font-weight", "normal")
     }
 
+    addReinitializeEvent(){
+        this.svg.select()
+            .on("click", () => console.log("POUET"))
+    }
     
 
     /**

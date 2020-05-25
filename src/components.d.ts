@@ -12,6 +12,7 @@ export namespace Components {
         "gene_coordinates"?: Coordinate[];
         "genome_size": number;
         "list_coordinates": number[];
+        "onClickBarplot": (start: number, end: number) => void;
         "selected_sgrna_coordinates": string[];
     }
     interface CircularBarplotLegend {
@@ -29,8 +30,10 @@ export namespace Components {
         "current_references": string[];
         "current_sgrnas": SGRNAForOneEntry[];
         "diagonal_svg": number;
+        "fasta_metadata": any;
         "hidden_references": string[];
         "initial_sgrnas"?: SGRNAForOneEntry[];
+        "onClickBarplot": (start: number, end: number) => void;
         "onClickHighlight": () => void;
         "organisms": string[];
         "selected": CurrentSelection;
@@ -123,6 +126,7 @@ declare namespace LocalJSX {
         "gene_coordinates"?: Coordinate[];
         "genome_size"?: number;
         "list_coordinates"?: number[];
+        "onClickBarplot"?: (start: number, end: number) => void;
         "selected_sgrna_coordinates"?: string[];
     }
     interface CircularBarplotLegend {
@@ -140,8 +144,10 @@ declare namespace LocalJSX {
         "current_references"?: string[];
         "current_sgrnas"?: SGRNAForOneEntry[];
         "diagonal_svg"?: number;
+        "fasta_metadata"?: any;
         "hidden_references"?: string[];
         "initial_sgrnas"?: SGRNAForOneEntry[];
+        "onClickBarplot"?: (start: number, end: number) => void;
         "onClickHighlight"?: () => void;
         "onGenomic-card.button-click"?: (event: CustomEvent<any>) => void;
         "onGenomic-card.coordinate-out"?: (event: CustomEvent<any>) => void;

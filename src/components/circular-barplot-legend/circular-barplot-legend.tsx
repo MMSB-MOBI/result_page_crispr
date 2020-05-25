@@ -18,7 +18,6 @@ export class CircularBarplotLegend{
     height:number;
 
     componentDidLoad(){
-        console.log("POUET")
         this.width = 50; 
         this.height = 8;
 
@@ -30,12 +29,42 @@ export class CircularBarplotLegend{
 
         this.addSingleCoordinatesLegend(); 
         this.addCoordBarplotLegend();
-        if (this.gene) this.addGeneBarplotLegend();
+        if (this.gene) {this.addGeneTriangleLegend(); this.addGeneBarplotLegend();}
     }
 
     addSingleCoordinatesLegend(){
         this.svg.append("g").attr("class", "single-coordinates-legend")
-        this.svg
+
+        const factice_data = Array.from({length: 30}, () => Math.random());
+        const angle = d3.scaleLinear()
+            .domain([0,1])
+            .range([0,360])
+            
+
+        /*svg.append("g")
+            .append("circle")
+            .attr("cx", 50)
+            .attr("cy", 100)
+            .attr("r", 15)
+            .attr("fill", "transparent")
+            .attr("stroke", "#5E4F63")
+            .attr("stroke-width", 3)*/
+
+        this.svg.append("g")
+            .selectAll("ticks")
+            .data(factice_data)
+            .enter()
+            .append("line")
+            .attr("stroke", "#ff9999")
+            .attr("stroke-width", 0.1)
+            .attr("x1", -this.width/2 + 2)
+            .attr("x2", -this.width/2 + 2)
+            .attr("y1", -this.height/2 + 1.6)
+            .attr("y2", -this.height/2 + 2)
+            .attr("transform", d => `rotate (${angle(d)}, ${-this.width/2 + 2}, ${-this.height/2 + 1})`)
+
+
+        /*this.svg
             //.append("g")
             //.attr("class", "single-coordinates-legend-line")
             .append("line")
@@ -45,7 +74,7 @@ export class CircularBarplotLegend{
             .attr('x1', -this.width/2 + 1.5)
             .attr('x2', -this.width/2 + 2.5)
             .attr('y1', -this.height/2 + 1)
-            .attr('y2', -this.height/2 + 1)
+            .attr('y2', -this.height/2 + 1)*/
         
         this.svg
             //.append("g")
@@ -56,63 +85,80 @@ export class CircularBarplotLegend{
             .attr('y', -this.height/2 + 1)
             .text("Positions of current sgrna along the genome")
             //.attr('text-anchor', 'left')
-            .attr('font-size', '0.9px')
+            .attr('font-size', '0.8px')
             .attr("dominant-baseline","middle")
     }
 
-    addCoordBarplotLegend(){
-
+    addMiniBarplot(x_coord, y_coord, color){
+        console.log(y_coord)
         const y = d3.scaleLinear()
             .domain([0,1])
             .range([0,2])
 
         const x = d3.scaleLinear()
             .domain([0,3])
-            .range([-this.width/2 + 1, -this.width/2 + 2.5])
+            .range([x_coord, x_coord + 1.5])
 
         const factice_data = [[0,0.3], [1,0.8], [2,0.4], [3, 1]]
         
         //this.svg.append("g").call(d3.axisLeft(y))
         //this.svg.append("g").call(d3.axisBottom(x))
         
-        this.svg.append("g").attr("transform",  "rotate(180) translate(46)")
+        this.svg.append("g")
             .selectAll("bin")
             .data(factice_data)
             .enter()
             .append("rect")
             .attr("x", d => x(d[0]))
-            .attr("y", this.height/2 - 4)
+            .attr("y", y_coord)
             .attr("width", 0.4)
             .attr("height", d => y(d[1]))
-            .attr("fill", "#66B032")
-            //.attr("transform", "rotate(180)")
+            .attr("fill", color)
+            .attr("transform", `rotate(180, ${x_coord}, ${y_coord})`)
 
+    }
+
+    addCoordBarplotLegend(){
+        this.addMiniBarplot(-this.width/2 + 3, this.height/2 - 3.5, "#66B032")
         this.svg
             .append("text")
             .attr("class", "legend-text")
             .attr('x', -this.width/2 + 4)
             .attr('y', -this.height/2 + 3.5)
-            .text("Distribution of the first 1000 sgRNAs positions along the genome")
+            .text("Distribution of all sgRNAs positions along the genome")
             //.attr('text-anchor', 'left')
-            .attr('font-size', '0.9px')
+            .attr('font-size', '0.8px')
             .attr("dominant-baseline","middle")
         
     }
 
-    addGeneBarplotLegend(){
+    addGeneTriangleLegend(){
         console.log("Gene legend")
         this.svg
             .append("polygon")
-            .attr("points", ` ${-this.width/2 + 1.6},${-this.height/2 + 5.5} ${-this.width/2 + 2.4},${-this.height/2 + 5.5} ${-this.width/2 + 2},${-this.height/2 + 6.3}`)
+            .attr("points", ` ${-this.width/2 + 30.5},${-this.height/2 + 1.5} ${-this.width/2 + 30},${-this.height/2 + 0.5} ${-this.width/2 + 31},${-this.height/2 + 0.5}`)
             .attr("fill", "#D5912A")
 
         this.svg
             .append("text")
-            .attr('x', -this.width/2 + 4)
-            .attr('y', -this.height/2 + 6)
+            .attr('x', - this.width/2 + 32)
+            .attr('y', -this.height/2 + 1)
             .text("Position(s) of homolog genes along genome")
             //.attr('text-anchor', 'left')
-            .attr('font-size', '0.9px')
+            .attr('font-size', '0.8px')
+            .attr("dominant-baseline","middle")
+    }
+
+    addGeneBarplotLegend(){
+        this.addMiniBarplot(-this.width/2 + 31.5, this.height/2 - 3.5, "#D5912A")
+
+        this.svg
+            .append("text")
+            .attr('x', - this.width/2 + 32)
+            .attr('y', -this.height/2 + 3.5)
+            .text("Distribution of all sgRNAs along the gene")
+            //.attr('text-anchor', 'left')
+            .attr('font-size', '0.8px')
             .attr("dominant-baseline","middle")
     }
 
