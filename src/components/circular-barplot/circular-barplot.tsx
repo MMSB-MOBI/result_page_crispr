@@ -95,7 +95,7 @@ export class CircularBarplot{
     }
 
     /**
-     * Fix svg margin, circles radius, and create svg tag. 
+     * Fix svg margin, circles radius, color, and create svg
      */
     initializeSvg(){
         //this.margin = 10; 
@@ -132,7 +132,6 @@ export class CircularBarplot{
         this.createCircularBarplot(); 
         this.addSingleCoordinatesTicks();
         if (this.gene_coordinates) this.displayGenes(); 
-        this.addReinitializeEvent();
     }
 
     cleanSvg(){
@@ -185,17 +184,17 @@ export class CircularBarplot{
                 .attr("stroke", "gray")
                 .attr("stroke-width", 0.5)
 
-        //Add coordinates label. 
         const gap_between_ticks = Math.round(this.genome_size / ticks_number)
         const label_radius = this.circle_radius - 8; 
 
-        //Compute coords, x and y coordinates for each tick
+        //Compute coordinates for each coordinates label
         let data_label = []
         for(let i = 0; i < ticks_number; i++){
             const coordinates = this.circleCoordinates(i*gap_between_ticks, label_radius)
             data_label.push({coord:i*gap_between_ticks, x:coordinates.x, y:coordinates.y})
         }
         
+        //Add coordinates label
         this.svg.append("g")
             .attr("class", "coord-label-container")
             .selectAll(".coord-label")
@@ -258,7 +257,7 @@ export class CircularBarplot{
             .append("path")
               .attr("fill", this.coord_color)
               .attr("class", "bin")
-                .on("click", function(d){ //Call function to access the object in this
+                .on("click", function(d){ 
                     component.svg.selectAll(".bin").style("opacity", "0.5") //Fade all bins
                     d3.select(this).style("opacity","1.0"); //Highlight current bin
                     component.addBarplotDetailed(d) //Add the detailed barplot for current bin
@@ -285,6 +284,10 @@ export class CircularBarplot{
               
     }
 
+    /**
+     * Add detailed barplot corresponding to some bin_data. Called when click on first barplot bin.
+     * @param bin_data : data of clicked bin.
+     */
     addBarplotDetailed(bin_data:CoordinatesBinData){
         this.svg.selectAll(".detailed-barplot").remove(); //Remove if an other detailed barplot exist 
 
@@ -384,7 +387,21 @@ export class CircularBarplot{
 
     }
 
-    addBarplotDetailed2(coord_start:number, coord_end:number, line_start:number=coord_start, line_end:number=coord_end, y_line:number, y_barplot_start:number, y_barplot_end:number, class_name:string, color:string, nb_bins:number = 20, genome_proportion:number=20, ){
+    /**
+     * Display barplot detailed for some data. Here used for gene barplot, but we can imagine use it elsewhere by adapting the given data.
+     * @param coord_start : genome coordinates where barplot start
+     * @param coord_end : genome coordinates where barplot end
+     * @param line_start : genome coordinates where the barplot axis display starts 
+     * @param line_end : genome coordinates where the barplot axis display starts 
+     * @param y_line : y coordinate where barplot axis is
+     * @param y_barplot_start : y coordinate where barplot start
+     * @param y_barplot_end : y coordinate where barplot end
+     * @param class_name : g class name
+     * @param color : bins color
+     * @param nb_bins : number of bins
+     * @param genome_proportion : proportion of genome where barplot will be displayed. (example : if 2, will take the half of the circular)
+     */
+    addGeneBarplotDetailed(coord_start:number, coord_end:number, line_start:number=coord_start, line_end:number=coord_end, y_line:number, y_barplot_start:number, y_barplot_end:number, class_name:string, color:string, nb_bins:number = 20, genome_proportion:number=20){
         this.svg.selectAll(class_name).remove(); //Remove if an other detailed barplot exist 
 
         const coordinates_inside = this.list_coordinates.filter(e => e >= coord_start && e < coord_end) //list of coordinates inside the bin
@@ -392,7 +409,7 @@ export class CircularBarplot{
         const detailed_bin_data = this.createBinData(coordinates_inside, nb_bins, coord_start, coord_end); //Format data for detailed histogram
 
         const middle = coord_start + (coord_end - coord_start) / 2; //Middle placement of new histogram
-        const midlength = this.genome_size / genome_proportion; //Length at each side
+        const midlength = this.genome_size / (genome_proportion*2); //Length at each side
 
         const arc_placement = d3.scaleLinear() //Scale to place new histogram on circle
             .range([0, 2 * Math.PI])
@@ -538,7 +555,13 @@ export class CircularBarplot{
             .attr('transform', d => {return 'rotate(' + coordinateScale(parseInt(/\(([0-9]*),/.exec(d)[1])) + ')'})     
     }
 
-    circleCoordinates(genome_position:number, radius : number){
+    /**
+     * Give coordinates on circle of genome position with trigonometry
+     * @param genome_position : position on genome
+     * @param radius : circle radius
+     */
+
+    circleCoordinates(genome_position:number, radius : number): {"x":number, "y":number}{
         //Give the angle for this genome position
         const positionAngle = d3.scaleLinear()
             .range([0,2*Math.PI])
@@ -550,6 +573,9 @@ export class CircularBarplot{
         return {x, y}
     }
 
+    /**
+     * Display gene triangles
+     */
     displayGenes(){
         const angle = d3.scaleLinear()
             .range([0, 360])
@@ -578,13 +604,16 @@ export class CircularBarplot{
                     component.svg.selectAll(".bin").style("opacity", "0.3"); //All bins with initial opacity
                     const middle = d.start + ((d.end - d.start) / 2)
                     const triangle_gap = this.genome_size / 204
-                    component.addBarplotDetailed2(d.start, d.end, middle - triangle_gap, middle + triangle_gap, this.gene_begin + this.gene_tickness, this.barplot_gene_begin, this.barplot_gene_end, ".barplot-detailed-gene", this.gene_color, 20, 10)
+                    component.addGeneBarplotDetailed(d.start, d.end, middle - triangle_gap, middle + triangle_gap, this.gene_begin + this.gene_tickness, this.barplot_gene_begin, this.barplot_gene_end, ".barplot-detailed-gene", this.gene_color, 20, 5)
                     component.applyRotation(-angle(middle))
                 })
     }
 
+    /**
+     * Apply rotation to genome circle
+     * @param angle : rotation angle
+     */
     applyRotation(angle:number){
-        console.log("apply rotation", angle)
         this.svg
             .transition()
             .duration(500)
@@ -599,10 +628,12 @@ export class CircularBarplot{
             .transition()
             .duration(500)
             .attr("transform", d => `rotate(${-angle}, ${d.x}, ${d.y})`);
-        //this.svg.selectAll(".coord-label text").attr("transform", d => console.log("d",d))
 
     }
 
+    /**
+     * Emphasize label for 0 coordinates (red and bold)
+     */
     emphasizeZero(){
         this.svg.select(".coord-tick")
             .attr("stroke", "red")
@@ -612,6 +643,9 @@ export class CircularBarplot{
             .style("font-weight", "bold")
     }
 
+    /**
+     * De-emphasize label for 0 coordinate (grey and not bold)
+     */
     deEmphasizeZero(){
         this.svg.select(".coord-tick")
             .attr("stroke", "grey")
@@ -620,12 +654,6 @@ export class CircularBarplot{
             .style("fill", "grey")
             .style("font-weight", "normal")
     }
-
-    addReinitializeEvent(){
-        this.svg.select()
-            .on("click", () => console.log("POUET"))
-    }
-    
 
     /**
      * If svg exists, clean it. If not, initialize it. 
@@ -645,8 +673,12 @@ export class CircularBarplot{
 
 }
 
+/**
+ * Transform number to string with comma as thousands separators
+ * @param x : number to transform
+ */
 //https://stackoverflow.com/questions/2901102/how-to-print-a-number-with-commas-as-thousands-separators-in-javascript
-function numberWithCommas(x) {
+function numberWithCommas(x:number):string {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 

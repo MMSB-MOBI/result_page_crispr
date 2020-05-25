@@ -140,7 +140,6 @@ export class TableCrispr {
 
   componentWillUpdate() {
     //Reinitialize sgrna list when selection change
-    console.log("WillUpdate")
     if (this.highlighted_selection && (this.highlighted_selection.sgrna != this.selected.sgrna || this.highlighted_selection.org != this.selected.org || this.highlighted_selection.ref != this.selected.ref)){
       this.highlighted_selection = undefined; 
       (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = "" //reinitialize sequence search bar
@@ -180,23 +179,10 @@ export class TableCrispr {
   }
   
   /**
-   * Sort data based on current sorting type (min occurences, max occurences, alphabetical) and current sort order (descending, ascending).
+   * Sort data based on current sorting type (occurences, alphabetical) and current sort order (descending, ascending).
    * The sorting change currentSgrnas variable
    */
   sortData() {
-    /*if (this.sort_type === "Min occurences" && this.sort_order === "descending") {
-      this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.min_occurences - a.min_occurences)
-    }
-    else if (this.sort_type === "Min occurences" && this.sort_order === "ascending") {
-      this.currentSgrnas = this.currentSgrnas.sort((a, b) => a.min_occurences - b.min_occurences)
-    }
-    else if (this.sort_type === "Max occurences" && this.sort_order === "descending") {
-      this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.max_occurences - a.max_occurences)
-    }
-    else if (this.sort_type === "Max occurences" && this.sort_order === "ascending") {
-      this.currentSgrnas = this.currentSgrnas.sort((a, b) => a.max_occurences - b.max_occurences)
-    }*/
-    console.log(this.sort_type, this.sort_order)
     if (this.sort_type === "Alphabetical" && this.sort_order === "descending") {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.seq < a.seq ? 1 : -1)
     }
@@ -204,11 +190,9 @@ export class TableCrispr {
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.seq < a.seq ? -1 : 1)
     }
     else if (this.sort_type === "Occurences" && this.sort_order === "descending") {
-      console.log("current before sort", this.currentSgrnas)
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => b.total_occurences - a.total_occurences)
     }
     else if (this.sort_type === "Occurences" && this.sort_order === "ascending") {
-      console.log("current before sort", this.currentSgrnas);
       this.currentSgrnas = this.currentSgrnas.sort((a, b) => a.total_occurences - b.total_occurences)
     }
   }
@@ -221,15 +205,11 @@ export class TableCrispr {
     const icon_element = clicked_e.querySelector('i');
     this.page = 1;
     const selected_mode = clicked_e.dataset.type as SortingType;
-    console.log(clicked_e);
-    console.log(selected_mode);
-    console.log("previous", this.sort_type)
     if (selected_mode === this.sort_type) {
       this.sort_order = this.sort_order === "ascending" ? "descending" : "ascending";
       icon_element.classList.toggle("ascending");
     }
     else {
-      console.log("OOOOOOOOOOOO")
       this.sort_order = icon_element.classList.contains("ascending") ? "ascending" : "descending";
       this.sort_type = selected_mode;
     }
@@ -262,7 +242,6 @@ export class TableCrispr {
    * @param elmt html element where to put slider
    * @param min : min occurences
    * @param max : max occurences
-   * @param cat : slider category, min slider or max slider
    */
   displaySlider(elmt: HTMLElement, min: number, max: number) {
     const sliderRange = d3_slider
@@ -321,7 +300,7 @@ export class TableCrispr {
 
   }
 
-  reinitalizeSgrna(){
+  reinitializeSgrna(){
     (this.element.shadowRoot.querySelector("#regexString") as HTMLInputElement).value = ''; 
     this.sgRNAFilter();
     this.highlighted_selection = undefined; 
@@ -334,9 +313,6 @@ export class TableCrispr {
     this.displaySgrna = this.currentSgrnas.slice((this.entries_by_pages * (this.page - 1)), this.entries_by_pages * this.page);
     this.total_pages = (Number.isInteger(this.currentSgrnas.length / this.entries_by_pages)) ? (this.currentSgrnas.length / this.entries_by_pages) : (Math.trunc(this.currentSgrnas.length / this.entries_by_pages) + 1);
     this.actualizePaginationDisplay();
-    console.log("highlighted selection", this.highlighted_selection); 
-
-    // Parse data and initialize allSgrna and calcul occurences
 
     return ([<head>
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -361,7 +337,7 @@ export class TableCrispr {
         <div class="sgrna-search-container">
           <span class='selection-header'>Filter by sequence</span>
           <input type="text" id="regexString" onKeyUp={() => this.sgRNAFilter()} placeholder={"Search for sgRNA.."} value={this.highlighted_selection ? this.highlighted_selection.sgrna : ""} />
-          <i class="material-icons close-icon" onClick={() => this.reinitalizeSgrna() }>close</i>
+          <i class="material-icons close-icon" onClick={() => this.reinitializeSgrna() }>close</i>
           {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>*/}
         </div>
         <div class="slider-containers">

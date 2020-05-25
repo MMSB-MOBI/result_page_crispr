@@ -1,10 +1,10 @@
 import { Component, Prop, h, State, Event, EventEmitter, Listen, Element, Watch } from '@stencil/core';
 import "@mmsb/mmsb-select";
-import { CurrentSelection, SGRNAForOneEntry } from '../result-page/interfaces';
+import { CurrentSelection, SGRNAForOneEntry, FastaMetadata } from '../result-page/interfaces';
 
 @Component({
-    tag: 'genomic-card2',
-    styleUrl: 'genomic-card2.css',
+    tag: 'genomic-card',
+    styleUrl: 'genomic-card.css',
     shadow: true
 })
 
@@ -19,7 +19,7 @@ export class GenomicCard {
     @Prop() initial_sgrnas?:SGRNAForOneEntry[];
     @Prop() hidden_references:string[]; //Fasta sequences of the organism with no sgrna on it
     @Prop() current_genes:{start:number, end:number}[];
-    @Prop() fasta_metadata;
+    @Prop() fasta_metadata:FastaMetadata[];
 
     @Prop() changeOrganism: (org: string) => void;
     @Prop() changeSgrna: (sgrna: string) => void;
@@ -39,22 +39,27 @@ export class GenomicCard {
         setTimeout(() => this.highlight_selection = false, 500);
     }
 
-    @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter;
-    @Event({ eventName: 'genomic-card.coordinate-over'}) onOverCoordinate: EventEmitter; 
-    @Event({ eventName: 'genomic-card.coordinate-out'}) onOutCoordinate:EventEmitter; 
+    @Event({ eventName: 'genomic-card.button-click' }) onClickHighlightButton: EventEmitter; //Click on "display on left pannel button"
+    @Event({ eventName: 'genomic-card.coordinate-over'}) onOverCoordinate: EventEmitter; //Over coordinate on list
+    @Event({ eventName: 'genomic-card.coordinate-out'}) onOutCoordinate:EventEmitter; //Out coordinate on list
 
-    @Listen('table-crispr.org-click', { target: 'window'})
+    @Listen('table-crispr.org-click', { target: 'window'}) //There is a click on organism on left pannel
     handleTableOrganismClick(){
-        //this.removeSvg(); 
         this.highlight_selection = true; 
     }
 
-    get selected_sgrna() {
+    /**
+     * Get selected sgrna
+     */
+    get selected_sgrna():SGRNAForOneEntry{
         return this.current_sgrnas
             .find(e => e.seq === this.selected.sgrna)
     }
 
-    get all_start_coordinates(){
+    /**
+     * Get start coordinates of current sgrna
+     */
+    get all_start_coordinates():number[]{
         const all_coords:number[] = [];
         this.current_sgrnas.map(e => 
             e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
@@ -71,32 +76,31 @@ export class GenomicCard {
             .coords.length
     }
 
-    getCoordinates(sgrna:string){
+    /**
+     * Get coordinates for given sgrna
+     * @param sgrna : sgrna sequence
+     */
+    getCoordinates(sgrna:string):string[]{
         return this.current_sgrnas
             .find(e => e.seq === sgrna).coords
     }
 
-    getFastaMetadata(ref:string){
-        console.log("getFastaMetadata")
-        console.log(this.fasta_metadata)
-        console.log(this.fasta_metadata.find(e => e.fasta_ref === ref))
+    /**
+     * Get fasta metadata for given reference
+     * @param ref : reference/identifiant of fasta sequence
+     */
+    getFastaMetadata(ref:string):FastaMetadata{
         return this.fasta_metadata.find(e => e.fasta_ref === ref)
     }
 
     componentDidRender() {
         const old_current_sgrnas:{[seq:string]:string[]} = {}
         this.initial_sgrnas.map(e => old_current_sgrnas[e.seq] = e.coords)
-        /*dspl.generateGenomicCard(DisplayGenome, this.diagonal_svg, this.selected.size, this.element.shadowRoot, coords, this.selected.sgrna);
-        dspl.generateSunburst(this.selected.size, old_current_sgrnas, this.diagonal_svg, this.element.shadowRoot.querySelector('#displayGenomicCard'), this.selected_section_on_card, false);
-        this.element.shadowRoot.querySelector('.genomeCircle').addEventListener("click", () => {
-            this.selected_section_on_card = -1;
-            this.current_sgrnas = this.initial_sgrnas; 
-        })*/
-        //this.styleHelp(".genomeCircle>path", ".help-gen");
-        //this.styleHelp(".sunburst>path", ".help-section");
-        //this.styleHelp("#notif>.material-icons", "#notif-text");*/
     }
 
+    /**
+     * Old function for display and remove fasta info div
+     */
     switchFastaInfo(){
         const parent_node = this.element.shadowRoot.querySelector(".selection-div.organism");
         if (this.fasta_info_active){
@@ -117,7 +121,6 @@ export class GenomicCard {
     }
 
     render() {
-        console.log(this.selected.ref)
         return ([
             <head>
                 <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
@@ -161,7 +164,7 @@ export class GenomicCard {
                                     data={this.organisms.map(name => [name, name])}
                                     selected={[this.selected.org]}
                                     onSelect={e => {/*this.removeSvg();*/ this.changeOrganism(e); 
-                                        if (this.fasta_info_active) this.switchFastaInfo()}}
+                                        }}
                                     color={this.highlight_selection ? "#539ddc54" : undefined}/>
                             </div>
                         </div>
@@ -203,7 +206,6 @@ export class GenomicCard {
                         selected_sgrna_coordinates={this.getCoordinates(this.selected.sgrna)} 
                         gene_coordinates={this.current_genes}
                         active_rotation
-                        onClickBarplot={(start, end) => this.onClickBarplot(start,end)}
                     ></circular-barplot>
                     <div class="select-occurences">
                         <div class="selection-header">

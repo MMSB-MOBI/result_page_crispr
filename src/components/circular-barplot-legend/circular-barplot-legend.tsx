@@ -39,16 +39,6 @@ export class CircularBarplotLegend{
         const angle = d3.scaleLinear()
             .domain([0,1])
             .range([0,360])
-            
-
-        /*svg.append("g")
-            .append("circle")
-            .attr("cx", 50)
-            .attr("cy", 100)
-            .attr("r", 15)
-            .attr("fill", "transparent")
-            .attr("stroke", "#5E4F63")
-            .attr("stroke-width", 3)*/
 
         this.svg.append("g")
             .selectAll("ticks")
@@ -89,8 +79,7 @@ export class CircularBarplotLegend{
             .attr("dominant-baseline","middle")
     }
 
-    addMiniBarplot(x_coord, y_coord, color){
-        console.log(y_coord)
+    addMiniBarplot(x_coord:number, y_coord:number, color:string){
         const y = d3.scaleLinear()
             .domain([0,1])
             .range([0,2])
@@ -133,7 +122,6 @@ export class CircularBarplotLegend{
     }
 
     addGeneTriangleLegend(){
-        console.log("Gene legend")
         this.svg
             .append("polygon")
             .attr("points", ` ${-this.width/2 + 30.5},${-this.height/2 + 1.5} ${-this.width/2 + 30},${-this.height/2 + 0.5} ${-this.width/2 + 31},${-this.height/2 + 0.5}`)

@@ -38,7 +38,6 @@ export class ResultPage {
     this.tableCrisprOrganisms = this.org_names.split("&");
     this.sequence_data_json = this.loadSequenceData();
     this.organism_data = this.formatOrganismData(); 
-    console.log("organism data", this.organism_data); 
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     
     const org = this.tableCrisprOrganisms[0];
@@ -57,8 +56,6 @@ export class ResultPage {
     };
 
     this.initial_sgrnas = this.current_sgrnas; 
-    console.log("gene", this.gene)
-    console.log(typeof this.gene)
     if(this.gene !== "undefined"){
       this.gene_json = JSON.parse(this.gene); 
       this.current_genes = this.getGenesCoordinates(org, ref);
@@ -154,6 +151,11 @@ export class ResultPage {
     return fasta_header
   }
 
+  /**
+   * Get genes coordinates for given organism and fasta sequence
+   * @param org : organism
+   * @param ref : reference of fasta subsequence
+   */
   getGenesCoordinates(org:string, ref:string):Coordinate[]{
     return this.gene_json[org][ref]
   }
@@ -193,7 +195,8 @@ export class ResultPage {
         </div>
         <div>
           <div class="card">
-            <genomic-card2
+            <genomic-card
+              fasta_metadata={this.fasta_metadata_json}
               organisms={this.org_names.split("&")}
               selected={this.selected}
               current_references={this.current_references}
@@ -267,27 +270,10 @@ export class ResultPage {
               onClickHighlight={() => this.shouldHighlight = true}
               diagonal_svg={700}
               initial_sgrnas={this.initial_sgrnas}
-            ></genomic-card2>
+            ></genomic-card>
           </div>
         </div>
       </div>
     ]);
   }
 }
-
-
-/*<div class="gene_results">
-            <div id="button_display_card"> 
-              {this.gene && !this.display_linear_card && <button 
-                id="display_gene_card" 
-                onClick={() => this.display_linear_card = true}
-              > Display gene card </button>} 
-            </div>
-            {this.gene && this.currentGenes !== "[]" && this.display_linear_card && console.log(this.currentGenes)}
-            {this.gene && this.currentGenes !== "[]" && this.display_linear_card && <linear-card 
-              width_bar="90%" 
-              all_sgrna={this.currentSgrna}
-              gene={this.currentGenes}
-              onClose={() => this.display_linear_card = false}
-            />}
-          </div>*/
