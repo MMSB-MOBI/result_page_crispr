@@ -175,9 +175,9 @@ export class GenomicCard {
                             </div>
                            
                                 
-                            <div class="selection-content fasta">
+                            <div class={"selection-content fasta" + (this.highlight_selection ? " change" : "")}>
                                 {this.current_references.map(ref => 
-                                    <div class="select-div"> 
+                                    <div class="select-div">
                                         <span class={"select-text active" + (this.selected.ref === ref ? " current":"")} onClick = {() => this.changeRef(ref)}>{ref}</span> 
                                         <span class="tooltip-text2">{this.getFastaMetadata(ref).header}</span>
                                     </div>

@@ -173,3 +173,12 @@ li {
   z-index:0;
 }
 
+.selection-content.fasta.change{
+  background:#539ddc54;
+}
+
+.selection-content.fasta.change > .select-div > .select-text{
+  background-color: transparent;
+  border-bottom: none;
+}
+
