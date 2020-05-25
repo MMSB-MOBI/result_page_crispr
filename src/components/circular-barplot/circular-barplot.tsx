@@ -132,6 +132,7 @@ export class CircularBarplot{
         this.createCircularBarplot(); 
         this.addSingleCoordinatesTicks();
         if (this.gene_coordinates) this.displayGenes(); 
+        this.addReinitializeEvent();
     }
 
     cleanSvg(){
@@ -148,12 +149,12 @@ export class CircularBarplot{
             .attr('class', 'genome-circle')
             .append('circle')
             .on("click", () => {
-                this.svg.selectAll(".detailed-barplot").remove(); //Remove detailed barplot if exists
+                /*this.svg.selectAll(".detailed-barplot").remove(); //Remove detailed barplot if exists
                 this.svg.selectAll(".bin").style("opacity", "1"); //All bins with initial opacity
                 if(this.active_rotation){
                     this.applyRotation(0)
                     this.deEmphasizeZero();
-                }
+                }*/
             })
             .attr("cx", 0)
             .attr("cy", 0)
@@ -261,7 +262,6 @@ export class CircularBarplot{
                     component.svg.selectAll(".bin").style("opacity", "0.5") //Fade all bins
                     d3.select(this).style("opacity","1.0"); //Highlight current bin
                     component.addBarplotDetailed(d) //Add the detailed barplot for current bin
-                    component.onClickBarplot(d.bin_start, d.bin_end)
                     if (component.active_rotation){
                         const middle  = d.bin_start + ((d.bin_end - d.bin_start)/2)
                         component.applyRotation(-angle(middle))
@@ -614,6 +614,7 @@ export class CircularBarplot{
      * @param angle : rotation angle
      */
     applyRotation(angle:number){
+        console.log("apply rotation")
         this.svg
             .transition()
             .duration(500)
@@ -653,6 +654,28 @@ export class CircularBarplot{
         this.svg.select(".coord-label")
             .style("fill", "grey")
             .style("font-weight", "normal")
+    }
+
+    /**
+     * Reinitialize genome circle when click everywhere in svg except barplot, detailed barplots and gene triangle
+     */
+    addReinitializeEvent(){
+        const svg = this.element.shadowRoot.querySelector("svg")
+        svg.addEventListener('click', (e) => {
+            const barplot = this.element.shadowRoot.querySelector(".barplot-container")
+            const detailed_barplot = this.element.shadowRoot.querySelector(".detailed-barplot")
+            const genes = this.element.shadowRoot.querySelector(".genes")
+            const current_parent_node = (e.target as HTMLElement).parentNode
+            if ( current_parent_node !== barplot && current_parent_node !== detailed_barplot && current_parent_node !== genes){ 
+                this.svg.selectAll(".detailed-barplot").remove(); //Remove detailed barplot if exists
+                this.svg.selectAll(".bin").style("opacity", "1"); //All bins with initial opacity
+                if(this.active_rotation){
+                    this.applyRotation(0)
+                    this.deEmphasizeZero();
+                }
+            }
+            
+        })
     }
 
     /**

@@ -1,8 +1,3 @@
-.table {
-  position: relative;
-  min-width: 509px;
-}
-
 .root {
   display: grid;
   padding: 1rem 2rem;
@@ -11,32 +6,4 @@
   grid-column-gap: 5rem;
   grid-row-gap : 1rem; 
   cursor:default; 
-}
-
-#display_gene_card{
-  color:white;
-  padding: 10px 15px;
-  border-radius: 4px;
-  background-color: rgba(239, 71, 111);
-  border:2px solid rgba(239, 71, 111);
-}
-
-#button_display_card{
-  text-align: center;
-}
-
-.gene_results {
-  margin-top: 3rem;
-}
-
-.select_multiple_organisms{
-  grid-column: 1 / span 2;
-}
-
-.noUi-origin-lower {
-  transform:translate(500%) !important; 
-}
-
-.noUi-origin-upper {
-  transform:translate(10000%) !important; 
 }

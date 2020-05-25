@@ -2,36 +2,6 @@
   font-family: "Helvetica Neue", Helvetica, Arial;
 }
 
-
-.select-menu span {
-  margin-left: 10px;
-  font-weight: bold;
-}
-
-.custom-select {
-  background-color: #f9f9f9 !important;
-  border: 1px #e4e4e4 solid !important;
-}
-
-
-/*  The loader Spinner */
-.spinner-grow {
-  width: 40 !important;
-  height: 40 !important;
-}
-
-
-.axisCircles {
-  fill: none;
-  stroke: #E8E8E8;
-  stroke-width: 1px;
-}
-
-
-.coordBoxContainer {
-  flex-grow: 2;
-}
-
 .coord-box {
   margin-bottom: 17px;
   margin-left:15px;
@@ -46,75 +16,6 @@
   border-color: #e4e4e4;
 }
 
-#coordBoxHeader {
-  color: rgba(239, 71, 111);
-  font-weight: bold;
-  padding: 11px;
-  background-color: white;
-  width: 100%;
-  border-bottom: 1px solid #9e9e9e99;
-  margin-bottom: .7rem;
-}
-
-#displayGenomicCard {
-  width: 100%;
-  min-height: 250px;
-  /*max-height: 70vh;*/
-}
-
-
-.help:hover .help-text {
-  display: block;
-  position: absolute;
-  background: #6da7c3b3;
-  border-radius: 8px;
-  padding: 8px;
-}
-
-.help {
-  width: 24px;
-}
-
-.help-text {
-  display: none;
-}
-
-.nav-tabs .nav-link.active {
-  color: rgba(239, 71, 111) !important;
-}
-
-.nav-link {
-  color: rgba(79, 93, 117) !important;
-}
-
-.nav.flex-nav {
-  display: flex;
-  flex-direction: row;
-  overflow-x: auto;
-  overflow-y: hidden;
-  flex-flow: row;
-  flex-grow: 1;
-  align-items: stretch;
-  justify-content: stretch;
-}
-
-.flex-nav-item {
-  min-width: max-content;
-  margin-bottom: 0 !important;
-}
-
-.nav-link:hover {
-  background: rgba(187, 136, 137, 0.3) !important;
-  color: rgba(239, 71, 111) !important;
-}
-
-.nav-tabs .nav-link.active:hover {
-  background: none !important;
-}
-
-.svg {
-  position: relative;
-}
 
 .selection-header{
   display:inline-block;
@@ -128,10 +29,6 @@
   padding-top:0.5rem; 
 }
 
-.coord-box > ul > li{
-  list-style-type: none;
-}
-
 li {
   list-style-type: none;
 }
@@ -142,11 +39,7 @@ li {
   border: 1px #e4e4e4 solid; 
   width: 100%;
   text-align: center;
-  /*padding: 10px;*/
   transition: background-color .3s;
-  /*margin-top:10px;*/
-  /*margin-right:10px;*/
-  /*margin-bottom:10px;*/
 }
 
 .highlight-sgrna-button:hover{
@@ -163,35 +56,8 @@ li {
   align-items:center; 
 }
 
-@keyframes bluefade {
-  from{
-    background-color:rgba(83, 157, 220, 0.33) !important;
-  }
-  to{
-    background-color: transparent;
-  }
-}
-
-.highlight-select{
-  background:#539ddc54 !important;
-  /*animation: bluefade 1s;*/
-}
-
 .coord-box li:hover{
   color:#ff0000; 
-}
-
-.selection-col{
-  border-style:solid;
-  border-width:0.5px; 
-  border-color:gray;
-  border-radius:5px; 
-}
-
-.list-selection{
-  padding-left:10px;
-  padding-right:10px; 
-  padding-top:10px; 
 }
 
 .selection-content.sgrna{
@@ -208,30 +74,9 @@ li {
   display:flex; 
 }
 
-.selection-div2{
-  display:grid;
-  grid-template-columns: 48% 48%; 
-  column-gap: 4%;
-}
-
 .selection-div.organism{
   display:grid;
   grid-template-columns:55% 5% 40%; 
-}
-
-.sub-selection{
-  margin-bottom:6px;
-}
-
-.sub-selection-content{
-  display:grid; 
-  grid-template-columns: 49% 49%;
-  grid-gap:2%
-}
-
-.sub-selection>span{
-  display:inline-block;
-  padding-bottom: 5px;
 }
 
 .selection2{
@@ -242,20 +87,6 @@ li {
   margin-bottom:2em;
 }
 
-.ref-selector {
-  display:grid; 
-  grid-template-columns:60% min-content auto; 
-  align-items:center; 
-  text-align: left;
-  column-gap:1em; 
-}
-
-.ref-tooltip-icon {
-  display:flex; 
-  align-items: center;
-  font-size: 22px !important; 
-  cursor:pointer; 
-}
 
 .left-arrow-icon{
   font-size:30px !important; 
@@ -270,16 +101,6 @@ li {
   background-color:lightgrey; 
   border-radius:5px; 
   margin-top:6px; 
-}
-
-.tooltip-text{
-  visibility: hidden;
-  font-size:10px; 
-  font-style: italic;
-}
-
-.ref-tooltip-icon:hover + .tooltip-text{
-  visibility: visible;
 }
 
 .genome-representation{
@@ -331,21 +152,6 @@ li {
 .select-text.current{
   background-color:lightgrey;
 }
-/*.tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
-}*/
 
 .selection-content.fasta{
   overflow:auto; 

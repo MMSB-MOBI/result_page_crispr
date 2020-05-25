@@ -38,26 +38,6 @@ export namespace Components {
         "organisms": string[];
         "selected": CurrentSelection;
     }
-    interface GenomicCard2 {
-        "changeOrganism": (org: string) => void;
-        "changeRef": (ref: string) => void;
-        "changeSgrna": (sgrna: string) => void;
-        "changeSgrnaSubset": (sgrna_subset: string[]) => void;
-        "current_genes": {
-            start: number;
-            end: number;
-        }[];
-        "current_references": string[];
-        "current_sgrnas": SGRNAForOneEntry[];
-        "diagonal_svg": number;
-        "fasta_metadata": any;
-        "hidden_references": string[];
-        "initial_sgrnas"?: SGRNAForOneEntry[];
-        "onClickBarplot": (start: number, end: number) => void;
-        "onClickHighlight": () => void;
-        "organisms": string[];
-        "selected": CurrentSelection;
-    }
     interface ResultPage {
         "all_data": string;
         "complete_data": string;
@@ -92,12 +72,6 @@ declare global {
         prototype: HTMLGenomicCardElement;
         new (): HTMLGenomicCardElement;
     };
-    interface HTMLGenomicCard2Element extends Components.GenomicCard2, HTMLStencilElement {
-    }
-    var HTMLGenomicCard2Element: {
-        prototype: HTMLGenomicCard2Element;
-        new (): HTMLGenomicCard2Element;
-    };
     interface HTMLResultPageElement extends Components.ResultPage, HTMLStencilElement {
     }
     var HTMLResultPageElement: {
@@ -114,7 +88,6 @@ declare global {
         "circular-barplot": HTMLCircularBarplotElement;
         "circular-barplot-legend": HTMLCircularBarplotLegendElement;
         "genomic-card": HTMLGenomicCardElement;
-        "genomic-card2": HTMLGenomicCard2Element;
         "result-page": HTMLResultPageElement;
         "table-crispr": HTMLTableCrisprElement;
     }
@@ -154,29 +127,6 @@ declare namespace LocalJSX {
         "organisms"?: string[];
         "selected"?: CurrentSelection;
     }
-    interface GenomicCard2 {
-        "changeOrganism"?: (org: string) => void;
-        "changeRef"?: (ref: string) => void;
-        "changeSgrna"?: (sgrna: string) => void;
-        "changeSgrnaSubset"?: (sgrna_subset: string[]) => void;
-        "current_genes"?: {
-            start: number;
-            end: number;
-        }[];
-        "current_references"?: string[];
-        "current_sgrnas"?: SGRNAForOneEntry[];
-        "diagonal_svg"?: number;
-        "fasta_metadata"?: any;
-        "hidden_references"?: string[];
-        "initial_sgrnas"?: SGRNAForOneEntry[];
-        "onClickBarplot"?: (start: number, end: number) => void;
-        "onClickHighlight"?: () => void;
-        "onGenomic-card.button-click"?: (event: CustomEvent<any>) => void;
-        "onGenomic-card.coordinate-out"?: (event: CustomEvent<any>) => void;
-        "onGenomic-card.coordinate-over"?: (event: CustomEvent<any>) => void;
-        "organisms"?: string[];
-        "selected"?: CurrentSelection;
-    }
     interface ResultPage {
         "all_data"?: string;
         "complete_data"?: string;
@@ -196,7 +146,6 @@ declare namespace LocalJSX {
         "circular-barplot": CircularBarplot;
         "circular-barplot-legend": CircularBarplotLegend;
         "genomic-card": GenomicCard;
-        "genomic-card2": GenomicCard2;
         "result-page": ResultPage;
         "table-crispr": TableCrispr;
     }
@@ -208,7 +157,6 @@ declare module "@stencil/core" {
             "circular-barplot": LocalJSX.CircularBarplot & JSXBase.HTMLAttributes<HTMLCircularBarplotElement>;
             "circular-barplot-legend": LocalJSX.CircularBarplotLegend & JSXBase.HTMLAttributes<HTMLCircularBarplotLegendElement>;
             "genomic-card": LocalJSX.GenomicCard & JSXBase.HTMLAttributes<HTMLGenomicCardElement>;
-            "genomic-card2": LocalJSX.GenomicCard2 & JSXBase.HTMLAttributes<HTMLGenomicCard2Element>;
             "result-page": LocalJSX.ResultPage & JSXBase.HTMLAttributes<HTMLResultPageElement>;
             "table-crispr": LocalJSX.TableCrispr & JSXBase.HTMLAttributes<HTMLTableCrisprElement>;
         }
