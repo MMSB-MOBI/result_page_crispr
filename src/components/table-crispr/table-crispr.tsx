@@ -250,7 +250,7 @@ export class TableCrispr {
       .max(max)
       .step(1)
       .width(450)
-      .ticks(10)
+      .ticks(max-min < 10 ? max-min : 10)
       .default([min, max])
       .fill('#2196f3')
       .tickFormat(d3.format(',.0f'))
