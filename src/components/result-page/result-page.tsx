@@ -188,6 +188,7 @@ export class ResultPage {
               };
               this.shouldHighlight = true;
               this.initial_sgrnas = this.current_sgrnas; 
+              this.current_genes = this.gene_json ? this.getGenesCoordinates(organism, ref_selected):undefined;
             }}
             shouldHighlight={this.shouldHighlight}
             gene={this.current_genes ? true:false}
@@ -223,6 +224,7 @@ export class ResultPage {
 
                 this.shouldHighlight = false; 
                 this.initial_sgrnas = this.current_sgrnas; 
+                this.current_genes = this.gene_json ? this.getGenesCoordinates(organism, ref_selected):undefined;
               }}
 
               changeSgrna={(sgrna) => {
