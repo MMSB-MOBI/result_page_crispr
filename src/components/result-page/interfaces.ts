@@ -10,9 +10,12 @@ export interface OccurenceSGRNAHit {
 
 export interface RefSGRNAHit {
     ref: string;
-    coords: string[];
-    on_gene?: string[];
-    not_on_gene?: string[];
+    coords: CoordsData[];
+}
+
+export interface CoordsData{
+    coord:string; 
+    is_on_gene:string[];
 }
 
 export interface MinMaxOccurencesData {
@@ -34,9 +37,7 @@ export interface FastaEntryHit {
 
 export interface SGRNAForOneEntry {
      seq: string; 
-     coords: string[];
-     on_gene?: string[];
-     not_on_gene?: string[]; 
+     coords: CoordsData[];
 }
 
 export interface CurrentSelection {
