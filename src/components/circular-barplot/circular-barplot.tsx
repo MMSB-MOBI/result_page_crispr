@@ -1,4 +1,4 @@
-import {Component, h, Prop, Listen, Watch, Element} from '@stencil/core';
+import {Component, h, Prop, Listen, Watch, Element, State} from '@stencil/core';
 import { CoordinatesBinData, Coordinate} from '../result-page/interfaces';
 declare const d3: any;
 
@@ -40,10 +40,13 @@ export class CircularBarplot{
     gene_tickness?:number; 
     barplot_gene_begin?:number; 
     barplot_gene_end?:number; 
+    barplot_gene_name_y?:number; 
     genome_color:string; 
     gene_color:string; 
     coord_color:string; 
 
+    current_gene?:{"start":number, "end":number, "gene_in_triangle":number, "gene_total":number}; 
+    current_rotation_angle?:number
 
     @Watch('selected_sgrna_coordinates')
     selectedSgrnaChange(){
@@ -109,10 +112,11 @@ export class CircularBarplot{
         this.detailed_barplot_end = this.height/2 - 1; 
         this.coordinates_begin = this.circle_radius + this.circle_thickness + 3
         this.coordinates_end = this.circle_radius + this.circle_thickness + 6 
-        this.gene_begin = this.gene_coordinates ? this.barplot_begin - 6 : undefined
+        this.gene_begin = this.gene_coordinates ? this.barplot_begin - 7 : undefined
         this.gene_tickness = 3; 
         this.barplot_gene_begin = this.gene_coordinates ? this.height/3 : undefined
-        this.barplot_gene_end = this.gene_coordinates ? this.height/2 : undefined
+        this.barplot_gene_end = this.gene_coordinates ? this.height/2 - 5 : undefined
+        this.barplot_gene_name_y = this.gene_coordinates ? this.height / 2 : undefined
         this.genome_color = "#5E4F63"; 
         this.gene_color = "#D5912A";
         this.coord_color = "#66B032";
@@ -133,6 +137,7 @@ export class CircularBarplot{
         this.addSingleCoordinatesTicks();
         if (this.gene_coordinates) this.displayGenes(); 
         this.addReinitializeEvent();
+        this.applyRotation(0, 0); 
     }
 
     cleanSvg(){
@@ -388,55 +393,33 @@ export class CircularBarplot{
     }
 
     /**
-     * Display barplot detailed for some data. Here used for gene barplot, but we can imagine use it elsewhere by adapting the given data.
-     * @param coord_start : genome coordinates where barplot start
-     * @param coord_end : genome coordinates where barplot end
-     * @param line_start : genome coordinates where the barplot axis display starts 
-     * @param line_end : genome coordinates where the barplot axis display starts 
-     * @param y_line : y coordinate where barplot axis is
-     * @param y_barplot_start : y coordinate where barplot start
-     * @param y_barplot_end : y coordinate where barplot end
-     * @param class_name : g class name
-     * @param color : bins color
-     * @param nb_bins : number of bins
-     * @param genome_proportion : proportion of genome where barplot will be displayed. (example : if 2, will take the half of the circular)
+     * Add barplot that represents distribution of sgrna along genes.
+     * If several genes are given, display navigable barplots
+     * @param genes : genes to display
+     * @param middle_placement : coordinate of the middle of the barplot in bp
+     * @param barplot_length : barplot length in bp
+     * @param triangle_length : genes triangle length in bp
      */
-    addGeneBarplotDetailed(coord_start:number, coord_end:number, line_start:number=coord_start, line_end:number=coord_end, y_line:number, y_barplot_start:number, y_barplot_end:number, class_name:string, color:string, nb_bins:number = 20, genome_proportion:number=20){
-        this.svg.selectAll(class_name).remove(); //Remove if an other detailed barplot exist 
-
-        const coordinates_inside = this.list_coordinates.filter(e => e >= coord_start && e < coord_end) //list of coordinates inside the bin
+    addGeneBarplot(genes:Coordinate[], middle_placement:number, barplot_length:number, triangle_length:number){
+        this.svg.select(".detailed-barplot").remove(); 
         
-        const detailed_bin_data = this.createBinData(coordinates_inside, nb_bins, coord_start, coord_end); //Format data for detailed histogram
-
-        const middle = coord_start + (coord_end - coord_start) / 2; //Middle placement of new histogram
-        const midlength = this.genome_size / (genome_proportion*2); //Length at each side
-
+        //Barplot axis
         const arc_placement = d3.scaleLinear() //Scale to place new histogram on circle
-            .range([0, 2 * Math.PI])
+            .range([0, 2*Math.PI])
             .domain([0, this.genome_size])
 
-        const start_angle = arc_placement(middle - midlength)
-        const end_angle = arc_placement(middle + midlength)
-
-        //Draw axis to follow circle, so it's an arc
+        const axis_start = middle_placement - (barplot_length / 2)
+        const axis_end = middle_placement + (barplot_length/2)
+        const start_angle = arc_placement(axis_start)
+        const end_angle = arc_placement(axis_end)
+        
         const detailed_barplot_axis = d3.arc()
             .startAngle(start_angle)
             .endAngle(end_angle)
-            .innerRadius(y_barplot_start)
-            .outerRadius(y_barplot_start + 0.5)
+            .innerRadius(this.barplot_gene_begin)
+            .outerRadius(this.barplot_gene_begin + 0.5)
 
-        //Scale for x axis of barplot
-        const bin_x = d3.scaleLinear()
-            .range([start_angle, end_angle])
-            .domain([coord_start, coord_end])
-        
-        const max_prop = [...detailed_bin_data].sort((a,b) => b.number_coords_proportion - a.number_coords_proportion)[0].number_coords_proportion
-        //Scale for y axis of barplot
-        const bin_y = d3.scaleLinear()
-            .range([y_barplot_start + 1, y_barplot_end])
-            .domain([0,max_prop]) //Maybe max height instead of 1 ? Between 0 and 1 because we work with proportion.
-
-        //Add the axis
+        //Draw barplot axis
         this.svg
             .append("g")
             .attr("class", "detailed-barplot")
@@ -445,58 +428,135 @@ export class CircularBarplot{
             .attr('d', detailed_barplot_axis)
             .style('fill', this.genome_color)
 
-        //Add the barplot
-        this.svg.selectAll(".detailed-barplot")
-            .selectAll("detailed-bin")
-            .data(detailed_bin_data)
-            .enter()
-            .append("path")
-              .attr("fill", color)
-              .attr("class", "detailed-bin")
-              .attr("d", d3.arc()   
-                  .innerRadius(bin_y(0))
-                  .outerRadius(d => bin_y(d.number_coords_proportion))
-                  .startAngle(d => bin_x(d.bin_start))
-                  .endAngle(d => bin_x(d.bin_end))
-                ); 
-
-        //Scale for placing start and end coordinates of barplot
-        const coordAngle = d3.scaleLinear()
-            .range([0, 360]) //Angle
-            .domain([0, 2*Math.PI]) //Circle coordinates  
-
-        this.svg.selectAll(".detailed-barplot")
-            .selectAll("detailed-barplot-label")
-            .data([[coord_start, start_angle], [coord_end, end_angle]])
-            .enter()
-            .append("text")
-            .attr("class", "detailed-barplot-label")
-            .attr('text-anchor', (d,i) => i === 0 ? 'end' : 'start') //If it's start coordinate, anchor end. If it's end coordinates, anchor start.
-            .attr("x", 0)
-            .attr("y", - y_barplot_start - 0.5)
-            .attr('transform', d => `rotate(${coordAngle(d[1])})`)
-            .text(d => numberWithCommas(d[0]))
-            .attr("font-size", "3px")
-            .attr("fill", color)
-
         //Lines between bin from global barplot and its detailed version
-        const line1 = [this.circleCoordinates(line_start, y_line), this.circleCoordinates(middle - midlength, y_barplot_start)] //Coordinates (x,y) for begin and end of the first line
-        const line2 = [this.circleCoordinates(line_end, y_line), this.circleCoordinates(middle + midlength, y_barplot_start)] //Coordinates (x,y) for begin and end of the second line
+        const line1 = [this.circleCoordinates(middle_placement - triangle_length/2, this.gene_begin + this.gene_tickness), this.circleCoordinates(axis_start, this.barplot_gene_begin)] //Coordinates (x,y) for begin and end of the first line
+        const line2 = [this.circleCoordinates(middle_placement + triangle_length/2, this.gene_begin + this.gene_tickness), this.circleCoordinates(axis_end, this.barplot_gene_begin)] //Coordinates (x,y) for begin and end of the second line
         this.svg.selectAll(".detailed-barplot")
             .selectAll(".detailed-barplot-line")
             .data([line1, line2])
             .enter()
             .append("line")
-            .attr("stroke", color)
+            .attr("stroke", this.gene_color)
             .attr("stroke-width", "0.5")
             .attr("x1", d => d[0].x)
             .attr("y1", d => d[0].y)
             .attr("x2", d => d[1].x)
             .attr("y2", d => d[1].y)
             .style("stroke-dasharray", ("1, 1"))
+
+        //Draw bins
+        this.addGeneBarplotBins(20, start_angle, end_angle)
+
+        //Draw text to navigate between homologous genes
+        if(genes.length > 1){
+            this.svg.select(".detailed-barplot")
+                .append("text")
+                .attr("class", `previous-next ${this.current_gene.gene_in_triangle === genes.length - 1 ? " inactive":""}` )
+                .text("Next gene")
+                .attr("y", -this.barplot_gene_end)
+                .attr("x", this.barplot_gene_begin)
+                .attr("text-anchor", "end")
+                .on("click", () => {
+                    if (this.current_gene.gene_in_triangle !== genes.length - 1){ //if active
+                        this.current_gene = {
+                            ...genes[this.current_gene.gene_in_triangle + 1],
+                            gene_in_triangle:this.current_gene.gene_in_triangle + 1,
+                            gene_total:this.gene_coordinates.findIndex(e => e === genes[this.current_gene.gene_in_triangle + 1])};
+                        this.addGeneBarplot(genes,middle_placement,barplot_length,triangle_length)
+                        this.applyRotation(this.current_rotation_angle)
+                        }
+                    })
+
+            this.svg.select(".detailed-barplot")
+                .append("text")
+                .attr("class", `previous-next ${this.current_gene.gene_in_triangle === 0 ? " inactive":""}` )
+                .text("Previous gene")
+                .attr("y", -this.barplot_gene_end)
+                .attr("x", - this.barplot_gene_begin)
+                .attr("text-anchor", "start") 
+                .on("click", () => {
+                    if (this.current_gene.gene_in_triangle !== 0){
+                        this.current_gene = {
+                            ...genes[this.current_gene.gene_in_triangle - 1],
+                            gene_in_triangle:this.current_gene.gene_in_triangle - 1,
+                            gene_total:this.gene_coordinates.findIndex(e => e === genes[this.current_gene.gene_in_triangle - 1])};
+                        this.addGeneBarplot(genes,middle_placement,barplot_length,triangle_length)
+                        this.applyRotation(this.current_rotation_angle)
+                        }
+                    })
+        }
+        
     }
 
-    //Add coordinates ticks for the current sgrna
+    /**
+     * Add sgRNA distribution along the current gene.
+     * @param nb_bins : number of bins to display in barplot
+     * @param start_angle : angle where the barplot begins
+     * @param end_angle : angle where the barplot ends
+     */
+    addGeneBarplotBins(nb_bins:number, start_angle:number, end_angle:number){
+        const coordinates_inside = this.list_coordinates.filter(e => e >= this.current_gene.start && e < this.current_gene.end) //list of coordinates inside the current gene
+        const detailed_bin_data = this.createBinData(coordinates_inside, nb_bins, this.current_gene.start, this.current_gene.end); //Format data for detailed histogram
+
+        const bin_x = d3.scaleLinear()
+            .range([start_angle, end_angle])
+            .domain([this.current_gene.start, this.current_gene.end])
+
+        const max_prop = [...detailed_bin_data].sort((a,b) => b.number_coords_proportion - a.number_coords_proportion)[0].number_coords_proportion
+        
+        //Scale for y axis of barplot
+        const bin_y = d3.scaleLinear()
+            .range([this.barplot_gene_begin + 1, this.barplot_gene_end])
+            .domain([0,max_prop]) //Maybe max height instead of 1 ? Between 0 and 1 because we work with proportion.
+
+         //Add the barplot
+         this.svg.select(".detailed-barplot")
+            .selectAll("detailed-bin")
+            .data(detailed_bin_data)
+            .enter()
+            .append("path")
+            .attr("fill", this.gene_color)
+            .attr("class", "detailed-bin")
+            .attr("d", d3.arc()   
+                .innerRadius(bin_y(0))
+                .outerRadius(d => bin_y(d.number_coords_proportion))
+                .startAngle(d => bin_x(d.bin_start))
+                .endAngle(d => bin_x(d.bin_end))
+            ); 
+
+            const coordAngle = d3.scaleLinear()
+            .range([0, 360]) //Angle
+            .domain([0, 2*Math.PI]) //Circle coordinates  
+
+        this.svg.select(".detailed-barplot")
+            .selectAll("detailed-barplot-label")
+            .data([[this.current_gene.start, start_angle], [this.current_gene.end, end_angle]])
+            .enter()
+            .append("text")
+            .attr("class", "detailed-barplot-label")
+            .attr('text-anchor', (d,i) => i === 0 ? 'end' : 'start') //If it's start coordinate, anchor end. If it's end coordinates, anchor start.
+            .attr("x", 0)
+            .attr("y", - this.barplot_gene_begin - 0.5)
+            .attr('transform', d => `rotate(${coordAngle(d[1])})`)
+            .text(d => numberWithCommas(d[0]))
+            .attr("font-size", "3px")
+            .attr("fill", this.gene_color)
+
+        
+        this.svg.select(".detailed-barplot")
+            .append("text")
+            .attr("class", "gene-name")
+            .text(`Homologous gene ${this.current_gene.gene_total + 1}`)
+            .attr("fill", "black")
+            .attr("y", - this.barplot_gene_end)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "4px")
+        
+    }
+
+    /**
+     * Add coordinates red ticks for current sgrna
+     */
     addSingleCoordinatesTicks(){
         const coordinateScale = d3.scaleLinear()
             .range([-180, 180]) // -180, 180 so tick 0 will be at genome origin (up middle)
@@ -581,17 +641,22 @@ export class CircularBarplot{
             .range([0, 360])
             .domain([0, this.genome_size])
 
+        const triangle_length = this.genome_size / 100
+        
+        const triangles = this.gatherGenesInTriangles(triangle_length);
+        const recentered_triangles = this.recenterTriangles(triangles); 
+
         const component = this;
         this.svg
             .append("g")
             .attr("class", "genes")
             .selectAll(".gene-arc")
-            .data(this.gene_coordinates)
+            .data(recentered_triangles)
             .enter()
             .append("polygon")
                 .attr("points", d => {
                     const middle = d.start + ((d.end - d.start) / 2)
-                    const triangle_gap = this.genome_size / 204
+                    const triangle_gap = triangle_length / 2
                     const point1 = this.circleCoordinates(middle, this.gene_begin)
                     const point2 = this.circleCoordinates(middle - triangle_gap, this.gene_begin + this.gene_tickness)
                     const point3 = this.circleCoordinates(middle + triangle_gap, this.gene_begin + this.gene_tickness)
@@ -602,33 +667,114 @@ export class CircularBarplot{
                 .on("click", d => {
                     component.svg.selectAll(".detailed-barplot").remove(); //Remove detailed barplot if exists
                     component.svg.selectAll(".bin").style("opacity", "0.3"); //All bins with initial opacity
-                    const middle = d.start + ((d.end - d.start) / 2)
-                    const triangle_gap = this.genome_size / 204
-                    component.addGeneBarplotDetailed(d.start, d.end, middle - triangle_gap, middle + triangle_gap, this.gene_begin + this.gene_tickness, this.barplot_gene_begin, this.barplot_gene_end, ".barplot-detailed-gene", this.gene_color, 20, 5)
-                    component.applyRotation(-angle(middle))
+                    const middle = d.start + ((d.end - d.start) / 2); 
+                    this.current_gene = {...d.genes[0],"gene_in_triangle":0, "gene_total":this.gene_coordinates.findIndex(e => e === d.genes[0])}
+                    component.addGeneBarplot(d.genes, middle, this.genome_size/5, triangle_length);
+                    
+                    //component.addGeneBarplotDetailed(d.start, d.end, middle - triangle_gap, middle + triangle_gap, this.gene_begin + this.gene_tickness, this.barplot_gene_begin, this.barplot_gene_end, ".barplot-detailed-gene", this.gene_color, 20, 5)
+                    this.current_rotation_angle = -angle(middle)
+                    component.applyRotation(this.current_rotation_angle)
+                    //component.displayGeneChoose(d.genes); 
                 })
+
+        
+        const gene_points = this.getGenePoints(recentered_triangles, triangle_length);
+        this.svg.select(".genes")
+            .selectAll(".gene-points")
+            .data(gene_points)
+            .enter()
+            .append("circle")
+            .attr("cx", d => this.circleCoordinates(d.coord, d.y).x)
+            .attr("cy", d => this.circleCoordinates(d.coord, d.y).y)
+            .attr("r", d => d.r)
+            .attr("fill", this.gene_color)
+           
+    }
+
+    /**
+     * Gather close genes into single triangles. 
+     * If the triangle used for represent a gene overlap an already existing triangle, the gene is added to this triangle.
+     * @param triangle_length : triangle length in bp
+     * Return list of triangles object, where start and end are the coordinates of first gene and genes is the list of genes inside triangle.
+     */
+    gatherGenesInTriangles(triangle_length:number):{"start":number, "end":number, "genes":Coordinate[]}[]{
+        let gene_triangles = []; 
+        this.gene_coordinates.forEach(gene_coord => {
+            const potential_triangle_middle = gene_coord.start + ((gene_coord.end - gene_coord.start) / 2)
+            let new_triangle = true; 
+            gene_triangles.forEach(triangle => {
+                const triangle_middle = triangle.start + ((triangle.end - triangle.start) / 2)
+                if (potential_triangle_middle - triangle_length / 2 <= triangle_middle + triangle_length / 2){
+                    triangle.genes.push(gene_coord)
+                    new_triangle=false; 
+                }
+            })
+            if (new_triangle){
+                gene_triangles.push({"start":gene_coord.start, "end":gene_coord.end, "genes":[gene_coord]})
+            }
+        })
+       
+        return gene_triangles
+
+    }
+
+    /**
+     * Compute coordinates of points that represent genes inside triangle. 
+     * If a triangle contains more than max_row * points_per_row genes, only a bigger point is displayed.
+     * @param gene_triangles : triangles that contains genes.
+     * @param triangle_length : triangle length in bp 
+     * @param max_row : maximum number of row to display points
+     * @param points_per_row : number of points per row
+     * Return list of points, 'coord' is the x coordinate of point in bp, 'r' is the point radius and 'y' is the vertical y coordinate.
+     */
+    getGenePoints(gene_triangles:{"start":number, "end":number, "genes":Coordinate[]}[], triangle_length:number, max_row:number = 2, points_per_row:number = 3):{"coord":number, "r":number, "y":number}[]{
+        let gene_points = []
+
+        gene_triangles.map(triangle => {
+           const triangle_start = (triangle.start + ((triangle.end - triangle.start) / 2)) - triangle_length / 2 
+           console.log("triangle genes", triangle.genes.length)
+           const triangle_gap = triangle.genes.length >= points_per_row ? triangle_length / points_per_row : triangle_length / triangle.genes.length
+           const point_start = triangle_gap / 2
+
+           if (triangle.genes.length > max_row * points_per_row){
+                gene_points.push({"coord":triangle.start + ((triangle.end - triangle.start) / 2), "r" : 0.7, "y" : this.gene_begin + this.gene_tickness + 1})
+           }
+           else{
+               let nb_row = 0
+                for (let i = 0; i < triangle.genes.length; i++){
+                    if (i % points_per_row === 0 && i != 0) nb_row++;
+                    gene_points.push({"coord":triangle_start + point_start + (i- points_per_row * nb_row) * triangle_gap, "r": 0.4, "y" : this.gene_begin + this.gene_tickness + nb_row + 1})
+                }
+           }
+
+           
+        })
+        return gene_points
+        
     }
 
     /**
      * Apply rotation to genome circle
      * @param angle : rotation angle
      */
-    applyRotation(angle:number){
-        console.log("apply rotation")
+    applyRotation(angle:number, transition_time:number = 500){
         this.svg
             .transition()
-            .duration(500)
+            .duration(transition_time)
             .attr("transform", `rotate(${angle})`)
 
         this.svg.selectAll(".genome-size-container")
             .transition()
-            .duration(500)
+            .duration(transition_time)
             .attr("transform", `rotate(${-angle})`)
 
         this.svg.selectAll(".coord-label-container text")
             .transition()
-            .duration(500)
+            .duration(transition_time)
             .attr("transform", d => `rotate(${-angle}, ${d.x}, ${d.y})`);
+        
+        this.svg.selectAll(".gene-name,.previous-next")
+            .attr("transform", `rotate(${-angle})`)
 
     }
 
@@ -662,13 +808,10 @@ export class CircularBarplot{
     addReinitializeEvent(){
         const svg = this.element.shadowRoot.querySelector("svg")
         svg.addEventListener('click', (e) => {
-            const barplot = this.element.shadowRoot.querySelector(".barplot-container")
-            const detailed_barplot = this.element.shadowRoot.querySelector(".detailed-barplot")
-            const genes = this.element.shadowRoot.querySelector(".genes")
-            const current_parent_node = (e.target as HTMLElement).parentNode
-            if ( current_parent_node !== barplot && current_parent_node !== detailed_barplot && current_parent_node !== genes){ 
+            const current_parent_node = ((e.target as HTMLElement).parentElement)
+            if ( ! current_parent_node.classList.contains("barplot-container") && ! current_parent_node.classList.contains("detailed-barplot") && ! current_parent_node.classList.contains("genes")){ 
                 this.svg.selectAll(".detailed-barplot").remove(); //Remove detailed barplot if exists
-                this.svg.selectAll(".bin").style("opacity", "1"); //All bins with initial opacity
+                this.svg.selectAll(".bin").style("opacity", "1"); //All bins with initial opacity                
                 if(this.active_rotation){
                     this.applyRotation(0)
                     this.deEmphasizeZero();
@@ -676,6 +819,26 @@ export class CircularBarplot{
             }
             
         })
+    }
+
+    /**
+     * Center triangles relative to their inside genes
+     * If triangle contains only 1 gene, start and end don't change. If triangle contains more than 1 gene, start and end become mean of start and end coordinates of genes.
+     * @param triangles : triangles to recenter
+     */
+    recenterTriangles(triangles:{"start":number, "end":number, "genes":Coordinate[]}[]):{"start":number, "end":number, "genes":Coordinate[]}[]{
+        let new_triangles = []; 
+        triangles.forEach(triangle => {
+            console.log(triangle);
+            if (triangle.genes.length === 1) new_triangles.push(triangle)
+            else{
+                const start_mean = triangle.genes.reduce((acc,val) => acc + val.start ,0) / triangle.genes.length
+                const end_mean =  triangle.genes.reduce((acc,val) => acc + val.end ,0) / triangle.genes.length
+                new_triangles.push({"start":start_mean, "end":end_mean, "genes":triangle.genes})
+                
+            }
+        })
+        return new_triangles
     }
 
     /**

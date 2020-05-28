@@ -1,0 +1,14 @@
+.previous-next{
+    font-size:3px; 
+    cursor:pointer;
+}
+
+.previous-next:hover{
+    text-decoration:underline;
+}
+
+.previous-next.inactive{
+    fill:#A4A4A4;
+    cursor:default;
+    text-decoration: none;
+}
