@@ -157,9 +157,18 @@ export class TableCrispr {
     const hit = this.complete_data.find(s => s.sequence === seq);
     return hit.occurences.map(o => {
       const coords_count = o.all_ref.reduce((acc, val) => acc + val.coords.length, 0);
-      const on_gene_count = this.gene ? o.all_ref.reduce((acc, val) => acc + val.on_gene.length, 0):undefined;
-      const not_on_gene_count = this.gene ? o.all_ref.reduce((acc, val) => acc + val.not_on_gene.length, 0):undefined;
-      return { name: o.org, coords_count, on_gene_count, not_on_gene_count };
+      let on_gene_count = 0; 
+      let not_on_gene_count = 0;
+
+      if(this.gene){
+        o.all_ref.forEach(all_ref_obj => all_ref_obj.coords
+          .forEach(coord_obj => {
+            if (coord_obj.is_on_gene.length > 0) on_gene_count++; 
+            else not_on_gene_count++; 
+        }))
+      }
+      
+      return { name: o.org, coords_count, on_gene_count, not_on_gene_count};
     })
       .sort((a,b) => b.coords_count - a.coords_count)
   }
