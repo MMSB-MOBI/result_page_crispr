@@ -182,3 +182,8 @@ li {
   border-bottom: none;
 }
 
+.coord-on-gene{
+  color:grey; 
+  font-size:12px; 
+}
+

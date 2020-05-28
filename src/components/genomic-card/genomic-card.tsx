@@ -61,8 +61,8 @@ export class GenomicCard {
      */
     get all_start_coordinates():number[]{
         const all_coords:number[] = [];
-        this.current_sgrnas.map(e => 
-            e.coords.map(coord => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord)[1]))))
+        this.current_sgrnas.forEach(e => 
+            e.coords.forEach(coord_obj => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord_obj.coord)[1]))))
         return all_coords.sort((a, b) => a - b);
     }
 
@@ -83,6 +83,7 @@ export class GenomicCard {
     getCoordinates(sgrna:string):string[]{
         return this.current_sgrnas
             .find(e => e.seq === sgrna).coords
+                .map(coord_obj => coord_obj.coord)
     }
 
     /**
@@ -95,7 +96,7 @@ export class GenomicCard {
 
     componentDidRender() {
         const old_current_sgrnas:{[seq:string]:string[]} = {}
-        this.initial_sgrnas.map(e => old_current_sgrnas[e.seq] = e.coords)
+        this.initial_sgrnas.map(e => old_current_sgrnas[e.seq] = e.coords.map(coord_obj => coord_obj.coord))
     }
 
     /**
@@ -216,10 +217,11 @@ export class GenomicCard {
                                 <ul>
                                     {this.current_sgrnas
                                         .find(e => e.seq === this.selected.sgrna).coords
-                                        .map(coord => <li 
-                                            onMouseOver={() => this.onOverCoordinate.emit(coord)}
-                                            onMouseOut={() => this.onOutCoordinate.emit(coord)}>
-                                                {coord}
+                                        .map(coord_obj => <li 
+                                            onMouseOver={() => this.onOverCoordinate.emit(coord_obj.coord)}
+                                            onMouseOut={() => this.onOutCoordinate.emit(coord_obj.coord)}>
+                                                <span>{coord_obj.coord}</span>
+                                                <span class="coord-on-gene">{this.current_genes ? coord_obj.is_on_gene.length > 0 ? " " + coord_obj.is_on_gene : " not on gene" : ""}</span>
                                             </li>)}
                                 </ul>
                             </div>
