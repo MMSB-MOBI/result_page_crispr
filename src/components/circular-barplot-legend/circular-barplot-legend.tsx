@@ -1,4 +1,4 @@
-import {Component, h, Prop, Listen, Watch, Element} from '@stencil/core';
+import {Component, h, Prop, Element} from '@stencil/core';
 declare const d3: any;
 
 @Component({

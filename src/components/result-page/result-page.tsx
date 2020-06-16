@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Element } from '@stencil/core';
+import { Component, Prop, h, State} from '@stencil/core';
 import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection, FastaMetadata, Coordinate} from './interfaces';
 import "@mmsb/mmsb-select";
 
@@ -10,7 +10,7 @@ import "@mmsb/mmsb-select";
 
 export class ResultPage {
   // *************************** PROPERTY & CONSTRUCTOR ***************************
-  @Element() private element: HTMLElement;
+  //@Element() private element: HTMLElement;
   @Prop() complete_data: string;
   @Prop() all_data: string;
   @Prop() org_names: string;

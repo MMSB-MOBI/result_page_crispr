@@ -21,15 +21,16 @@
 ### Depends on
 
 - [table-crispr](../table-crispr)
-- [genomic-card2](../genomic-card2)
+- [genomic-card](../genomic-card)
 
 ### Graph
 ```mermaid
 graph TD;
   result-page --> table-crispr
-  result-page --> genomic-card2
-  genomic-card2 --> mmsb-select
-  genomic-card2 --> circular-barplot
+  result-page --> genomic-card
+  genomic-card --> mmsb-select
+  genomic-card --> circular-barplot-legend
+  genomic-card --> circular-barplot
   style result-page fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

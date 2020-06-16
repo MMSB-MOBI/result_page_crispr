@@ -1,4 +1,4 @@
-import {Component, h, Prop, Listen, Watch, Element, State} from '@stencil/core';
+import {Component, h, Prop, Listen, Watch, Element} from '@stencil/core';
 import { CoordinatesBinData, Coordinate} from '../result-page/interfaces';
 declare const d3: any;
 
@@ -363,6 +363,7 @@ export class CircularBarplot{
             .enter()
             .append("text")
             .attr("class", "detailed-barplot-label")
+            //@ts-ignore
             .attr('text-anchor', (d,i) => i === 0 ? 'end' : 'start') //If it's start coordinate, anchor end. If it's end coordinates, anchor start.
             .attr("x", 0)
             .attr("y", - this.detailed_barplot_begin - 0.5)
@@ -534,6 +535,7 @@ export class CircularBarplot{
             .enter()
             .append("text")
             .attr("class", "detailed-barplot-label")
+            //@ts-ignore
             .attr('text-anchor', (d,i) => i === 0 ? 'end' : 'start') //If it's start coordinate, anchor end. If it's end coordinates, anchor start.
             .attr("x", 0)
             .attr("y", - this.barplot_gene_begin - 0.5)

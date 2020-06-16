@@ -17,6 +17,7 @@
 | `current_references` | --             |             | `string[]`                             | `undefined` |
 | `current_sgrnas`     | --             |             | `SGRNAForOneEntry[]`                   | `undefined` |
 | `diagonal_svg`       | `diagonal_svg` |             | `number`                               | `undefined` |
+| `fasta_metadata`     | --             |             | `FastaMetadata[]`                      | `undefined` |
 | `hidden_references`  | --             |             | `string[]`                             | `undefined` |
 | `initial_sgrnas`     | --             |             | `SGRNAForOneEntry[]`                   | `undefined` |
 | `onClickBarplot`     | --             |             | `(start: number, end: number) => void` | `undefined` |
@@ -43,15 +44,17 @@
 ### Depends on
 
 - mmsb-select
+- [circular-barplot-legend](../circular-barplot-legend)
 - [circular-barplot](../circular-barplot)
 
 ### Graph
 ```mermaid
 graph TD;
-  genomic-card2 --> mmsb-select
-  genomic-card2 --> circular-barplot
-  result-page --> genomic-card2
-  style genomic-card2 fill:#f9f,stroke:#333,stroke-width:4px
+  genomic-card --> mmsb-select
+  genomic-card --> circular-barplot-legend
+  genomic-card --> circular-barplot
+  result-page --> genomic-card
+  style genomic-card fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

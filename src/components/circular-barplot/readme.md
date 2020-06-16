@@ -21,12 +21,12 @@
 
 ### Used by
 
- - [genomic-card2](../genomic-card2)
+ - [genomic-card](../genomic-card)
 
 ### Graph
 ```mermaid
 graph TD;
-  genomic-card2 --> circular-barplot
+  genomic-card --> circular-barplot
   style circular-barplot fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
