@@ -20,9 +20,9 @@
     "@mmsb/mmsb-select": "^0.1.2",
     "bootstrap": "^4.5.0",
     "d3": "^5.16.0",
+    "d3-simple-slider": "1.5.4",
     "frappe-datatable": "^1.15.2",
-    "fs": "0.0.1-security",
-    "nouislider": "^14.5.0"
+    "fs": "0.0.1-security"
   },
   "devDependencies": {
     "@stencil/core": "^1.13.0",

@@ -1,7 +1,6 @@
 'use strict';
 
 import { Component, Prop, State, Element, h, Listen, Event, EventEmitter } from '@stencil/core';
-import "@mmsb/radial-crispr";
 import { CurrentSelection, SequenceSGRNAHit, SortingOrder, MinMaxOccurencesData, SortingType } from '../result-page/interfaces';
 import * as d3 from "d3";
 import * as d3_slider from 'd3-simple-slider';
