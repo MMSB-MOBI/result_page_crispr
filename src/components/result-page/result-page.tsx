@@ -1,11 +1,11 @@
-import { Component, Prop, h, State} from '@stencil/core';
+import { Component, Prop, h, State, Listen} from '@stencil/core';
 import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection, FastaMetadata, Coordinate} from './interfaces';
-import "@mmsb/mmsb-select";
+import "@mmsb/mmsb-select"; 
 
 @Component({
   tag: 'result-page',
   styleUrl: 'result-page.css',
-  shadow: true
+  scoped: true
 })
 
 export class ResultPage {
@@ -17,10 +17,10 @@ export class ResultPage {
   @Prop() gene?: string;
   @Prop() fasta_metadata:string;
 
-  @State() display_linear_card: boolean = true;
-  @State() tableCrisprOrganisms: string[] = [];
-  @State() selected: CurrentSelection; //org, sgrna, ref, size
-  @State() shouldHighlight = false;
+  @State() shouldHighlight:boolean = false; 
+  //@State() display_linear_card: boolean = true;
+  //@State() tableCrisprOrganisms: string[] = [];
+  selected: CurrentSelection = {'org':undefined, 'sgrna':undefined, 'ref':undefined, 'size':undefined, 'fasta_header':undefined}; //org, sgrna, ref, size
   @State() current_references: string[];
   @State() current_sgrnas: SGRNAForOneEntry[];
 
@@ -32,15 +32,29 @@ export class ResultPage {
   fasta_metadata_json: FastaMetadata[]; //Need to be typed
   current_genes?:Coordinate[]; 
 
+  @Listen('dropdown-menu.org-select', { target: 'window'}) //There is a click on organism on left pannel
+    changeOrganism(e){
+      const organism = e.detail
+      this.selected.org = organism 
+      this.current_references = this.getReferences(organism);
+      this.current_sgrnas = []; 
+    }
+
+  @Listen('dropdown-menu.ref-select', { target: 'window'}) //There is a click on organism on left pannel
+    changeRef(e){
+      const ref = e.detail
+      this.selected.ref = ref
+      this.current_sgrnas = this.getSgrnas(this.selected.org, ref);
+    }
 
   componentWillLoad() {
     //Initialize data
-    this.tableCrisprOrganisms = this.org_names.split("&");
+    //this.tableCrisprOrganisms = this.org_names.split("&");
     this.sequence_data_json = this.loadSequenceData();
     this.organism_data = this.formatOrganismData(); 
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     
-    const org = this.tableCrisprOrganisms[0];
+    /*const org = this.tableCrisprOrganisms[0];
     this.current_references = this.getReferences(org)
     this.hidden_references = this.getHiddenReferences(org)
     const ref = this.current_references[0];
@@ -58,7 +72,7 @@ export class ResultPage {
     if(this.gene !== "undefined"){
       this.gene_json = JSON.parse(this.gene); 
       this.current_genes = this.getGenesCoordinates(org, ref);
-    }
+    }*/
   }
 
   loadSequenceData(): SequenceSGRNAHit[]{
@@ -168,7 +182,6 @@ export class ResultPage {
   render() {
     // @ts-ignore
     window.result_page = this;
-
     return ([<head>
       <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.0.3/nouislider.min.css" rel="stylesheet"/>
     </head>,
@@ -203,82 +216,10 @@ export class ResultPage {
         <div>
           <div class="card">
             <genomic-card
-              fasta_metadata={this.fasta_metadata_json}
               organisms={this.org_names.split("&")}
-              selected={this.selected}
               current_references={this.current_references}
-              hidden_references={this.hidden_references}
               current_sgrnas={this.current_sgrnas}
-              current_genes={this.current_genes}
-              changeOrganism={(organism) => {
-                if (!organism) {
-                  this.selected = undefined;
-                }
-                this.current_references = this.getReferencesWithSeq(organism, this.selected.sgrna);
-                this.hidden_references = this.getHiddenReferences(organism); 
-                const ref_selected = this.current_references[0]
-                this.current_sgrnas = this.getSgrnas(organism, ref_selected);
-                this.selected = {
-                  ...this.selected,
-                  org: organism,
-                  ref: ref_selected,
-                  size: this.getSize(organism, ref_selected),
-                  fasta_header : this.getFastaHeader(organism, ref_selected)
-                }
-
-                //this.current_sgrnas = this.getSgrnas(this.selected[0], this.selected[1])
-
-                this.shouldHighlight = false; 
-                this.initial_sgrnas = this.current_sgrnas; 
-                this.current_genes = this.gene_json ? this.getGenesCoordinates(organism, ref_selected):undefined;
-              }}
-
-              changeSgrna={(sgrna) => {
-                if (!sgrna) {
-                  this.selected = undefined;
-                }
-
-                this.selected = {
-                  ...this.selected,
-                  sgrna
-                };
-                this.shouldHighlight = false; 
-              }}
-
-              changeRef={(ref) => {
-                this.current_sgrnas = this.getSgrnas(this.selected.org, ref)
-                const old_sgrna = this.selected.sgrna; 
-                this.selected = {
-                  ...this.selected,
-                  sgrna: this.current_sgrnas.find(e => e.seq === old_sgrna) ? old_sgrna : this.current_sgrnas[0].seq,
-                  ref,
-                  size: this.getSize(this.selected.org, ref),
-                  fasta_header : this.getFastaHeader(this.selected.org, ref)
-                };
-                if (this.selected.sgrna !== old_sgrna){
-                  this.shouldHighlight = false; 
-                }; 
-                this.initial_sgrnas = this.current_sgrnas; 
-              }}
-
-              changeSgrnaSubset = {(sgrna_subset) => {
-                this.current_sgrnas = this.getSgrnas(this.selected.org, this.selected.ref, sgrna_subset)
-                if (!sgrna_subset.includes(this.selected.sgrna)) {
-                  this.selected = {
-                    ...this.selected,
-
-                    sgrna: this.current_sgrnas.reduce((prec, actual) => {
-                      if (prec.coords.length > actual.coords.length)
-                        return prec;
-                      return actual;
-                    }).seq
-                  };
-                }
-              }}
-              onClickHighlight={() => this.shouldHighlight = true}
-              diagonal_svg={700}
-              initial_sgrnas={this.initial_sgrnas}
-            ></genomic-card>
+            />
           </div>
         </div>
       </div>
