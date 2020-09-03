@@ -43,7 +43,6 @@ export class ResultPage {
     const org = this.tableCrisprOrganisms[0];
     this.current_references = this.getReferences(org)
     this.hidden_references = this.getHiddenReferences(org)
-
     const ref = this.current_references[0];
 
     this.current_sgrnas = this.getSgrnas(org, ref)
@@ -100,6 +99,12 @@ export class ResultPage {
     return this.organism_data
       .find(organism_entry => organism_entry.organism === org)
       .fasta_entry.map(e => e.ref)
+  }
+
+  getReferencesWithSeq(org:string, sgrna:string){
+      return this.sequence_data_json.find(sequence_entry => sequence_entry.sequence === sgrna)
+      .occurences.find(occurence_entry => occurence_entry.org === org)
+      .all_ref.map(ref_entry => ref_entry.ref)
   }
 
   /**
@@ -176,7 +181,8 @@ export class ResultPage {
               if (!organism) {
                 this.selected = undefined;
               }
-              this.current_references = this.getReferences(organism);
+              this.current_references = this.getReferencesWithSeq(organism, sgrna);
+              this.hidden_references = this.getHiddenReferences(organism); 
               const ref_selected = this.current_references[0]
               this.current_sgrnas = this.getSgrnas(organism, ref_selected);
               this.selected = {
@@ -208,7 +214,7 @@ export class ResultPage {
                 if (!organism) {
                   this.selected = undefined;
                 }
-                this.current_references = this.getReferences(organism);
+                this.current_references = this.getReferencesWithSeq(organism, this.selected.sgrna);
                 this.hidden_references = this.getHiddenReferences(organism); 
                 const ref_selected = this.current_references[0]
                 this.current_sgrnas = this.getSgrnas(organism, ref_selected);
