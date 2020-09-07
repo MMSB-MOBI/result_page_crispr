@@ -37,6 +37,7 @@ export class TableCrispr {
   @Prop() selected: CurrentSelection;
   @Prop() shouldHighlight: boolean;
   @Prop() onOrganismClick?: (organism: string, sgrna: string) => void;
+  @Prop() reinitSelection : () => void; 
 
   total_pages: number;
   @State() entries_by_pages: number = 10;
@@ -59,9 +60,9 @@ export class TableCrispr {
     this.sgRNAFilter = this.sgRNAFilter.bind(this);
   }
 
-  @Event({ eventName: 'table-crispr.org-click' }) onClickTableOrganism: EventEmitter;
+  //@Event({ eventName: 'table-crispr.org-click' }) onClickTableOrganism: EventEmitter;
 
-  @Listen('genomic-card.button-click', { target: 'window' })
+  @Listen('dropdown-menu.display-button-click', { target: 'window' })
   handleButtonSelectSgrna() {
     this.reinitializeSliders();
     this.highlighted_selection = {...this.selected};
@@ -315,6 +316,7 @@ export class TableCrispr {
   }
 
   render() {
+    console.log("render table", this.shouldHighlight)
     if (this.state == "stop") {
       return this.error_msg
     }
@@ -342,7 +344,7 @@ export class TableCrispr {
         <div class="sgrna-search-container">
           <span class='selection-header'>Filter by sequence</span>
           <input type="text" id="regexString" onKeyUp={() => this.sgRNAFilter()} placeholder={"Search for sgRNA.."} value={this.highlighted_selection ? this.highlighted_selection.sgrna : ""} />
-          <i class="material-icons close-icon" onClick={() => this.reinitializeSgrna() }>close</i>
+          <i class="material-icons close-icon" onClick={() => {this.reinitializeSgrna(); this.reinitSelection() }}>close</i>
           {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>*/}
         </div>
         <div class="slider-containers">
@@ -409,7 +411,7 @@ export class TableCrispr {
             <tr class="organism-line"
               onClick={() => {
                 this.onOrganismClick(o.name, sgrna.seq);;
-                this.onClickTableOrganism.emit();
+                //this.onClickTableOrganism.emit();
               }}
               style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>
             

@@ -5,7 +5,7 @@
  * It contains typing information for all components that exist in this project.
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
-import { Coordinate, CurrentSelection, FastaMetadata, SequenceSGRNAHit, SGRNAForOneEntry, } from "./components/result-page/interfaces";
+import { Coordinate, CurrentSelection, SequenceSGRNAHit, SGRNAForOneEntry, } from "./components/result-page/interfaces";
 export namespace Components {
     interface CircularBarplot {
         "active_rotation"?: any;
@@ -18,23 +18,24 @@ export namespace Components {
     interface CircularBarplotLegend {
         "gene"?: boolean;
     }
+    interface CoordBox {
+        "coordinates": any;
+        "current_genes": any;
+        "current_sgrnas": any;
+        "selected": CurrentSelection;
+    }
+    interface DropdownMenu {
+        "fasta_refs": string[];
+        "organisms": string[];
+        "selectOrg": (org: string) => void;
+        "selectRef": (ref: string) => void;
+        "selectSgrna": (sgrna: string) => void;
+        "selected": CurrentSelection;
+        "sgrnas": SGRNAForOneEntry[];
+    }
     interface GenomicCard {
-        "changeOrganism": (org: string) => void;
-        "changeRef": (ref: string) => void;
-        "changeSgrna": (sgrna: string) => void;
-        "changeSgrnaSubset": (sgrna_subset: string[]) => void;
-        "current_genes": {
-            start: number;
-            end: number;
-        }[];
         "current_references": string[];
         "current_sgrnas": SGRNAForOneEntry[];
-        "diagonal_svg": number;
-        "fasta_metadata": FastaMetadata[];
-        "hidden_references": string[];
-        "initial_sgrnas"?: SGRNAForOneEntry[];
-        "onClickBarplot": (start: number, end: number) => void;
-        "onClickHighlight": () => void;
         "organisms": string[];
         "selected": CurrentSelection;
     }
@@ -49,6 +50,7 @@ export namespace Components {
         "complete_data": SequenceSGRNAHit[];
         "gene": boolean;
         "onOrganismClick"?: (organism: string, sgrna: string) => void;
+        "reinitSelection": () => void;
         "selected": CurrentSelection;
         "shouldHighlight": boolean;
     }
@@ -65,6 +67,18 @@ declare global {
     var HTMLCircularBarplotLegendElement: {
         prototype: HTMLCircularBarplotLegendElement;
         new (): HTMLCircularBarplotLegendElement;
+    };
+    interface HTMLCoordBoxElement extends Components.CoordBox, HTMLStencilElement {
+    }
+    var HTMLCoordBoxElement: {
+        prototype: HTMLCoordBoxElement;
+        new (): HTMLCoordBoxElement;
+    };
+    interface HTMLDropdownMenuElement extends Components.DropdownMenu, HTMLStencilElement {
+    }
+    var HTMLDropdownMenuElement: {
+        prototype: HTMLDropdownMenuElement;
+        new (): HTMLDropdownMenuElement;
     };
     interface HTMLGenomicCardElement extends Components.GenomicCard, HTMLStencilElement {
     }
@@ -87,6 +101,8 @@ declare global {
     interface HTMLElementTagNameMap {
         "circular-barplot": HTMLCircularBarplotElement;
         "circular-barplot-legend": HTMLCircularBarplotLegendElement;
+        "coord-box": HTMLCoordBoxElement;
+        "dropdown-menu": HTMLDropdownMenuElement;
         "genomic-card": HTMLGenomicCardElement;
         "result-page": HTMLResultPageElement;
         "table-crispr": HTMLTableCrisprElement;
@@ -104,26 +120,27 @@ declare namespace LocalJSX {
     interface CircularBarplotLegend {
         "gene"?: boolean;
     }
+    interface CoordBox {
+        "coordinates"?: any;
+        "current_genes"?: any;
+        "current_sgrnas"?: any;
+        "onCoord-box.coordinate-out"?: (event: CustomEvent<any>) => void;
+        "onCoord-box.coordinate-over"?: (event: CustomEvent<any>) => void;
+        "selected"?: CurrentSelection;
+    }
+    interface DropdownMenu {
+        "fasta_refs"?: string[];
+        "onDropdown-menu.display-button-click"?: (event: CustomEvent<any>) => void;
+        "organisms"?: string[];
+        "selectOrg"?: (org: string) => void;
+        "selectRef"?: (ref: string) => void;
+        "selectSgrna"?: (sgrna: string) => void;
+        "selected"?: CurrentSelection;
+        "sgrnas"?: SGRNAForOneEntry[];
+    }
     interface GenomicCard {
-        "changeOrganism"?: (org: string) => void;
-        "changeRef"?: (ref: string) => void;
-        "changeSgrna"?: (sgrna: string) => void;
-        "changeSgrnaSubset"?: (sgrna_subset: string[]) => void;
-        "current_genes"?: {
-            start: number;
-            end: number;
-        }[];
         "current_references"?: string[];
         "current_sgrnas"?: SGRNAForOneEntry[];
-        "diagonal_svg"?: number;
-        "fasta_metadata"?: FastaMetadata[];
-        "hidden_references"?: string[];
-        "initial_sgrnas"?: SGRNAForOneEntry[];
-        "onClickBarplot"?: (start: number, end: number) => void;
-        "onClickHighlight"?: () => void;
-        "onGenomic-card.button-click"?: (event: CustomEvent<any>) => void;
-        "onGenomic-card.coordinate-out"?: (event: CustomEvent<any>) => void;
-        "onGenomic-card.coordinate-over"?: (event: CustomEvent<any>) => void;
         "organisms"?: string[];
         "selected"?: CurrentSelection;
     }
@@ -138,13 +155,15 @@ declare namespace LocalJSX {
         "complete_data"?: SequenceSGRNAHit[];
         "gene"?: boolean;
         "onOrganismClick"?: (organism: string, sgrna: string) => void;
-        "onTable-crispr.org-click"?: (event: CustomEvent<any>) => void;
+        "reinitSelection"?: () => void;
         "selected"?: CurrentSelection;
         "shouldHighlight"?: boolean;
     }
     interface IntrinsicElements {
         "circular-barplot": CircularBarplot;
         "circular-barplot-legend": CircularBarplotLegend;
+        "coord-box": CoordBox;
+        "dropdown-menu": DropdownMenu;
         "genomic-card": GenomicCard;
         "result-page": ResultPage;
         "table-crispr": TableCrispr;
@@ -156,6 +175,8 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "circular-barplot": LocalJSX.CircularBarplot & JSXBase.HTMLAttributes<HTMLCircularBarplotElement>;
             "circular-barplot-legend": LocalJSX.CircularBarplotLegend & JSXBase.HTMLAttributes<HTMLCircularBarplotLegendElement>;
+            "coord-box": LocalJSX.CoordBox & JSXBase.HTMLAttributes<HTMLCoordBoxElement>;
+            "dropdown-menu": LocalJSX.DropdownMenu & JSXBase.HTMLAttributes<HTMLDropdownMenuElement>;
             "genomic-card": LocalJSX.GenomicCard & JSXBase.HTMLAttributes<HTMLGenomicCardElement>;
             "result-page": LocalJSX.ResultPage & JSXBase.HTMLAttributes<HTMLResultPageElement>;
             "table-crispr": LocalJSX.TableCrispr & JSXBase.HTMLAttributes<HTMLTableCrisprElement>;

@@ -7,3 +7,16 @@
   grid-row-gap : 1rem; 
   cursor:default; 
 }
+
+.genomic-card{
+    font-family: "Helvetica Neue", Helvetica, Arial;
+}
+
+.dropdown-menu{
+  margin-bottom:2em; 
+}
+
+.genome-rep{
+  display:grid; 
+  grid-template-columns: 70% 30%;
+}

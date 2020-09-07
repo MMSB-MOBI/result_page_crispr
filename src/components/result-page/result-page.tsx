@@ -20,9 +20,9 @@ export class ResultPage {
   @State() shouldHighlight:boolean = false; 
   //@State() display_linear_card: boolean = true;
   //@State() tableCrisprOrganisms: string[] = [];
-  selected: CurrentSelection = {'org':undefined, 'sgrna':undefined, 'ref':undefined, 'size':undefined, 'fasta_header':undefined}; //org, sgrna, ref, size
-  @State() current_references: string[];
-  @State() current_sgrnas: SGRNAForOneEntry[];
+  @State() selected: CurrentSelection = {'org':undefined, 'sgrna':undefined, 'ref':undefined, 'size':undefined, 'fasta_header':undefined}; //org, sgrna, ref, size
+  @State() current_references: string[] = [];
+  @State() current_sgrnas: SGRNAForOneEntry[] = [];
 
   organism_data: OrganismHit[];
   sequence_data_json: SequenceSGRNAHit[];
@@ -31,21 +31,13 @@ export class ResultPage {
   hidden_references: string[];
   fasta_metadata_json: FastaMetadata[]; //Need to be typed
   current_genes?:Coordinate[]; 
+  organisms:string[]; 
 
-  @Listen('dropdown-menu.org-select', { target: 'window'}) //There is a click on organism on left pannel
-    changeOrganism(e){
-      const organism = e.detail
-      this.selected.org = organism 
-      this.current_references = this.getReferences(organism);
-      this.current_sgrnas = []; 
-    }
 
-  @Listen('dropdown-menu.ref-select', { target: 'window'}) //There is a click on organism on left pannel
-    changeRef(e){
-      const ref = e.detail
-      this.selected.ref = ref
-      this.current_sgrnas = this.getSgrnas(this.selected.org, ref);
-    }
+  @Listen('dropdown-menu.display-button-click', { target: 'window' })
+  action() {
+    this.shouldHighlight = true; 
+  }
 
   componentWillLoad() {
     //Initialize data
@@ -53,6 +45,8 @@ export class ResultPage {
     this.sequence_data_json = this.loadSequenceData();
     this.organism_data = this.formatOrganismData(); 
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
+    this.organisms = this.org_names.split("&");
+    if(this.gene) this.gene_json = JSON.parse(this.gene); 
     
     /*const org = this.tableCrisprOrganisms[0];
     this.current_references = this.getReferences(org)
@@ -179,23 +173,70 @@ export class ResultPage {
     return this.gene_json[org][ref]
   }
 
+  getCoordinates(sgrna:string):string[]{
+    return this.current_sgrnas
+        .find(e => e.seq === sgrna).coords
+            .map(coord_obj => coord_obj.coord)
+}
+
+  get all_start_coordinates():number[]{
+    const all_coords:number[] = [];
+    this.current_sgrnas.forEach(e => 
+        e.coords.forEach(coord_obj => all_coords.push(parseInt(/\(([0-9]*),/.exec(coord_obj.coord)[1]))))
+    return all_coords.sort((a, b) => a - b);
+  }
+
+  isCompleteSelection():boolean{
+    if (Object.values(this.selected).includes(undefined)) return false
+    else return true
+  }
+
+  displayCard(){
+    
+    if (this.isCompleteSelection()){
+      const coordinates = this.getCoordinates(this.selected.sgrna)
+      return <div class="genomic-card">
+        <circular-barplot-legend gene={this.current_genes ? true:false}></circular-barplot-legend>
+        <div class="genome-rep">
+          <circular-barplot 
+            list_coordinates={this.all_start_coordinates}
+            genome_size={this.selected.size}
+            selected_sgrna_coordinates={coordinates} 
+            gene_coordinates={this.current_genes}
+            active_rotation
+          ></circular-barplot>
+          <coord-box
+            selected={this.selected}
+            coordinates={coordinates}
+            current_sgrnas={this.current_sgrnas}
+            current_genes={this.current_genes}
+          />
+        </div>
+       
+        </div>
+    }
+    else
+      return <div class="genomic-card"></div>
+  }
+
   render() {
-    // @ts-ignore
+    console.log("render results", this.shouldHighlight)
+        // @ts-ignore
     window.result_page = this;
-    return ([<head>
-      <link href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.0.3/nouislider.min.css" rel="stylesheet"/>
-    </head>,
+    /*console.log("RENDER")
+    console.log("org",this.organisms); 
+    console.log("ref", this.current_references); 
+    console.log("sgrna", this.current_sgrnas)*/
+    return (
       <div class="root">
         <div class="table">
           <table-crispr
             selected={this.selected}
             complete_data={this.sequence_data_json}
             onOrganismClick={(organism, sgrna) => {
-              if (!organism) {
-                this.selected = undefined;
-              }
+              console.log("onOrganismClick")
               this.current_references = this.getReferencesWithSeq(organism, sgrna);
-              this.hidden_references = this.getHiddenReferences(organism); 
+              //this.hidden_references = this.getHiddenReferences(organism); 
               const ref_selected = this.current_references[0]
               this.current_sgrnas = this.getSgrnas(organism, ref_selected);
               this.selected = {
@@ -210,19 +251,63 @@ export class ResultPage {
               this.current_genes = this.gene_json ? this.getGenesCoordinates(organism, ref_selected):undefined;
             }}
             shouldHighlight={this.shouldHighlight}
-            gene={this.current_genes ? true:false}
+            gene={this.gene_json ? true:false}
+            reinitSelection={() => {
+              this.selected = {
+                org:undefined,
+                sgrna:undefined,
+                ref:undefined, 
+                size:undefined,
+                fasta_header:undefined
+              }
+            }}
           />
         </div>
         <div>
-          <div class="card">
-            <genomic-card
-              organisms={this.org_names.split("&")}
-              current_references={this.current_references}
-              current_sgrnas={this.current_sgrnas}
-            />
+          <div class="dropdown-menu">
+            <dropdown-menu
+              organisms={this.organisms}
+              fasta_refs={this.current_references}
+              sgrnas={this.current_sgrnas}
+              selected={this.selected} 
+              selectOrg={(org) => {
+                this.shouldHighlight = false; 
+                this.current_references = this.getReferences(org); 
+                this.current_sgrnas = []; 
+                this.selected = {
+                  org,
+                  sgrna:undefined,
+                  ref:undefined, 
+                  size:undefined, 
+                  fasta_header:undefined, 
+                }
+              }}
+              selectRef={(ref) => {
+                this.current_sgrnas = this.getSgrnas(this.selected.org, ref); 
+                this.current_genes = this.getGenesCoordinates(this.selected.org, ref)
+                this.shouldHighlight = false; 
+                this.selected = {
+                  ...this.selected,
+                  sgrna:undefined,
+                  ref, 
+                  size:undefined, 
+                  fasta_header:undefined, 
+                }
+              }}
+              selectSgrna={(sgrna) => {
+                this.shouldHighlight = false; 
+                this.selected = {
+                  ...this.selected,
+                  sgrna, 
+                  size:this.getSize(this.selected.org, this.selected.ref), 
+                  fasta_header:this.getFastaHeader(this.selected.org, this.selected.ref), 
+                }
+              }}
+              />
           </div>
+          {this.displayCard()}
         </div>
       </div>
-    ]);
+    );
   }
 }

@@ -1,0 +1,41 @@
+.dropdown-menu-root{
+    display:grid; 
+    grid-template-columns:5em auto; 
+    column-gap: 1em;
+    grid-template-areas:
+        "button select-org"
+        "button select-ref"
+        "button select-sgrna"
+}
+.select-sgrna{
+    grid-area:select-sgrna; 
+}
+.select-org{
+    grid-area:select-org;
+}
+.select-ref{
+    grid-area:select-ref;
+}
+.highlight-sgrna-button{
+    grid-area:button; 
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    border: 1px #e4e4e4 solid; 
+    width: 100%;
+    text-align: center;
+    transition: background-color .3s;
+  }
+  
+  .highlight-sgrna-button:hover{
+    background-color: #e6e6e6; 
+  }
+  
+  .inside-sgrna-button{
+    display:grid;
+    grid-template-columns: min-content auto;
+  }
+  
+  .inside-sgrna-button > span {
+    display:flex;
+    align-items:center; 
+  }

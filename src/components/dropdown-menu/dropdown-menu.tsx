@@ -1,51 +1,65 @@
 import {Component, h, Prop, State, Event, EventEmitter} from '@stencil/core';
-import {SGRNAForOneEntry } from '../result-page/interfaces';
+import {SGRNAForOneEntry, CurrentSelection } from '../result-page/interfaces';
 
 @Component({
     tag: 'dropdown-menu',
     styleUrl: 'dropdown-menu.css',
-    shadow: true
+    shadow: false
 })
 
 export class DropdownMenu{
     @Prop() organisms:string[] = []
     @Prop() fasta_refs:string[] = []
     @Prop() sgrnas:SGRNAForOneEntry[] = []
+    @Prop() selected:CurrentSelection = undefined
 
     @State() ref_visible:string = "hidden"
     @State() sgrna_visible:string = "hidden"
 
-    @Event({ eventName: 'dropdown-menu.org-select' }) selectOrg: EventEmitter;
-    @Event({ eventName: 'dropdown-menu.ref-select' }) selectRef: EventEmitter;
+    @Prop() selectOrg: (org:string) => void; 
+    @Prop() selectRef: (ref:string) => void; 
+    @Prop() selectSgrna: (sgrna:string) => void; 
 
+    @Event({ eventName: 'dropdown-menu.display-button-click' }) onClickHighlightButton: EventEmitter;
 
     render(){
-        console.log("mmsb-select render")
         return (
             <div class="dropdown-menu-root">
+                <button class="highlight-sgrna-button" 
+                    style={{visibility : this.selected.sgrna ? "visible" : "hidden"}}
+                    onClick={() => {this.onClickHighlightButton.emit()}}> 
+                    <div class = "inside-sgrna-button"> 
+                        <i class="material-icons" style={{ float: 'left'}}>arrow_left</i>
+                            <span> Display in the left pannel </span>
+                        </div>
+                </button>
+
                 <div class="select-org">
                     <mmsb-select 
                         label="Select organism"
                         data={this.organisms.map(org => [org, org])}
+                        selected={this.selected.org ? [this.selected.org] : []}
                         onSelect={(e) => {
-                            this.ref_visible = "visible"
-                            this.sgrna_visible = "hidden"
-                            this.selectOrg.emit(e)}}
+                            this.selectOrg(e)}}
                     />
                 </div>
-                <div class="select-ref" style={{ visibility: this.ref_visible}}>
+                <div class="select-ref" style={{ visibility: this.fasta_refs.length ? "visible" : "hidden"}}>
                     <mmsb-select
                         label="Select fasta query"
                         data={this.fasta_refs.map(ref => [ref, ref])}
+                        selected={this.selected.ref ? [this.selected.ref] : []}
                         onSelect={(e) => {
-                            this.sgrna_visible = "visible"
-                            this.selectRef.emit(e)}}
+                            this.selectRef(e)}}
                     />
                 </div>
-                <div class="select-sgrna" style={{ visibility: this.sgrna_visible}}>
-                    <mmsb-select
+
+                <div class="select-sgrna" style={{ visibility: this.sgrnas.length ? "visible" : "hidden"}}>
+                    <mmsb-select 
                         label="Select sgRNA sequence"
                         data={this.sgrnas.map(sgrna_entry => [sgrna_entry.seq, sgrna_entry.seq])}
+                        selected={this.selected.sgrna ? [this.selected.sgrna] : []}
+                        onSelect={(e) => {
+                            this.selectSgrna(e)}}
                     />
                 </div>
                 

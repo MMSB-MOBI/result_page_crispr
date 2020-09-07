@@ -54,14 +54,14 @@ export class CircularBarplot{
         this.addSingleCoordinatesTicks(); 
     }
 
-    @Listen('genomic-card.coordinate-over', { target: 'window' })
+    @Listen('coord-box.coordinate-over', { target: 'window' })
     handleCoordinateOver(coord){
         const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`) //Select corresponding coord tick
         tick.remove(); 
         this.highlightCoordinatesTicks([coord.detail], "#ff0000")
     }
 
-    @Listen('genomic-card.coordinate-out', { target: 'window' })
+    @Listen('coord-box.coordinate-out', { target: 'window' })
     handleCoordinateOut(coord){
         const tick = this.svg.select(`.start${parseInt(/\(([0-9]*),/.exec(coord.detail)[1])}`) //Select corresponding coord tick
         tick.remove(); 

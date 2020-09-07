@@ -1,0 +1,32 @@
+.coord-box-header{
+    font-weight:bold; 
+    margin-bottom:0.5rem; 
+}
+
+.coord-box-content {
+    margin-bottom: 17px;
+    margin-left:15px;
+    margin-right:15px; 
+    height:min-content; 
+    max-height: 50vh;
+    overflow: auto;
+    white-space: pre-line;
+    line-height: 1.3em;
+    border-style: solid;
+    border-width: thin;
+    border-radius: 8px;
+    border-color: #e4e4e4;
+  }
+
+li{
+    list-style-type: none; 
+}
+
+li:hover{
+    color:#ff0000; 
+}
+
+.coord-on-gene{
+    color:grey; 
+    font-size:12px; 
+}
