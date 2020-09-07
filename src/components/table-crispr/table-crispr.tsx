@@ -375,8 +375,8 @@ export class TableCrispr {
             </th>
           </tr>
           {this.gene ? <tr>
-            <td style={{ paddingRight: '10px' }}>On homologous gene</td>
-            <td>Not on homologous gene</td>
+            <td style={{ paddingRight: '10px' }}>Inside homologous gene(s)</td>
+            <td>Outside homologous gene(s)</td>
           </tr> : ''}
         </thead>
         <tbody>

@@ -18,8 +18,8 @@ export class CircularBarplotLegend{
     height:number;
 
     componentDidLoad(){
-        this.width = 50; 
-        this.height = 8;
+        this.width = 25; 
+        this.height = 11;
 
         const main_div = this.element.shadowRoot.querySelector('.circular-barplot-legend-main')
         this.svg = d3.select(main_div)
@@ -73,7 +73,7 @@ export class CircularBarplotLegend{
             .attr("class", "legend-text")
             .attr('x', -this.width/2 + 4)
             .attr('y', -this.height/2 + 1)
-            .text("Positions of current sgrna along the genome")
+            .text("Position(s) of current sgRNA along the genome")
             //.attr('text-anchor', 'left')
             .attr('font-size', '0.8px')
             .attr("dominant-baseline","middle")
@@ -108,7 +108,7 @@ export class CircularBarplotLegend{
     }
 
     addCoordBarplotLegend(){
-        this.addMiniBarplot(-this.width/2 + 3, this.height/2 - 3.5, "#66B032")
+        this.addMiniBarplot(-this.width/2 + 3, this.height/2 - 6.5, "#66B032")
         this.svg
             .append("text")
             .attr("class", "legend-text")
@@ -124,13 +124,13 @@ export class CircularBarplotLegend{
     addGeneTriangleLegend(){
         this.svg
             .append("polygon")
-            .attr("points", ` ${-this.width/2 + 30.5},${-this.height/2 + 1.5} ${-this.width/2 + 30},${-this.height/2 + 0.5} ${-this.width/2 + 31},${-this.height/2 + 0.5}`)
+            .attr("points", ` ${-this.width/2 + 2},${-this.height/2 + 6.5} ${-this.width/2 + 1.5},${-this.height/2 + 5.5} ${-this.width/2 + 2.5},${-this.height/2 + 5.5}`)
             .attr("fill", "#D5912A")
 
         this.svg
             .append("text")
-            .attr('x', - this.width/2 + 32)
-            .attr('y', -this.height/2 + 1)
+            .attr('x', - this.width/2 + 4)
+            .attr('y', -this.height/2 + 6)
             .text("Position(s) of homolog genes along genome")
             //.attr('text-anchor', 'left')
             .attr('font-size', '0.8px')
@@ -138,12 +138,12 @@ export class CircularBarplotLegend{
     }
 
     addGeneBarplotLegend(){
-        this.addMiniBarplot(-this.width/2 + 31.5, this.height/2 - 3.5, "#D5912A")
+        this.addMiniBarplot(-this.width/2 + 3, this.height/2 - 1.5, "#D5912A")
 
         this.svg
             .append("text")
-            .attr('x', - this.width/2 + 32)
-            .attr('y', -this.height/2 + 3.5)
+            .attr('x', - this.width/2 + 4)
+            .attr('y', -this.height/2 + 8.5)
             .text("Distribution of all sgRNAs along the gene")
             //.attr('text-anchor', 'left')
             .attr('font-size', '0.8px')

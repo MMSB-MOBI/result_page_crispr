@@ -6,17 +6,36 @@
   grid-column-gap: 5rem;
   grid-row-gap : 1rem; 
   cursor:default; 
+  font-family: "Helvetica Neue", Helvetica, Arial;  
 }
 
 .genomic-card{
-    font-family: "Helvetica Neue", Helvetica, Arial;
-}
-
-.dropdown-menu{
-  margin-bottom:2em; 
+    grid-area:genomic-card; 
 }
 
 .genome-rep{
   display:grid; 
-  grid-template-columns: 70% 30%;
+  grid-template-columns: auto 30em;
+}
+
+.coords{
+  grid-area:coords; 
+}
+
+.dropdown-menu{
+  grid-area:dropdown-menu; 
+}
+
+.right-panel{
+  display:grid; 
+  grid-template-columns: auto 20em;
+  grid-column-gap: 1em;  
+  grid-template-rows: min-content auto; 
+  grid-template-areas: 
+  "dropdown-menu coords"
+  "genomic-card genomic-card";
+}
+
+.legend{
+  padding-top:10em; 
 }

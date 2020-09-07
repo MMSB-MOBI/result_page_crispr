@@ -19,7 +19,6 @@ export namespace Components {
         "gene"?: boolean;
     }
     interface CoordBox {
-        "coordinates": any;
         "current_genes": any;
         "current_sgrnas": any;
         "selected": CurrentSelection;
@@ -121,7 +120,6 @@ declare namespace LocalJSX {
         "gene"?: boolean;
     }
     interface CoordBox {
-        "coordinates"?: any;
         "current_genes"?: any;
         "current_sgrnas"?: any;
         "onCoord-box.coordinate-out"?: (event: CustomEvent<any>) => void;

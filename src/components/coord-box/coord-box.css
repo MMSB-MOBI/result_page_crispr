@@ -5,10 +5,8 @@
 
 .coord-box-content {
     margin-bottom: 17px;
-    margin-left:15px;
-    margin-right:15px; 
     height:min-content; 
-    max-height: 50vh;
+    max-height: 10vh;
     overflow: auto;
     white-space: pre-line;
     line-height: 1.3em;

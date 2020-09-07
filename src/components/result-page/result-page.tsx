@@ -46,7 +46,10 @@ export class ResultPage {
     this.organism_data = this.formatOrganismData(); 
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     this.organisms = this.org_names.split("&");
-    if(this.gene) this.gene_json = JSON.parse(this.gene); 
+    console.log("gene", this.gene)
+    if(this.gene !== 'undefined'){
+      this.gene_json = JSON.parse(this.gene); 
+    }
     
     /*const org = this.tableCrisprOrganisms[0];
     this.current_references = this.getReferences(org)
@@ -195,8 +198,14 @@ export class ResultPage {
     
     if (this.isCompleteSelection()){
       const coordinates = this.getCoordinates(this.selected.sgrna)
-      return <div class="genomic-card">
-        <circular-barplot-legend gene={this.current_genes ? true:false}></circular-barplot-legend>
+      return [<div class="coords">
+        <coord-box
+            selected={this.selected}
+            current_sgrnas={this.current_sgrnas}
+            current_genes={this.current_genes}
+          />
+        </div>,
+        <div class="genomic-card">
         <div class="genome-rep">
           <circular-barplot 
             list_coordinates={this.all_start_coordinates}
@@ -205,18 +214,12 @@ export class ResultPage {
             gene_coordinates={this.current_genes}
             active_rotation
           ></circular-barplot>
-          <coord-box
-            selected={this.selected}
-            coordinates={coordinates}
-            current_sgrnas={this.current_sgrnas}
-            current_genes={this.current_genes}
-          />
+          <div class="legend"><circular-barplot-legend gene={this.current_genes ? true:false}/></div>
         </div>
-       
-        </div>
+        </div>]
     }
     else
-      return <div class="genomic-card"></div>
+      return [<div class="coords"></div>, <div class="genomic-card"></div>]
   }
 
   render() {
@@ -234,7 +237,6 @@ export class ResultPage {
             selected={this.selected}
             complete_data={this.sequence_data_json}
             onOrganismClick={(organism, sgrna) => {
-              console.log("onOrganismClick")
               this.current_references = this.getReferencesWithSeq(organism, sgrna);
               //this.hidden_references = this.getHiddenReferences(organism); 
               const ref_selected = this.current_references[0]
@@ -263,7 +265,7 @@ export class ResultPage {
             }}
           />
         </div>
-        <div>
+        <div class="right-panel">
           <div class="dropdown-menu">
             <dropdown-menu
               organisms={this.organisms}
@@ -284,7 +286,7 @@ export class ResultPage {
               }}
               selectRef={(ref) => {
                 this.current_sgrnas = this.getSgrnas(this.selected.org, ref); 
-                this.current_genes = this.getGenesCoordinates(this.selected.org, ref)
+                this.current_genes = this.gene_json ? this.getGenesCoordinates(this.selected.org, ref):undefined;
                 this.shouldHighlight = false; 
                 this.selected = {
                   ...this.selected,
