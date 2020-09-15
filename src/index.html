@@ -11,6 +11,7 @@
 
   <!-- <script type="module" src="@mmsb/linear-card/dist/mycomponent.js"></script> -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"/>
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
 
   <script src="http://localhost:8080/socket.io/socket.io.js"></script>
@@ -39,6 +40,9 @@
     node.setAttribute("complete_data", JSON.stringify(results_json["data"]))
     node.setAttribute("fasta_metadata", JSON.stringify(results_json["fasta_metadata"]))
     node.setAttribute("gene", JSON.stringify(results_json["gene"]))
+    node.setAttribute("job_tag", results_json["tag"])
+    node.setAttribute("total_hits", results_json["number_hits"])
+
     document.body.appendChild(node)
     //document.getElementsByTagName('genomic-card')[0].setAttribute('size', '{"Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1":{"NC_015662.1":800}}')
   });

@@ -7,35 +7,131 @@
   grid-row-gap : 1rem; 
   cursor:default; 
   font-family: "Helvetica Neue", Helvetica, Arial;  
+  grid-template-areas:
+  "header header"
+  "table graphic"
 }
 
-.genomic-card{
-    grid-area:genomic-card; 
+.header{
+  grid-area:header; 
 }
+
+.table{
+  grid-area:table
+}
+
+.right-pannel{
+  grid-area:graphic
+}
+
+.first-line{
+  display:grid;
+  grid-template-columns: min-content auto;
+  grid-column-gap: 1em; 
+  height:max-content; 
+}
+
+/*.genomic-card{
+    grid-area:genomic-card; 
+}*/
 
 .genome-rep{
   display:grid; 
   grid-template-columns: auto 30em;
 }
 
-.coords{
+/*.coords{
   grid-area:coords; 
 }
 
 .dropdown-menu{
   grid-area:dropdown-menu; 
-}
+}*/
 
-.right-panel{
+/*.right-panel{
+  grid-area:graphic; 
   display:grid; 
-  grid-template-columns: auto 20em;
+  grid-template-columns: min-content auto;
   grid-column-gap: 1em;  
-  grid-template-rows: min-content auto; 
+  grid-template-rows: 14vh auto; 
   grid-template-areas: 
   "dropdown-menu coords"
   "genomic-card genomic-card";
-}
+}*/
 
 .legend{
   padding-top:10em; 
+}
+
+.log-info{
+  background-color: #c6ecc6
+  ;
+  border:solid; 
+  border-width:1px; 
+  border-color:green; 
+}
+
+.log-info-content{
+  display:grid;
+  grid-template-columns: max-content auto;
+  grid-column-gap:2em; 
+  padding:0.5em; 
+}
+
+.log-info-header{
+ display:flex; 
+ padding:0.5em; 
+}
+
+.log-info-header.open{
+  background-color:#37ae37; 
+}
+
+.log-info-header:hover{
+  background-color:#37ae37; 
+  cursor:pointer; 
+ }
+
+.log-info-header > i{
+  align-items:center; 
+}
+
+.first-col{
+  display:grid; 
+}
+
+.excluded-list{
+  padding:0.4em; 
+  overflow: auto;
+  height:6vh; 
+  border:solid; 
+  border-color: green;
+  border-width:1px;
+  border-radius: 5px;
+  background-color: #ecf9ec;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  box-shadow: inset 0 0 10px 10px grey;
+  border: solid 2px transparent;
+  border-radius: 7px;
+}
+
+.download{
+  margin-top:1em; 
+  border:solid; 
+  padding:0.5em; 
+  width:max-content; 
+  background-color: #cccccc !important;
+  border-radius: 3px;
+  border-width:1px; 
+  border-color:  #808080; 
+}
+
+.download:hover{
+  background-color: #bfbfbf !important; 
 }

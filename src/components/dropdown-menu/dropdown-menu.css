@@ -1,10 +1,12 @@
 .dropdown-menu-root{
     display:grid; 
-    grid-template-columns:5em auto; 
+    grid-template-columns:10em 30em; 
     column-gap: 1em;
+    height:14vh; 
     grid-template-areas:
         "button select-org"
         "button select-ref"
+        "button ncbi-link"
         "button select-sgrna"
 }
 .select-sgrna{
@@ -16,6 +18,31 @@
 .select-ref{
     grid-area:select-ref;
 }
+
+.ncbi-link{
+  grid-area:ncbi-link;
+  display:flex;
+  align-items:center;
+  padding-bottom: 0.5em;
+  padding-top:0.5em;
+  padding-left:0.5em; 
+  color:#4d4d4d; 
+  text-decoration: none;
+}
+
+.ncbi-link:hover{
+  color:rgba(239, 71, 111); 
+}
+
+.ncbi-link>span{
+  text-decoration: underline;
+}
+.info-icon{
+  font-size:20px !important; 
+  padding-right:0.2em; 
+  text-decoration: none;
+}
+
 .highlight-sgrna-button{
     grid-area:button; 
     border-radius: 5px;
@@ -37,5 +64,10 @@
   
   .inside-sgrna-button > span {
     display:flex;
+    align-items:center; 
+  }
+
+  .inside-sgrna-button > i {
+    display:flex; 
     align-items:center; 
   }

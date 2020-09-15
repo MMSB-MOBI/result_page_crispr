@@ -1,3 +1,8 @@
+.coord-box-root{
+    height:14vh;
+
+}
+
 .coord-box-header{
     font-weight:bold; 
     margin-bottom:0.5rem; 
@@ -5,8 +10,7 @@
 
 .coord-box-content {
     margin-bottom: 17px;
-    height:min-content; 
-    max-height: 10vh;
+    height:12.8vh; 
     overflow: auto;
     white-space: pre-line;
     line-height: 1.3em;

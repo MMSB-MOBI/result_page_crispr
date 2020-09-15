@@ -1,6 +1,8 @@
 import { Component, Prop, h, State, Listen} from '@stencil/core';
 import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection, FastaMetadata, Coordinate} from './interfaces';
 import "@mmsb/mmsb-select"; 
+import download from "downloadjs";
+import { NONAME } from 'dns';
 
 @Component({
   tag: 'result-page',
@@ -16,6 +18,9 @@ export class ResultPage {
   @Prop() org_names: string;
   @Prop() gene?: string;
   @Prop() fasta_metadata:string;
+  @Prop() job_tag:string; 
+  @Prop() total_hits:number; 
+  @Prop() excluded_genomes:string[]; 
 
   @State() shouldHighlight:boolean = false; 
   //@State() display_linear_card: boolean = true;
@@ -32,6 +37,9 @@ export class ResultPage {
   fasta_metadata_json: FastaMetadata[]; //Need to be typed
   current_genes?:Coordinate[]; 
   organisms:string[]; 
+  @State() select_card:string[] = [];
+
+  @State() display_log:boolean = false;
 
 
   @Listen('dropdown-menu.display-button-click', { target: 'window' })
@@ -46,10 +54,10 @@ export class ResultPage {
     this.organism_data = this.formatOrganismData(); 
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     this.organisms = this.org_names.split("&");
-    console.log("gene", this.gene)
     if(this.gene !== 'undefined'){
       this.gene_json = JSON.parse(this.gene); 
     }
+
     
     /*const org = this.tableCrisprOrganisms[0];
     this.current_references = this.getReferences(org)
@@ -65,7 +73,7 @@ export class ResultPage {
       fasta_header: this.getFastaHeader(org, ref)
     };
 
-    this.initial_sgrnas = this.current_sgrnas; 
+     
     if(this.gene !== "undefined"){
       this.gene_json = JSON.parse(this.gene); 
       this.current_genes = this.getGenesCoordinates(org, ref);
@@ -194,18 +202,42 @@ export class ResultPage {
     else return true
   }
 
+  addToCard(sgrna:string){
+    console.log("add to card")
+    this.select_card = this.select_card.concat([sgrna]); 
+    //Reassign to triger state
+  }
+
+  removeFromCard(sgrna:string){
+    this.select_card = this.select_card.filter(select_sgrna => select_sgrna !== sgrna)
+  }
+
+  createSelectionFile(){
+    if (! this.select_card.length) window.alert("No sgRNA selected")
+    else {
+      const sgrnas = this.sequence_data_json.filter(sgrna_obj => this.select_card.includes(sgrna_obj.sequence))
+      let data_str = this.gene_json ? "#sgRNA\torganism\tfasta record\tcoordinates\tinside homologous gene\n" : "#sgRNA\torganism\tfasta record\tcoordinates\n" 
+      
+      sgrnas.forEach(sgrna => {
+        sgrna.occurences.forEach(occ => {
+          occ.all_ref.forEach(ref => {
+            ref.coords.forEach(coord => {
+              data_str = data_str + `${sgrna.sequence}\t${occ.org}\t${ref.ref}\t${coord.coord}`
+              if (this.gene_json) data_str = data_str + `\t${coord.is_on_gene.length ? "true" : "false"}`
+              data_str = data_str + "\n"
+            })
+          })
+        })
+      })
+      download(data_str, `${this.job_tag}_selected_sgrnas.tsv`, "text/plain")
+    }
+  }
+
   displayCard(){
-    
     if (this.isCompleteSelection()){
       const coordinates = this.getCoordinates(this.selected.sgrna)
-      return [<div class="coords">
-        <coord-box
-            selected={this.selected}
-            current_sgrnas={this.current_sgrnas}
-            current_genes={this.current_genes}
-          />
-        </div>,
-        <div class="genomic-card">
+      console.log(coordinates)
+      return <div class="genomic-card">
         <div class="genome-rep">
           <circular-barplot 
             list_coordinates={this.all_start_coordinates}
@@ -216,15 +248,36 @@ export class ResultPage {
           ></circular-barplot>
           <div class="legend"><circular-barplot-legend gene={this.current_genes ? true:false}/></div>
         </div>
-        </div>]
+        </div>
     }
-    else
-      return [<div class="coords"></div>, <div class="genomic-card"></div>]
+    else return <div class="genomic-card"></div>
+  }
+
+  displayCoords(){
+    if (this.isCompleteSelection()){
+      return <div class="coords">
+      <coord-box
+          selected={this.selected}
+          current_sgrnas={this.current_sgrnas}
+          current_genes={this.current_genes}
+        />
+      </div>
+    }
+    else return <div class="coords"></div>
+
+
+  }
+
+  overflowGestion(){
+    if (document.querySelector(".excluded-list").scrollHeight > document.querySelector(".excluded-list").clientHeight){
+      return <div class="show-all-eg"> <i class="material-icons">arrow_drop_down</i> </div>
+    }
   }
 
   render() {
-    console.log("render results", this.shouldHighlight)
-        // @ts-ignore
+    console.log("render result-page");
+    console.log(this.display_log)
+            // @ts-ignore
     window.result_page = this;
     /*console.log("RENDER")
     console.log("org",this.organisms); 
@@ -232,8 +285,40 @@ export class ResultPage {
     console.log("sgrna", this.current_sgrnas)*/
     return (
       <div class="root">
+        <div class="header">
+          <div class="log-info">
+            <div class={"log-info-header" + (this.display_log ? " open" : "")}onClick={() => this.display_log = this.display_log ? false : true}>
+              <span> Job info </span> <i class="material-icons">{this.display_log ? "arrow_drop_up" : "arrow_drop_down"}</i>
+            </div>
+            <div class="log-info-content" style={{display:this.display_log ? 'grid' : 'none'}}>
+              <div class="first-col">
+                <span>Job id : {this.job_tag}</span>
+                <span>Total hits : {this.total_hits}</span>
+                <span>Displayed hits : {this.sequence_data_json.length}</span>
+              </div>
+              <div class="second-col">
+                <span>Excluded genomes :</span> 
+                <div class="excluded-list"> "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."</div>
+              </div>
+            </div>
+            
+            
+          </div>
+
+
+          <div class="download w3-dropdown-hover">
+            <span class="download-dropdown-header"> Download results</span>
+            <div class="w3-dropdown-content w3-bar-block w3-border">
+              <a href={`download/${this.job_tag}`} class="w3-bar-item w3-button">All raw results</a>
+              <a href="#" class="w3-bar-item w3-button" onClick={() => this.createSelectionFile()}>Selected sgRNAs</a>
+            </div>
+            
+          </div>
+
+        </div>
         <div class="table">
           <table-crispr
+            card_selection={this.select_card}
             selected={this.selected}
             complete_data={this.sequence_data_json}
             onOrganismClick={(organism, sgrna) => {
@@ -255,6 +340,8 @@ export class ResultPage {
             shouldHighlight={this.shouldHighlight}
             gene={this.gene_json ? true:false}
             reinitSelection={() => {
+              this.current_references = []; 
+              this.current_sgrnas = []; 
               this.selected = {
                 org:undefined,
                 sgrna:undefined,
@@ -263,50 +350,58 @@ export class ResultPage {
                 fasta_header:undefined
               }
             }}
+            cardAction={(target, sgrna) => {
+              if((target as HTMLInputElement).checked) this.addToCard(sgrna);
+              else this.removeFromCard(sgrna); 
+            }}
           />
         </div>
         <div class="right-panel">
-          <div class="dropdown-menu">
-            <dropdown-menu
-              organisms={this.organisms}
-              fasta_refs={this.current_references}
-              sgrnas={this.current_sgrnas}
-              selected={this.selected} 
-              selectOrg={(org) => {
-                this.shouldHighlight = false; 
-                this.current_references = this.getReferences(org); 
-                this.current_sgrnas = []; 
-                this.selected = {
-                  org,
-                  sgrna:undefined,
-                  ref:undefined, 
-                  size:undefined, 
-                  fasta_header:undefined, 
-                }
-              }}
-              selectRef={(ref) => {
-                this.current_sgrnas = this.getSgrnas(this.selected.org, ref); 
-                this.current_genes = this.gene_json ? this.getGenesCoordinates(this.selected.org, ref):undefined;
-                this.shouldHighlight = false; 
-                this.selected = {
-                  ...this.selected,
-                  sgrna:undefined,
-                  ref, 
-                  size:undefined, 
-                  fasta_header:undefined, 
-                }
-              }}
-              selectSgrna={(sgrna) => {
-                this.shouldHighlight = false; 
-                this.selected = {
-                  ...this.selected,
-                  sgrna, 
-                  size:this.getSize(this.selected.org, this.selected.ref), 
-                  fasta_header:this.getFastaHeader(this.selected.org, this.selected.ref), 
-                }
-              }}
-              />
+          <div class="first-line">
+            <div class="dropdown-menu">
+              <dropdown-menu
+                organisms={this.organisms}
+                fasta_refs={this.current_references}
+                sgrnas={this.current_sgrnas}
+                selected={this.selected} 
+                selectOrg={(org) => {
+                  this.shouldHighlight = false; 
+                  this.current_references = this.getReferences(org); 
+                  this.current_sgrnas = []; 
+                  this.selected = {
+                    org,
+                    sgrna:undefined,
+                    ref:undefined, 
+                    size:undefined, 
+                    fasta_header:undefined, 
+                  }
+                }}
+                selectRef={(ref) => {
+                  this.current_sgrnas = this.getSgrnas(this.selected.org, ref); 
+                  this.current_genes = this.gene_json ? this.getGenesCoordinates(this.selected.org, ref):undefined;
+                  this.shouldHighlight = false; 
+                  this.selected = {
+                    ...this.selected,
+                    sgrna:undefined,
+                    ref, 
+                    size:undefined, 
+                    fasta_header:undefined, 
+                  }
+                }}
+                selectSgrna={(sgrna) => {
+                  this.shouldHighlight = false; 
+                  this.selected = {
+                    ...this.selected,
+                    sgrna, 
+                    size:this.getSize(this.selected.org, this.selected.ref), 
+                    fasta_header:this.getFastaHeader(this.selected.org, this.selected.ref), 
+                  }
+                }}
+                />
+            </div>
+            {this.displayCoords()}
           </div>
+          
           {this.displayCard()}
         </div>
       </div>

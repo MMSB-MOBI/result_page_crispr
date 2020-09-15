@@ -20,7 +20,7 @@ export class CoordBox{
         return(
         <div class="coord-box-root">
             <div class="coord-box-header">
-                <span>{coords.length} hit{coords.length === 1 ? "": "s"} :</span>
+                <span>{this.selected.sgrna} has {coords.length} hit{coords.length === 1 ? "": "s"} in {this.selected.ref} from {this.selected.org}:</span>
             </div>
             <div class="coord-box-content">
                 <ul>

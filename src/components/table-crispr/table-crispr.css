@@ -113,7 +113,23 @@ input {
 }
 
 .organism-line:hover{
-    background-color: lightgrey;
+    background-color: lightgray;
+}
+
+.organism-line.click-selected{
+    background-color:lightblue;
+}
+
+.organism-line.click-selected:hover{
+    background-color:lightblue; 
+}
+
+.organism-line.checkbox-selected{
+    background-color:#f2f2f2;
+}
+
+.organism-line.checkbox-selected:hover{
+    background-color:lightgray;
 }
 
 .pagination{

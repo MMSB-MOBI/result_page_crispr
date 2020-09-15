@@ -17,6 +17,7 @@ export class TableCrispr {
   // Data given by the results file
   @Prop() complete_data: SequenceSGRNAHit[];
   @Prop() gene:boolean; 
+  @Prop() card_selection:string[]; 
 
   initial_min_max_data: MinMaxOccurencesData[]
   // sgRNA displayed on interface
@@ -38,6 +39,7 @@ export class TableCrispr {
   @Prop() shouldHighlight: boolean;
   @Prop() onOrganismClick?: (organism: string, sgrna: string) => void;
   @Prop() reinitSelection : () => void; 
+  @Prop() cardAction : (click_target, sgrna:string) => void; 
 
   total_pages: number;
   @State() entries_by_pages: number = 10;
@@ -53,6 +55,8 @@ export class TableCrispr {
 
   initial_occ_limits:number[];
   @State() occ_filter: number[];
+
+  number_selected:number = 0; 
 
   // *************************** LISTEN & EMIT ***************************
 
@@ -147,6 +151,11 @@ export class TableCrispr {
     }
     this.sortData(); 
     this.displaySgrna = this.currentSgrnas.slice((10 * (this.page - 1)), 10 * this.page);
+  }
+
+  componentDidUpdate(){
+    console.log("didUpdate", this.card_selection);
+    this.conserveCheckbox();
   }
 
   /**
@@ -261,7 +270,7 @@ export class TableCrispr {
       .width(450)
       .ticks(max-min < 10 ? max-min : 10)
       .default([min, max])
-      .fill('#2196f3')
+      .fill("rgba(239, 71, 111)")
       .tickFormat(d3.format(',.0f'))
       .on('onchange', val => {
         this.occ_filter = [val[0], val[1]]
@@ -315,8 +324,38 @@ export class TableCrispr {
     this.highlighted_selection = undefined; 
   }
 
+  uncheckCheckbox(){
+    const checkboxes = this.element.shadowRoot.querySelectorAll(".checkbox")
+    checkboxes.forEach(checkbox => {
+      if((checkbox as HTMLInputElement).checked) (checkbox as HTMLInputElement).checked = false; 
+    })
+  }
+
+  conserveCheckbox(){
+    this.uncheckCheckbox(); 
+    this.card_selection.forEach(sgrna => {
+      const select_checkbox = this.element.shadowRoot.querySelector(`#${sgrna}`) as HTMLInputElement
+      if(select_checkbox) select_checkbox.checked = true;   
+    })
+  }
+
+  highlightSelectedOrg(target){
+    const org_lines = this.element.shadowRoot.querySelectorAll(`#org-${target.id}`)
+    org_lines.forEach(td => (td as HTMLElement).style.background = target.checked ? "#f2f2f2" : ""); 
+  }
+
+  getBackground(selected:boolean, checkbox_selected:boolean):string{
+    console.log("get background", selected, checkbox_selected)
+    if(selected && this.shouldHighlight) return "red"; 
+    else if (checkbox_selected) return "yellow"; 
+    else return "" 
+  }
+
+  countSelected(target){
+    this.number_selected = target.checked ? this.number_selected + 1 : this.number_selected - 1;
+  }
+
   render() {
-    console.log("render table", this.shouldHighlight)
     if (this.state == "stop") {
       return this.error_msg
     }
@@ -345,7 +384,7 @@ export class TableCrispr {
           <span class='selection-header'>Filter by sequence</span>
           <input type="text" id="regexString" onKeyUp={() => this.sgRNAFilter()} placeholder={"Search for sgRNA.."} value={this.highlighted_selection ? this.highlighted_selection.sgrna : ""} />
           <i class="material-icons close-icon" onClick={() => {this.reinitializeSgrna(); this.reinitSelection() }}>close</i>
-          {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginning with <br/> $ : ending with</span>*/}
+          {/*<span class="tooltiptextRegex">Use Regex : <br/>    ^ : beginningslider with <br/> $ : ending with</span>*/}
         </div>
         <div class="slider-containers">
           <span class="selection-header">Filter by number of occurences</span>
@@ -361,18 +400,19 @@ export class TableCrispr {
           <tr>
             <th 
               rowSpan={this.gene ? 2: 1}
-              onClick={this.handleChangeSortMethod}
+              onClick={(e) => {this.handleChangeSortMethod(e);}}
               data-type="Alphabetical">
                 <span>Sequence(s) ({this.currentSgrnas.length} sgRNAs selected)</span>
                 <i class={"material-icons table-sort-icon " + (this.sort_type === "Alphabetical" ? "highlighted" : "")}>keyboard_arrow_down</i>
             </th>
             <th 
               colSpan={2}
-              onClick={this.handleChangeSortMethod}
+              onClick={(e) => {this.handleChangeSortMethod(e);}}
               data-type="Occurences">
                 <span>Occurences number</span>
                 <i class={"material-icons table-sort-icon " + (this.sort_type === "Occurences" ? "highlighted" : "")}>keyboard_arrow_down</i>
             </th>
+            <th>Selection ({this.card_selection.length})</th>
           </tr>
           {this.gene ? <tr>
             <td style={{ paddingRight: '10px' }}>Inside homologous gene(s)</td>
@@ -381,6 +421,7 @@ export class TableCrispr {
         </thead>
         <tbody>
           <tr style={{ height: '8px' }}>
+            <td />
             <td />
             <td />
             <td />
@@ -403,17 +444,25 @@ export class TableCrispr {
             {this.gene ? <td>
               <strong>{currentOccurences.reduce((acc, val) => acc + val.not_on_gene_count, 0)}</strong>
             </td> : ''} 
+            <td>
+              <input type="checkbox" class="checkbox" id={sgrna.seq} onClick={(e) => {
+                //this.highlightSelectedOrg(e.target);
+                this.cardAction(e.target, sgrna.seq); 
+                }}></input>
+            </td>
             
           </tr>]
           {currentOccurences.map(o => {
             const selected = this.selected && this.selected.org === o.name && this.selected.sgrna === sgrna.seq;
+            const checkbox_selected = this.card_selection.includes(sgrna.seq);
+            console.log("selected", checkbox_selected)
             to_return.push(
-            <tr class="organism-line"
+            <tr class={"organism-line" + (checkbox_selected && !selected ? " checkbox-selected" : "") + (selected && this.shouldHighlight ? " click-selected":"")}
               onClick={() => {
                 this.onOrganismClick(o.name, sgrna.seq);;
                 //this.onClickTableOrganism.emit();
               }}
-              style={{ backgroundColor: selected && this.shouldHighlight ? '#539ddc54' : '' }}>
+              >
             
             <td
               class="sgrna-organism"   
@@ -422,6 +471,7 @@ export class TableCrispr {
             </td>
               {this.gene ? <td> {o.on_gene_count}</td> : <td colSpan={2}>{o.coords_count}</td>}
               {this.gene ? <td> {o.not_on_gene_count}</td> : ''}
+            <td />
             </tr>)             
           })}
 

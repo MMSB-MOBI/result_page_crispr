@@ -23,6 +23,7 @@ export class DropdownMenu{
     @Event({ eventName: 'dropdown-menu.display-button-click' }) onClickHighlightButton: EventEmitter;
 
     render(){
+        console.log(this.fasta_refs)
         return (
             <div class="dropdown-menu-root">
                 <button class="highlight-sgrna-button" 
@@ -41,6 +42,7 @@ export class DropdownMenu{
                         selected={this.selected.org ? [this.selected.org] : []}
                         onSelect={(e) => {
                             this.selectOrg(e)}}
+                        boldOnSelected
                     />
                 </div>
                 <div class="select-ref" style={{ visibility: this.fasta_refs.length ? "visible" : "hidden"}}>
@@ -50,9 +52,14 @@ export class DropdownMenu{
                         selected={this.selected.ref ? [this.selected.ref] : []}
                         onSelect={(e) => {
                             this.selectRef(e)}}
+                        boldOnSelected
                     />
                 </div>
-
+                <div class="ncbi-link-div" style={{ visibility: this.selected.ref ? "visible" : "hidden"}}>
+                    <a class="ncbi-link" href={"https://www.ncbi.nlm.nih.gov/nuccore/" + (this.selected.ref ? this.selected.ref.split(".")[0] : "")} target="_blank">
+                        <i class="material-icons info-icon">pageview</i>
+                        <span> {this.selected.ref} NCBI page </span></a>
+                </div>
                 <div class="select-sgrna" style={{ visibility: this.sgrnas.length ? "visible" : "hidden"}}>
                     <mmsb-select 
                         label="Select sgRNA sequence"
@@ -60,6 +67,7 @@ export class DropdownMenu{
                         selected={this.selected.sgrna ? [this.selected.sgrna] : []}
                         onSelect={(e) => {
                             this.selectSgrna(e)}}
+                        boldOnSelected
                     />
                 </div>
                 

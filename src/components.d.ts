@@ -41,11 +41,16 @@ export namespace Components {
     interface ResultPage {
         "all_data": string;
         "complete_data": string;
+        "excluded_genomes": string[];
         "fasta_metadata": string;
         "gene"?: string;
+        "job_tag": string;
         "org_names": string;
+        "total_hits": number;
     }
     interface TableCrispr {
+        "cardAction": (click_target, sgrna: string) => void;
+        "card_selection": string[];
         "complete_data": SequenceSGRNAHit[];
         "gene": boolean;
         "onOrganismClick"?: (organism: string, sgrna: string) => void;
@@ -145,11 +150,16 @@ declare namespace LocalJSX {
     interface ResultPage {
         "all_data"?: string;
         "complete_data"?: string;
+        "excluded_genomes"?: string[];
         "fasta_metadata"?: string;
         "gene"?: string;
+        "job_tag"?: string;
         "org_names"?: string;
+        "total_hits"?: number;
     }
     interface TableCrispr {
+        "cardAction"?: (click_target, sgrna: string) => void;
+        "card_selection"?: string[];
         "complete_data"?: SequenceSGRNAHit[];
         "gene"?: boolean;
         "onOrganismClick"?: (organism: string, sgrna: string) => void;
