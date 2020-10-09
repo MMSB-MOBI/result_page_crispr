@@ -121,6 +121,7 @@ declare namespace LocalJSX {
     }
     interface DropdownMenu {
         "fasta_refs"?: string[];
+        "onDropdown-menu.display-button-click"?: (event: CustomEvent<any>) => void;
         "organisms"?: string[];
         "selectOrg"?: (org: string) => void;
         "selectRef"?: (ref: string) => void;

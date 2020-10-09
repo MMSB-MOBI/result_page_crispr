@@ -18,6 +18,13 @@
 | `sgrnas`      | --        |             | `SGRNAForOneEntry[]`      | `[]`        |
 
 
+## Events
+
+| Event                                | Description | Type               |
+| ------------------------------------ | ----------- | ------------------ |
+| `dropdown-menu.display-button-click` |             | `CustomEvent<any>` |
+
+
 ## Dependencies
 
 ### Used by
