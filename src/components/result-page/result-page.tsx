@@ -1,4 +1,4 @@
-import { Component, Prop, h, State, Listen } from '@stencil/core';
+import { Component, Prop, h, State } from '@stencil/core';
 import { SequenceSGRNAHit, OrganismHit, SGRNAForOneEntry, CurrentSelection, FastaMetadata, Coordinate } from './interfaces';
 import "@mmsb/mmsb-select";
 import download from "downloadjs";
@@ -42,10 +42,10 @@ export class ResultPage {
   @State() display_log: boolean = false;
 
 
-  @Listen('dropdown-menu.display-button-click', { target: 'window' })
-  action() {
-    this.shouldHighlight = true;
-  }
+  //@Listen('dropdown-menu.display-button-click', { target: 'window' })
+  //action() {
+  //  this.shouldHighlight = true;
+  //}
 
   componentWillLoad() {
     //Initialize data
