@@ -41,7 +41,7 @@ export namespace Components {
     interface ResultPage {
         "all_data": string;
         "complete_data": string;
-        "excluded_genomes": string[];
+        "excluded_names": string;
         "fasta_metadata": string;
         "gene"?: string;
         "job_tag": string;
@@ -49,7 +49,8 @@ export namespace Components {
         "total_hits": number;
     }
     interface TableCrispr {
-        "cardAction": (click_target, sgrna: string) => void;
+        "cardAction": (click_target, sgrna: string[]) => void;
+        "cardAllAction": () => void;
         "card_selection": string[];
         "complete_data": SequenceSGRNAHit[];
         "gene": boolean;
@@ -150,7 +151,7 @@ declare namespace LocalJSX {
     interface ResultPage {
         "all_data"?: string;
         "complete_data"?: string;
-        "excluded_genomes"?: string[];
+        "excluded_names"?: string;
         "fasta_metadata"?: string;
         "gene"?: string;
         "job_tag"?: string;
@@ -158,7 +159,8 @@ declare namespace LocalJSX {
         "total_hits"?: number;
     }
     interface TableCrispr {
-        "cardAction"?: (click_target, sgrna: string) => void;
+        "cardAction"?: (click_target, sgrna: string[]) => void;
+        "cardAllAction"?: () => void;
         "card_selection"?: string[];
         "complete_data"?: SequenceSGRNAHit[];
         "gene"?: boolean;

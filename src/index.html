@@ -42,6 +42,7 @@
     node.setAttribute("gene", JSON.stringify(results_json["gene"]))
     node.setAttribute("job_tag", results_json["tag"])
     node.setAttribute("total_hits", results_json["number_hits"])
+    node.setAttribute("excluded_names", results_json["not_in"])
 
     document.body.appendChild(node)
     //document.getElementsByTagName('genomic-card')[0].setAttribute('size', '{"Buchnera aphidicola (Cinara tujafilina) GCF_000217635.1":{"NC_015662.1":800}}')

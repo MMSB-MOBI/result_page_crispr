@@ -2,7 +2,6 @@
     display:grid; 
     grid-template-columns:10em 30em; 
     column-gap: 1em;
-    height:14vh; 
     grid-template-areas:
         "button select-org"
         "button select-ref"
