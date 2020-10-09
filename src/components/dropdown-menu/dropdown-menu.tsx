@@ -1,4 +1,4 @@
-import {Component, h, Prop, State} from '@stencil/core';
+import {Component, h, Prop, State, Event, EventEmitter} from '@stencil/core';
 import {SGRNAForOneEntry, CurrentSelection } from '../result-page/interfaces';
 
 @Component({
@@ -19,14 +19,14 @@ export class DropdownMenu{
     @Prop() selectRef: (ref:string) => void; 
     @Prop() selectSgrna: (sgrna:string) => void; 
 
-    //@Event({ eventName: 'dropdown-menu.display-button-click' }) onClickHighlightButton: EventEmitter;
+    @Event({ eventName: 'dropdown-menu.display-button-click' }) onClickHighlightButton: EventEmitter;
 
     render(){
         return (
             <div class="dropdown-menu-root">
                 <button class="highlight-sgrna-button" 
                     style={{visibility : this.selected.sgrna ? "visible" : "hidden"}}
-                    //onClick={() => {this.onClickHighlightButton.emit()}}
+                    onClick={() => {this.onClickHighlightButton.emit()}}
                     > 
                     <div class = "inside-sgrna-button"> 
                         <i class="material-icons" style={{ float: 'left'}}>arrow_left</i>
