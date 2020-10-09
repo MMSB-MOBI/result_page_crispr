@@ -734,7 +734,6 @@ export class CircularBarplot{
 
         gene_triangles.map(triangle => {
            const triangle_start = (triangle.start + ((triangle.end - triangle.start) / 2)) - triangle_length / 2 
-           console.log("triangle genes", triangle.genes.length)
            const triangle_gap = triangle.genes.length >= points_per_row ? triangle_length / points_per_row : triangle_length / triangle.genes.length
            const point_start = triangle_gap / 2
 
@@ -831,7 +830,6 @@ export class CircularBarplot{
     recenterTriangles(triangles:{"start":number, "end":number, "genes":Coordinate[]}[]):{"start":number, "end":number, "genes":Coordinate[]}[]{
         let new_triangles = []; 
         triangles.forEach(triangle => {
-            console.log(triangle);
             if (triangle.genes.length === 1) new_triangles.push(triangle)
             else{
                 const start_mean = triangle.genes.reduce((acc,val) => acc + val.start ,0) / triangle.genes.length

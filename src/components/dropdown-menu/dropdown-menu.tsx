@@ -23,7 +23,6 @@ export class DropdownMenu{
     @Event({ eventName: 'dropdown-menu.display-button-click' }) onClickHighlightButton: EventEmitter;
 
     render(){
-        console.log(this.fasta_refs)
         return (
             <div class="dropdown-menu-root">
                 <button class="highlight-sgrna-button" 

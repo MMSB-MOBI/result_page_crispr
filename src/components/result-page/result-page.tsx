@@ -204,7 +204,6 @@ export class ResultPage {
   }
 
   addToCard(sgrnas: string[]) {
-    console.log("add to card")
     this.select_card = this.select_card.concat(sgrnas);
     //Reassign to triger state
   }
@@ -237,7 +236,6 @@ export class ResultPage {
   displayCard() {
     if (this.isCompleteSelection()) {
       const coordinates = this.getCoordinates(this.selected.sgrna)
-      console.log(coordinates)
       return <div class="genomic-card">
         <div class="genome-rep">
           <circular-barplot
@@ -276,8 +274,6 @@ export class ResultPage {
   }
 
   displayExcluded(){
-    console.log(this.excluded_genomes)
-    console.log("yo", this.excluded_genomes.length)
     if (this.excluded_genomes[0] === ""){
         return <span> No excluded genomes</span>
     }
@@ -287,14 +283,9 @@ export class ResultPage {
   }
 
   render() {
-    console.log("render result-page");
-    console.log(this.display_log)
     // @ts-ignore
     window.result_page = this;
-    /*console.log("RENDER")
-    console.log("org",this.organisms); 
-    console.log("ref", this.current_references); 
-    console.log("sgrna", this.current_sgrnas)*/
+
     return (
       <div class="root">
         <div class="header">
@@ -365,11 +356,6 @@ export class ResultPage {
               if ((target as HTMLInputElement).checked) this.addToCard(sgrnas);
               else this.removeFromCard(sgrnas);
             }}
-            cardAllAction={() => {
-              console.log("OO", this.current_sgrnas)
-            }
-
-            }
           />
         </div>
         <div class="right-panel">

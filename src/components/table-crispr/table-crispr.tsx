@@ -155,7 +155,6 @@ export class TableCrispr {
   }
 
   componentDidUpdate(){
-    console.log("didUpdate", this.card_selection);
     this.conserveCheckbox();
   }
 
@@ -346,7 +345,6 @@ export class TableCrispr {
   }
 
   getBackground(selected:boolean, checkbox_selected:boolean):string{
-    console.log("get background", selected, checkbox_selected)
     if(selected && this.shouldHighlight) return "red"; 
     else if (checkbox_selected) return "yellow"; 
     else return "" 
