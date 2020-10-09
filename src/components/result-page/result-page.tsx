@@ -55,9 +55,9 @@ export class ResultPage {
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     this.organisms = this.org_names.split("&");
     this.excluded_genomes = this.excluded_names.split("&"); 
-    if (this.gene !== 'undefined') {
-      this.gene_json = JSON.parse(this.gene);
-    }
+    //if (this.gene !== 'undefined') {
+    //  this.gene_json = JSON.parse(this.gene);
+    //}
 
 
     /*const org = this.tableCrisprOrganisms[0];
