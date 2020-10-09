@@ -360,7 +360,6 @@ export class ResultPage {
         </div>
         <div class="right-panel">
           <div class="first-line">
-            <div class="dropdown-menu">
               <dropdown-menu
                 organisms={this.organisms}
                 fasta_refs={this.current_references}
@@ -400,7 +399,6 @@ export class ResultPage {
                   }
                 }}
               />
-            </div>
             {this.displayCoords()}
           </div>
 
