@@ -32,12 +32,6 @@ export namespace Components {
         "selected": CurrentSelection;
         "sgrnas": SGRNAForOneEntry[];
     }
-    interface GenomicCard {
-        "current_references": string[];
-        "current_sgrnas": SGRNAForOneEntry[];
-        "organisms": string[];
-        "selected": CurrentSelection;
-    }
     interface ResultPage {
         "all_data": string;
         "complete_data": string;
@@ -85,12 +79,6 @@ declare global {
         prototype: HTMLDropdownMenuElement;
         new (): HTMLDropdownMenuElement;
     };
-    interface HTMLGenomicCardElement extends Components.GenomicCard, HTMLStencilElement {
-    }
-    var HTMLGenomicCardElement: {
-        prototype: HTMLGenomicCardElement;
-        new (): HTMLGenomicCardElement;
-    };
     interface HTMLResultPageElement extends Components.ResultPage, HTMLStencilElement {
     }
     var HTMLResultPageElement: {
@@ -108,7 +96,6 @@ declare global {
         "circular-barplot-legend": HTMLCircularBarplotLegendElement;
         "coord-box": HTMLCoordBoxElement;
         "dropdown-menu": HTMLDropdownMenuElement;
-        "genomic-card": HTMLGenomicCardElement;
         "result-page": HTMLResultPageElement;
         "table-crispr": HTMLTableCrisprElement;
     }
@@ -142,12 +129,6 @@ declare namespace LocalJSX {
         "selected"?: CurrentSelection;
         "sgrnas"?: SGRNAForOneEntry[];
     }
-    interface GenomicCard {
-        "current_references"?: string[];
-        "current_sgrnas"?: SGRNAForOneEntry[];
-        "organisms"?: string[];
-        "selected"?: CurrentSelection;
-    }
     interface ResultPage {
         "all_data"?: string;
         "complete_data"?: string;
@@ -174,7 +155,6 @@ declare namespace LocalJSX {
         "circular-barplot-legend": CircularBarplotLegend;
         "coord-box": CoordBox;
         "dropdown-menu": DropdownMenu;
-        "genomic-card": GenomicCard;
         "result-page": ResultPage;
         "table-crispr": TableCrispr;
     }
@@ -187,7 +167,6 @@ declare module "@stencil/core" {
             "circular-barplot-legend": LocalJSX.CircularBarplotLegend & JSXBase.HTMLAttributes<HTMLCircularBarplotLegendElement>;
             "coord-box": LocalJSX.CoordBox & JSXBase.HTMLAttributes<HTMLCoordBoxElement>;
             "dropdown-menu": LocalJSX.DropdownMenu & JSXBase.HTMLAttributes<HTMLDropdownMenuElement>;
-            "genomic-card": LocalJSX.GenomicCard & JSXBase.HTMLAttributes<HTMLGenomicCardElement>;
             "result-page": LocalJSX.ResultPage & JSXBase.HTMLAttributes<HTMLResultPageElement>;
             "table-crispr": LocalJSX.TableCrispr & JSXBase.HTMLAttributes<HTMLTableCrisprElement>;
         }

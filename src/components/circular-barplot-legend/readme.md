@@ -16,12 +16,12 @@
 
 ### Used by
 
- - [genomic-card](../genomic-card)
+ - [result-page](../result-page)
 
 ### Graph
 ```mermaid
 graph TD;
-  genomic-card --> circular-barplot-legend
+  result-page --> circular-barplot-legend
   style circular-barplot-legend fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

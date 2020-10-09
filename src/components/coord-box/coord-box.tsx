@@ -1,5 +1,5 @@
-import {Component, h, Prop, State, Event, EventEmitter} from '@stencil/core';
-import {SGRNAForOneEntry, CurrentSelection } from '../result-page/interfaces';
+import {Component, h, Prop, Event, EventEmitter} from '@stencil/core';
+import {CurrentSelection } from '../result-page/interfaces';
 
 @Component({
     tag: 'coord-box',

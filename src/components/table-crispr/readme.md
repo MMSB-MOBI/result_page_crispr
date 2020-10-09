@@ -7,20 +7,17 @@
 
 ## Properties
 
-| Property          | Attribute          | Description | Type                                        | Default     |
-| ----------------- | ------------------ | ----------- | ------------------------------------------- | ----------- |
-| `complete_data`   | --                 |             | `SequenceSGRNAHit[]`                        | `undefined` |
-| `gene`            | `gene`             |             | `boolean`                                   | `undefined` |
-| `onOrganismClick` | --                 |             | `(organism: string, sgrna: string) => void` | `undefined` |
-| `selected`        | --                 |             | `CurrentSelection`                          | `undefined` |
-| `shouldHighlight` | `should-highlight` |             | `boolean`                                   | `undefined` |
-
-
-## Events
-
-| Event                    | Description | Type               |
-| ------------------------ | ----------- | ------------------ |
-| `table-crispr.org-click` |             | `CustomEvent<any>` |
+| Property          | Attribute          | Description | Type                                           | Default     |
+| ----------------- | ------------------ | ----------- | ---------------------------------------------- | ----------- |
+| `cardAction`      | --                 |             | `(click_target: any, sgrna: string[]) => void` | `undefined` |
+| `cardAllAction`   | --                 |             | `() => void`                                   | `undefined` |
+| `card_selection`  | --                 |             | `string[]`                                     | `undefined` |
+| `complete_data`   | --                 |             | `SequenceSGRNAHit[]`                           | `undefined` |
+| `gene`            | `gene`             |             | `boolean`                                      | `undefined` |
+| `onOrganismClick` | --                 |             | `(organism: string, sgrna: string) => void`    | `undefined` |
+| `reinitSelection` | --                 |             | `() => void`                                   | `undefined` |
+| `selected`        | --                 |             | `CurrentSelection`                             | `undefined` |
+| `shouldHighlight` | `should-highlight` |             | `boolean`                                      | `undefined` |
 
 
 ## Dependencies
