@@ -204,7 +204,8 @@ export class ResultPage {
   }
 
   addToCard(sgrnas: string[]) {
-    this.select_card = this.select_card.concat(sgrnas);
+    const all_select_card = this.select_card.concat(sgrnas);
+    this.select_card = all_select_card .filter((item, pos) => all_select_card.indexOf(item) === pos) //Array with unique elements
     //Reassign to triger state
   }
 
