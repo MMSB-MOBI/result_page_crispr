@@ -112,6 +112,10 @@ input {
     text-align: center;
 }
 
+.sg-occ{
+    text-align:center;
+}
+
 .sgrna-organism {
     padding: 3px;
     width:80%; 

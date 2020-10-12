@@ -412,7 +412,8 @@ export class TableCrispr {
                 <span>Occurences number</span>
                 <i class={"material-icons table-sort-icon " + (this.sort_type === "Occurences" ? "highlighted" : "")}>keyboard_arrow_down</i>
             </th>
-            <th>Selection ({this.card_selection.length}) 
+            <th rowSpan={this.gene ? 2: 1}>
+              Selection ({this.card_selection.length}) 
             <input type="checkbox" class="all-checkbox" onClick={(e) => {
                 //this.highlightSelectedOrg(e.target);
                 this.cardAction(e.target, this.currentSgrnas.map(sgrna => sgrna.seq));
@@ -420,8 +421,8 @@ export class TableCrispr {
             </th>
           </tr>
           {this.gene ? <tr>
-            <td style={{ paddingRight: '10px' }}>Inside homologous gene(s)</td>
-            <td>Outside homologous gene(s)</td>
+            <td style={{ paddingRight: '10px' }} class="sg-occ">Inside homologous gene(s)</td>
+            <td class="sg-occ">Outside homologous gene(s)</td>
           </tr> : ''}
         </thead>
         <tbody>
@@ -440,13 +441,13 @@ export class TableCrispr {
             <td>
               <strong>{sgrna.seq.slice(0, -3)}<span style={{ color: "rgba(239, 71, 111)" }}>{sgrna.seq.slice(-3)} </span></strong>
             </td>
-            {this.gene ? <td>
+            {this.gene ? <td class="sg-occ">
               <strong>{currentOccurences.reduce((acc, val) => acc + val.on_gene_count, 0)}</strong>
             </td> : 
-            <td colSpan={2}>
+            <td colSpan={2} class = "occ-col">
               <strong>{currentOccurences.reduce((acc, val) => acc + val.coords_count, 0)}</strong>
             </td>}
-            {this.gene ? <td>
+            {this.gene ? <td class="sg-occ">
               <strong>{currentOccurences.reduce((acc, val) => acc + val.not_on_gene_count, 0)}</strong>
             </td> : ''} 
             <td>
@@ -473,8 +474,8 @@ export class TableCrispr {
             >
             {o.name}
             </td>
-              {this.gene ? <td> {o.on_gene_count}</td> : <td colSpan={2}>{o.coords_count}</td>}
-              {this.gene ? <td> {o.not_on_gene_count}</td> : ''}
+              {this.gene ? <td class="sg-occ"> {o.on_gene_count}</td> : <td colSpan={2}>{o.coords_count}</td>}
+              {this.gene ? <td class="sg-occ"> {o.not_on_gene_count}</td> : ''}
             <td />
             </tr>)             
           })}
