@@ -1,6 +1,6 @@
 .dropdown-menu-root{
     display:grid; 
-    grid-template-columns:10em 30em; 
+    grid-template-columns:8em 30em; 
     column-gap: 1em;
     grid-template-areas:
         "button select-org"
