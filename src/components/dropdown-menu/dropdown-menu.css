@@ -18,14 +18,18 @@
     grid-area:select-ref;
 }
 
-.ncbi-link{
-  grid-area:ncbi-link;
-  display:flex;
-  align-items:center;
+.link{
   padding-bottom: 0.5em;
   padding-top:0.5em;
   padding-left:0.5em; 
   color:#4d4d4d; 
+  display:flex; 
+  grid-area: ncbi-link;
+}
+
+.ncbi-link{
+  display:flex;
+  align-items:center;
   text-decoration: none;
 }
 

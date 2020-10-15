@@ -21,6 +21,45 @@ export class DropdownMenu{
 
     @Event({ eventName: 'dropdown-menu.display-button-click' }) onClickHighlightButton: EventEmitter;
 
+    /*Maybe put it elsewhere
+    To check if accession is a valid refseq or genbank genomic accession
+    genbank : https://www.ncbi.nlm.nih.gov/Sequin/acc.html
+    refseq : https://www.ncbi.nlm.nih.gov/books/NBK21091/table/ch18.T.refseq_accession_numbers_and_mole/?report=objectonly
+    */
+    isValidAccession(accession: string): boolean{
+        const genbank1_regex = new RegExp('^[A-Z]{1}[0-9]{5}$');
+        const genbank2_regex = new RegExp('^[A-Z]{2}[0-9]{6}$');
+        const genbank3_regex = new RegExp('^[A-Z]{2}[0-9]{8}$');
+        const refseq_regex = new RegExp('^[NA][CGTWZ]_');
+
+        return refseq_regex.test(accession) || genbank1_regex.test(accession) || genbank2_regex.test(accession) || genbank3_regex.test(accession); 
+    }
+
+    displayNcbiLink(){
+        if (this.selected.ref){
+            const cut_ref = this.selected.ref.split(".")[0]
+            if (this.isValidAccession(cut_ref)){
+                return <div class="link">
+                    <a class="ncbi-link" href={"https://www.ncbi.nlm.nih.gov/nuccore/" + (cut_ref)} target="_blank">
+                <i class="material-icons info-icon">pageview</i>
+                <span> {this.selected.ref} NCBI page </span></a>
+                </div>
+            }
+            else{
+                return <div class="link"> 
+                
+                <a class="ncbi-link" href={"https://www.ncbi.nlm.nih.gov/nuccore/"} target="_blank">
+                <i class="material-icons info-icon">pageview</i>
+                <span> General NCBI nucleotide page </span></a> 
+                <span> This accession is not a valid RefSeq or GenBank genomic accession</span></div>
+                
+            }
+        }
+        else
+            return
+        
+    }
+
     render(){
         return (
             <div class="dropdown-menu-root">
@@ -55,9 +94,7 @@ export class DropdownMenu{
                     />
                 </div>
                 <div class="ncbi-link-div" style={{ visibility: this.selected.ref ? "visible" : "hidden"}}>
-                    <a class="ncbi-link" href={"https://www.ncbi.nlm.nih.gov/nuccore/" + (this.selected.ref ? this.selected.ref.split(".")[0] : "")} target="_blank">
-                        <i class="material-icons info-icon">pageview</i>
-                        <span> {this.selected.ref} NCBI page </span></a>
+                    {this.displayNcbiLink()}
                 </div>
                 <div class="select-sgrna" style={{ visibility: this.sgrnas.length ? "visible" : "hidden"}}>
                     <mmsb-select 
