@@ -28,6 +28,7 @@
 }
 
 .ncbi-link{
+  color:#4d4d4d; 
   display:flex;
   align-items:center;
   text-decoration: none;
