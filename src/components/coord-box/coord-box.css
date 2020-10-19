@@ -1,5 +1,7 @@
 .coord-box-root{
-    height:14vh;
+    height:12.6rem;
+    display:flex;
+    flex-direction:column;
 
 }
 
@@ -10,7 +12,7 @@
 
 .coord-box-content {
     margin-bottom: 17px;
-    height:12.8vh; 
+    height:100%; 
     overflow: auto;
     white-space: pre-line;
     line-height: 1.3em;
