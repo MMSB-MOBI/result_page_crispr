@@ -1,6 +1,6 @@
 {
   "name": "@mmsb/result_page",
-  "version": "3.1.2",
+  "version": "3.1.3",
   "description": "Stencil Component Starter",
   "module": "dist/index.mjs",
   "main": "dist/index.js",
