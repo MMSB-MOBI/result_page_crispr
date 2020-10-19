@@ -94,7 +94,7 @@ export class ResultPage {
   loadGenes(){
     const gene_json = JSON.parse(this.gene)
     
-    Object.entries(gene_json).forEach(([org,ref]) => {
+    Object.values(gene_json).forEach((ref) => {
       let gene_number = 0; 
       Object.values(ref).forEach(
         coord => {
