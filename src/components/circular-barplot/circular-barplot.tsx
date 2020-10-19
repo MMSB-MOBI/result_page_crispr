@@ -45,7 +45,7 @@ export class CircularBarplot{
     gene_color:string; 
     coord_color:string; 
 
-    current_gene?:{"start":number, "end":number, "gene_in_triangle":number, "gene_total":number}; 
+    current_gene?
     current_rotation_angle?:number
 
     @Watch('selected_sgrna_coordinates')
@@ -544,13 +544,12 @@ export class CircularBarplot{
             .attr("font-size", "3px")
             .attr("fill", this.gene_color)
 
-        
         this.svg.select(".detailed-barplot")
             .append("text")
             .attr("class", "gene-name")
-            .text(`Homologous gene ${this.current_gene.gene_total + 1}`)
+            .text(`Homologous gene ${this.current_gene.gene_number}`)
             .attr("fill", "black")
-            .attr("y", - this.barplot_gene_end)
+            .attr("y", - this.barplot_gene_end -1 )
             .attr("text-anchor", "middle")
             .attr("font-size", "4px")
         

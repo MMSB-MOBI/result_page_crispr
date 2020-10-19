@@ -56,7 +56,7 @@ export class ResultPage {
     this.organisms = this.org_names.split("&");
     this.excluded_genomes = this.excluded_names.split("&"); 
     if (this.gene !== undefined) {
-      this.gene_json = JSON.parse(this.gene);
+      this.gene_json = this.loadGenes();
     }
 
 
@@ -89,6 +89,19 @@ export class ResultPage {
           .forEach(ref => ref.coords = Object.values(ref.coords))));
 
     return sequence_data
+  }
+
+  loadGenes(){
+    const gene_json = JSON.parse(this.gene)
+    
+    Object.entries(gene_json).forEach(([org,ref]) => {
+      let gene_number = 0; 
+      Object.values(ref).forEach(
+        coord => {
+          coord.map(c => {gene_number = gene_number + 1; c.gene_number = gene_number})
+      }); 
+    })
+    return gene_json
   }
 
   /**
@@ -182,7 +195,7 @@ export class ResultPage {
    * @param ref : reference of fasta subsequence
    */
   getGenesCoordinates(org: string, ref: string): Coordinate[] {
-    return this.gene_json[org][ref]
+    return this.gene_json[org][ref];
   }
 
   getCoordinates(sgrna: string): string[] {
