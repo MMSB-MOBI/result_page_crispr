@@ -36,7 +36,7 @@ export class ResultPage {
   fasta_metadata_json: FastaMetadata[]; //Need to be typed
   current_genes?: Coordinate[];
   organisms: string[];
-  excluded_genomes: string[]; 
+  excluded_genomes: string[];
   @State() select_card: string[] = [];
 
   @State() display_log: boolean = false;
@@ -54,7 +54,7 @@ export class ResultPage {
     this.organism_data = this.formatOrganismData();
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     this.organisms = this.org_names.split("&");
-    this.excluded_genomes = this.excluded_names.split("&"); 
+    this.excluded_genomes = this.excluded_names.split("&");
     if (this.gene !== undefined) {
       this.gene_json = this.loadGenes();
     }
@@ -83,6 +83,7 @@ export class ResultPage {
 
   loadSequenceData(): SequenceSGRNAHit[] {
     let sequence_data = JSON.parse(this.complete_data)
+
     sequence_data
       .forEach(e => e.occurences
         .forEach(occ => occ.all_ref
@@ -91,15 +92,15 @@ export class ResultPage {
     return sequence_data
   }
 
-  loadGenes(){
+  loadGenes() {
     const gene_json = JSON.parse(this.gene)
-    
+
     Object.values(gene_json).forEach((ref) => {
-      let gene_number = 0; 
+      let gene_number = 0;
       Object.values(ref).forEach(
         coord => {
-          coord.map(c => {gene_number = gene_number + 1; c.gene_number = gene_number})
-      }); 
+          coord.map(c => { gene_number = gene_number + 1; c.gene_number = gene_number })
+        });
     })
     return gene_json
   }
@@ -108,7 +109,8 @@ export class ResultPage {
    * Format raw json organisms data to OrganismHit[] for easier manipulation
    */
   formatOrganismData(): OrganismHit[] {
-    const data_parsed = JSON.parse(this.all_data)
+    const data_parsed = this.all_data ? typeof this.all_data === 'object' : JSON.parse(this.all_data); // JSON.parse(this.all_data);
+    
     return Object.entries(data_parsed)
       .map(org_entry => {
         const org = org_entry[0];
@@ -218,7 +220,7 @@ export class ResultPage {
 
   addToCard(sgrnas: string[]) {
     const all_select_card = this.select_card.concat(sgrnas);
-    this.select_card = all_select_card .filter((item, pos) => all_select_card.indexOf(item) === pos) //Array with unique elements
+    this.select_card = all_select_card.filter((item, pos) => all_select_card.indexOf(item) === pos) //Array with unique elements
     //Reassign to triger state
   }
 
@@ -287,11 +289,11 @@ export class ResultPage {
     }
   }
 
-  displayExcluded(){
-    if (this.excluded_genomes[0] === ""){
-        return <span> No excluded genomes</span>
+  displayExcluded() {
+    if (this.excluded_genomes[0] === "") {
+      return <span> No excluded genomes</span>
     }
-    else{
+    else {
       return [<span>Excluded genomes </span>, <div class="excluded-list"> {this.excluded_genomes.join(";")} </div>]
     }
   }
@@ -314,7 +316,7 @@ export class ResultPage {
                 <span>Displayed hits : {this.sequence_data_json.length}</span>
               </div>
               <div class="second-col">
-                {this.displayExcluded()} 
+                {this.displayExcluded()}
               </div>
             </div>
 
@@ -374,45 +376,45 @@ export class ResultPage {
         </div>
         <div class="right-panel">
           <div class="first-line">
-              <dropdown-menu
-                organisms={this.organisms}
-                fasta_refs={this.current_references}
-                sgrnas={this.current_sgrnas}
-                selected={this.selected}
-                selectOrg={(org) => {
-                  this.shouldHighlight = false;
-                  this.current_references = this.getReferences(org);
-                  this.current_sgrnas = [];
-                  this.selected = {
-                    org,
-                    sgrna: undefined,
-                    ref: undefined,
-                    size: undefined,
-                    fasta_header: undefined,
-                  }
-                }}
-                selectRef={(ref) => {
-                  this.current_sgrnas = this.getSgrnas(this.selected.org, ref);
-                  this.current_genes = this.gene_json ? this.getGenesCoordinates(this.selected.org, ref) : undefined;
-                  this.shouldHighlight = false;
-                  this.selected = {
-                    ...this.selected,
-                    sgrna: undefined,
-                    ref,
-                    size: undefined,
-                    fasta_header: undefined,
-                  }
-                }}
-                selectSgrna={(sgrna) => {
-                  this.shouldHighlight = false;
-                  this.selected = {
-                    ...this.selected,
-                    sgrna,
-                    size: this.getSize(this.selected.org, this.selected.ref),
-                    fasta_header: this.getFastaHeader(this.selected.org, this.selected.ref),
-                  }
-                }}
-              />
+            <dropdown-menu
+              organisms={this.organisms}
+              fasta_refs={this.current_references}
+              sgrnas={this.current_sgrnas}
+              selected={this.selected}
+              selectOrg={(org) => {
+                this.shouldHighlight = false;
+                this.current_references = this.getReferences(org);
+                this.current_sgrnas = [];
+                this.selected = {
+                  org,
+                  sgrna: undefined,
+                  ref: undefined,
+                  size: undefined,
+                  fasta_header: undefined,
+                }
+              }}
+              selectRef={(ref) => {
+                this.current_sgrnas = this.getSgrnas(this.selected.org, ref);
+                this.current_genes = this.gene_json ? this.getGenesCoordinates(this.selected.org, ref) : undefined;
+                this.shouldHighlight = false;
+                this.selected = {
+                  ...this.selected,
+                  sgrna: undefined,
+                  ref,
+                  size: undefined,
+                  fasta_header: undefined,
+                }
+              }}
+              selectSgrna={(sgrna) => {
+                this.shouldHighlight = false;
+                this.selected = {
+                  ...this.selected,
+                  sgrna,
+                  size: this.getSize(this.selected.org, this.selected.ref),
+                  fasta_header: this.getFastaHeader(this.selected.org, this.selected.ref),
+                }
+              }}
+            />
             {this.displayCoords()}
           </div>
 
