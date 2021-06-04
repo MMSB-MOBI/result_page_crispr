@@ -55,6 +55,7 @@ export class ResultPage {
     this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
     this.organisms = this.org_names.split("&");
     this.excluded_genomes = this.excluded_names.split("&");
+
     if (this.gene !== undefined) {
       this.gene_json = this.loadGenes();
     }
@@ -93,7 +94,7 @@ export class ResultPage {
   }
 
   loadGenes() {
-    const gene_json = JSON.parse(this.gene)
+    const gene_json = this.gene ? typeof this.gene === 'object' : JSON.parse(this.gene);
 
     Object.values(gene_json).forEach((ref) => {
       let gene_number = 0;
@@ -109,8 +110,8 @@ export class ResultPage {
    * Format raw json organisms data to OrganismHit[] for easier manipulation
    */
   formatOrganismData(): OrganismHit[] {
-    const data_parsed = this.all_data ? typeof this.all_data === 'object' : JSON.parse(this.all_data); // JSON.parse(this.all_data);
-    
+    const data_parsed = this.all_data ? typeof this.all_data === 'object' : JSON.parse(this.all_data);
+
     return Object.entries(data_parsed)
       .map(org_entry => {
         const org = org_entry[0];
