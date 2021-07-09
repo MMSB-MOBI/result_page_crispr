@@ -110,7 +110,8 @@ export class ResultPage {
    * Format raw json organisms data to OrganismHit[] for easier manipulation
    */
   formatOrganismData(): OrganismHit[] {
-    const data_parsed = this.all_data ? typeof this.all_data === 'object' : JSON.parse(this.all_data);
+    console.log("all_data type", typeof(this.all_data))
+    const data_parsed = this.all_data && typeof this.all_data === 'object' ? this.all_data : JSON.parse(this.all_data);
 
     return Object.entries(data_parsed)
       .map(org_entry => {
