@@ -12,11 +12,11 @@ import download from "downloadjs";
 export class ResultPage {
   // *************************** PROPERTY & CONSTRUCTOR ***************************
   //@Element() private element: HTMLElement;
-  @Prop() complete_data: string;
-  @Prop() all_data: string;
+  @Prop() complete_data: string; //can be object
+  @Prop() all_data: string //can be object;
   @Prop() org_names: string;
-  @Prop() gene?: string;
-  @Prop() fasta_metadata: string;
+  @Prop() gene?: string; //can be object
+  @Prop() fasta_metadata: string; //can be object
   @Prop() job_tag: string;
   @Prop() total_hits: number;
   @Prop() excluded_names: string;
@@ -52,7 +52,7 @@ export class ResultPage {
     //this.tableCrisprOrganisms = this.org_names.split("&");
     this.sequence_data_json = this.loadSequenceData();
     this.organism_data = this.formatOrganismData();
-    this.fasta_metadata_json = JSON.parse(this.fasta_metadata)
+    this.fasta_metadata_json = typeof this.fasta_metadata === "object" ? this.fasta_metadata : JSON.parse(this.fasta_metadata)
     this.organisms = this.org_names.split("&");
     this.excluded_genomes = this.excluded_names.split("&");
 
@@ -83,7 +83,7 @@ export class ResultPage {
   }
 
   loadSequenceData(): SequenceSGRNAHit[] {
-    let sequence_data = JSON.parse(this.complete_data)
+    let sequence_data = typeof this.complete_data === "object" ? this.complete_data : JSON.parse(this.complete_data)
 
     sequence_data
       .forEach(e => e.occurences
@@ -94,7 +94,7 @@ export class ResultPage {
   }
 
   loadGenes() {
-    const gene_json = this.gene ? typeof this.gene === 'object' : JSON.parse(this.gene);
+    const gene_json = this.gene && typeof this.gene === 'object' ? this.gene : JSON.parse(this.gene);
 
     Object.values(gene_json).forEach((ref) => {
       let gene_number = 0;
@@ -110,7 +110,6 @@ export class ResultPage {
    * Format raw json organisms data to OrganismHit[] for easier manipulation
    */
   formatOrganismData(): OrganismHit[] {
-    console.log("all_data type", typeof(this.all_data))
     const data_parsed = this.all_data && typeof this.all_data === 'object' ? this.all_data : JSON.parse(this.all_data);
 
     return Object.entries(data_parsed)
