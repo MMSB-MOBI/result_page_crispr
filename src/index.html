@@ -34,7 +34,7 @@
     results_json = JSON.parse(results)
     let node = document.createElement("result-page")
     console.log("index.html", typeof results_json["data_card"])
-    node.setAttribute('all_data', results_json["data_card"]);
+    node.setAttribute('all_data', JSON.stringify(results_json["data_card"]));
     node.setAttribute('org_names', results_json["gi"])
     //node.setAttribute("diagonal_svg", results_json["diagonal_svg"])
     node.setAttribute("size", JSON.stringify(results_json["size"]))
