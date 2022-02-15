@@ -250,6 +250,18 @@ export class ResultPage {
     }
   }
 
+  downloadAllResults(){
+    fetch(`/download/${this.job_tag}`, {method: 'GET'})
+      .then(async (resp) => {
+        const blob = await resp.blob(); 
+        download(blob, `${this.job_tag}_results.tsv`, "text/plain")
+      })
+      .catch((err) => {
+        console.error(err)
+        alert("Can't download results file")
+      })
+  }
+
   displayCard() {
     if (this.isCompleteSelection()) {
       const coordinates = this.getCoordinates(this.selected.sgrna)
@@ -328,7 +340,7 @@ export class ResultPage {
           <div class="download w3-dropdown-hover">
             <span class="download-dropdown-header"> Download results</span>
             <div class="w3-dropdown-content w3-bar-block w3-border">
-              <a href={`download/${this.job_tag}`} class="w3-bar-item w3-button">All raw results</a>
+              <a href="#" class="w3-bar-item w3-button" onClick={() => this.downloadAllResults()}>All raw results</a>
               <a href="#" class="w3-bar-item w3-button" onClick={() => this.createSelectionFile()}>Selected sgRNAs</a>
             </div>
 
